@@ -4,9 +4,10 @@
 #let Poisson = "Pois"
 #let Hypergeometric = "Hypergeom"
 #let Geometric = "Geom"
+#set page(numbering: "1")
 
 #align(right, text(12pt)[
-  FGV - EMAP
+  help
 ])
 
 #align(center, text(17pt)[
@@ -14,6 +15,24 @@
 
   #datetime.today().display("[day]/[month]/[year]")
 ])
+
+For the statements below, consider $E = (Omega, P)$ a given probability space.
+= Fundamentals
+== Baye's Theorem and LOTP
+
+Baye's theorem states that $forall A,B subset Omega$:
+
+$
+  P(A|B) = (P(B|A)  P(A)) / P(B)
+$
+
+This follows directly from the #text(weight: "bold")[Law of Total Probability(LOTP)]:
+
+$
+  P(A) = sum_(i = 1)^n P(A|B_i) P(B_i) = sum_(i = 1)^n P(A inter B_i).
+$
+
+Notice that the function $P_C: Omega -> [0,1]$, $P_C (A) = P(A|C)$, given $C subset Omega$ is also a probability in the same space $E$, so both Baye's theorem and LOTP assume conditional versions written in terms of $P_C$.
 
 = Discrete Distributions
 
@@ -91,7 +110,7 @@ $
   P(X <= k) = 1 - P(X > k) = 1 - q^k.
 $
 
-The Expected Value and Variance (trust us on this one):
+The Expected Value and Variance:
 
 $
   E(X) = sum_(phi in RR) phi P(X = phi) = sum_(phi in RR) phi p (1-p)^(phi -1) = 1/p\
@@ -121,3 +140,54 @@ $
   V(X) = n p q 
 $
 
+
+== Poisson 
+=== Story
+
+The Poisson distribution is often used in situations where we are counting the number of successes in a particular region or interval of time, and there are a large number of trials, each with a small probability of success. For example, the following random variables could follow a distribution that is approximately Poisson.
+
+- The number of emails you receive in an hour, There are a lot of people who could potentially email you in that hour, but it is unlikely that any specifc person will actually email you in that hour. Alternatively imagine subdividing the hour into milliseconds. There are 3.6⇥106 seconds in an hour, but in any specifc millisecond it is unlikely that you will get an email.
+
+- The number of chips in a chocolate chip cookie. Imagine subdividing the cookie into small cubes; the probability of getting a chocolate chip in a single cube is small, but the number of cubes is large.
+
+- The number of earthquakes in a year in some region of the world. At any given time and location, the probability of an earthquake is small, but there are a large number of possible times and locations for earthquakes to occur over the course of the year.
+
+Now we move to:
+
+=== PMF, Expected Value and Variance
+
+IF $X: Omega -> RR$ is $X ~ Poisson(lambda)$ with parameter $lambda$, then the following hold:
+
+$
+  P(X = k) = (e^(-lambda) lambda^k) / k!\
+  
+  E(X) = sum_(phi in RR) phi P(X = phi) = sum_(phi in RR) phi (e^(-lambda) lambda^phi) / phi!\
+  = e^(-lambda) sum_(phi in RR) (phi lambda^phi) / phi! = lambda e^(-lambda) sum_(phi in RR) (lambda^(phi-1)) / (phi - 1)! = lambda e^(-lambda) e^lambda = lambda.\
+
+  V(X) = E(X^2) - [E(X)]^2 = lambda (1+lambda) - lambda^2 = lambda. 
+$
+
+The conclusion $E(X^2) = lambda (1 + lambda)$ is not trivial, but it is true.
+
+We now proceed to continuous random variables,
+
+= Continuous Random variables
+== Fundamentals
+
+A random variable $X: Omega -> RR$ is said to be #text(weight: "bold")[continuous] if $Omega$ is uncountable,
+
+This is equivalent to the possible outcomes to the random experiment performed being infinite, such as choosing a #text(weight: "bold")[real] number in (0,1).
+
+A continious random variable has some interesting properties, such as the PMF being constant = 0,
+
+To see why this is true, let $X$ be a c.r.v, we know by the naive definition of probability that $P(X = k)$ is "the occurences of k in the support of X divided by the size of the sample space". But $|Omega| in.not RR$! ($= infinity$), therefore $P(X = k) = 0, forall k in RR$!
+
+WE now proceed with new concepts and a definition:
+
+=== Definition
+
+A random variable $X: Omega -> RR$ is said to be #text(weight: "bold")[continuous] if its CDF is differentiable.
+
+=== PDF, CDF of a c.r.v
+
+Let $X: Omega -> RR$ be a c.r.v with a differentiable $F: RR -> [0,1]$ CDF, let $epsilon > 0$

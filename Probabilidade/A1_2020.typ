@@ -13,7 +13,7 @@
 #set page(numbering: "1")
 
 #align(right, text(12pt)[
-  FGV - EMAP
+  FGV - EMAp
 ])
 
 
