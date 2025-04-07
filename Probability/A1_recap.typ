@@ -1,9 +1,12 @@
-#let supp = "supp"
+#let Support = "supp"
 #let Bernoulli = "Bern"
 #let Binomial = "Bin"
 #let Poisson = "Pois"
 #let Hypergeometric = "Hypergeom"
 #let Geometric = "Geom"
+#let Image = "Im"
+#let StandardDeviation = "SD"
+#let Covariance = "Cov"
 #set page(numbering: "1")
 
 #align(right, text(12pt)[
@@ -36,6 +39,107 @@ Given $B_i$ a partition of $Omega$.
 
 Notice that the function $P_C: Omega -> [0,1]$, $P_C (A) = P(A|C)$, given $C subset Omega$ is also a probability in the same space $E$, so both Baye's theorem and LOTP assume conditional versions written in terms of $P_C$.
 
+== Discrete Random Variables, Indicator Random Variables
+A #text(weight: "bold")[Discrete Random Variable] is a function $X: Omega -> RR$, with $Image(X)$ a countable set. A good example is the amount of heads in 4 tosses of a fair coin:
+
+$
+  X(H H H H) = 4\
+  X( H T H H) = 3\
+  dots
+$
+
+The values $X$ for which a random variable assumes positive values have a special name: the #text(weight: "bold")[support of X]
+
+$
+  Support(X) := {phi in RR | P(X = phi) > 0}
+$
+
+
+Random variables are very useful in probability, and there is a category of them so useful and ubiquituous that it has its own name:
+
+An #text(weight: "bold")[Indicator Random Variable] of $A subset Omega$ is $I_A: Omega -> RR$ defined below:
+
+$
+  I_A = cases(1 "if A occurs", 0 "otherwise,")
+$
+
+This will be of particular use after we define Expected Values:
+
+== Expected Value and Variance
+
+The expected value of a discrete random variable can be seen as a weighted sum of all possible values of $X$:
+
+$
+  E(X) := sum_(phi in RR) phi P(X = phi)
+$
+
+The most useful fact about indicator random variables is that the expected value of a i.r.v is the #text(weight: "bold")[probability] of the event at stake:
+
+$
+  E(I_A) = P(A).
+$
+
+This is #text(weight: "bold")[very] useful to determine hard to calculate probabilities.
+
+Functions of real variables are useful as well and derive a famous result, known as the #text(weight: "bold")[Law of the Unconscious Statistician (LOTUS)]:
+
+Let $X, Y: Omega -> RR$ be random variables and $Y = f(X), f: RR -> RR$, then:
+
+$
+  E(Y) = sum_(phi in RR) f(phi) P(X = phi)
+$
+
+The Expected Value is a linear function and has the following properties:
+
+$
+  E(a X + b) = a E(X) + b\
+  E(X + Y) = E(X) + E(Y)\
+$ and if $X$ and $Y$ are independent,
+
+$
+  E(X Y) = E(X) E(Y).
+$
+
+A good method to quantify the behaviour of a r.v is using its #text(weight: "bold")[standard deviation]:
+
+$
+  StandardDeviation(X) = E(|X - E(X)|)
+$ and the  #text(weight: "bold")[variance] and #text(weight: "bold")[mean deviation]:
+
+$
+  V(X) = E([X - E(X)]^2)\
+  sigma(X) = sqrt(V(X)).
+$
+
+The variance of a r.v has some properties too:
+
+$
+  V(a X + b) = a^2 V(X)\
+  sigma(a X + b) = |a| sigma(X)\
+  StandardDeviation(a X + b) = |a| StandardDeviation(X)
+$ and if $X$ and $Y$ are independent:
+
+$
+  V(X + Y) = V(X) + V(Y)
+$
+
+== Covariance, Correlation
+We will go straight to the definition:
+
+The #text(weight: "bold")[Covariance] of $X,Y: Omega -> RR$ is:
+
+$
+  Covariance(X, Y) = E([X - E(X) ( Y - E(Y))])
+$
+
+This is the same as $Covariance(X) = E(X Y) - E(X) E(Y)$, so the idea behind this concept is to measure how both random variables change, when analyzed together. Notice that $Covariance(X, Y) = 0$ if $X$ and $Y$ are independent, this is intuitive 
+
+Another useful concept is the #text(weight: "bold")[correlation coefficient:]
+
+$
+  rho(X, Y) = (Covariance(X, Y)) / (sigma(X) sigma(Y))
+$ You can verify that $rho(a X , b Y) = rho(X, Y), forall a,b in RR$, so the units used to measure $X,Y$ are irrelevant to their correlation coefficient.
+
 = Discrete Distributions
 
 "The key to anihilating distributions problems in exams or wherever the fuck you find them is just to remember the stories behind them, so you can morph those stories into the conditions you currently have. So take your time and get those fucking stories in your memory." 
@@ -50,7 +154,7 @@ A random variable $X: Omega -> RR$ has a #text(weight: "bold")[Bernoulli] distri
 
 === PMF, CDF, Expected Value and Variance
 
-A random variable $X: Omega -> RR$ is said to have a Bernoulli distribution if $supp(X) := {v_1 , v_2}, v_i in RR$ and X's PMF is:
+A random variable $X: Omega -> RR$ is said to have a Bernoulli distribution if $Support(X) := {v_1 , v_2}, v_i in RR$ and X's PMF is:
 
 $
   P(X = phi_1) = p\
@@ -67,7 +171,7 @@ $
  = v_1^2 p + v_2^2 (1-p) - [v_1 p + v_2 (1-p)]^2.
   
 $
-#text(weight: "bold")[P.S]: In the very common situation where $supp(X) = {1,0}$, we have $E(X) = p$ and $V(X)$ = np.
+#text(weight: "bold")[P.S]: In the very common situation where $Support(X) = {1,0}$, we have $E(X) = p$ and $V(X)$ = np.
 
 
 == Binomial
