@@ -32,13 +32,15 @@ $
   P(A) = sum_(i = 1)^n P(A|B_i) P(B_i) = sum_(i = 1)^n P(A inter B_i).
 $
 
+Given $B_i$ a partition of $Omega$.
+
 Notice that the function $P_C: Omega -> [0,1]$, $P_C (A) = P(A|C)$, given $C subset Omega$ is also a probability in the same space $E$, so both Baye's theorem and LOTP assume conditional versions written in terms of $P_C$.
 
 = Discrete Distributions
 
 "The key to anihilating distributions problems in exams or wherever the fuck you find them is just to remember the stories behind them, so you can morph those stories into the conditions you currently have. So take your time and get those fucking stories in your memory." 
 
--A guy with a P.h.D that asked not to have his name written here
+-A guy with a P.h.D that asked not to have his name written here.
 
 == Bernoulli
 
@@ -65,7 +67,7 @@ $
  = v_1^2 p + v_2^2 (1-p) - [v_1 p + v_2 (1-p)]^2.
   
 $
-Ps: In the very common situation where $supp(X) = {1,0}$, we have $E(X) = p$ and $V(X)$ = np.
+#text(weight: "bold")[P.S]: In the very common situation where $supp(X) = {1,0}$, we have $E(X) = p$ and $V(X)$ = np.
 
 
 == Binomial
@@ -88,7 +90,7 @@ $
   P(X <= k) = sum_(i=1)^k P(X = k)
 $
 
-The expected value of X is are:
+The Expected value and Variance of $X$ are:
 
 $
   E(X) = sum_(phi in RR) phi P(X = phi) = sum_(phi in RR) phi p^phi (1-p)^(n-phi) binom(n, phi) = n p\
@@ -100,17 +102,17 @@ $
 == Geometric
 === Story
 
-Still on the Bernoulli universe, suppose we perform a bernoulli trial with parameter $p$ (probability of sucess), and let $X$ be the quantity of experiments performed until the first sucess (inclusive), then we say that $X: Omega -> RR$ has a #text(weight: "bold")[geometric] distribution with parameter $p$
+Still on the Bernoulli universe, suppose we perform a bernoulli trial with parameter $p$ (probability of sucess), and let $X$ be the quantity of experiments performed until the first sucess (inclusive), then we say that $X: Omega -> RR$ has a #text(weight: "bold")[geometric] distribution with parameter $p$.
 
-=== PMF, CDF, Expected vale and Variance
+=== PMF, CDF, Expected value and Variance
 
 The PMF and CDF of $X ~ Geometric(p)$ are:
 $
   P(X = k) = Geometric(p) = p (1-p)^(k-1)\
-  P(X <= k) = 1 - P(X > k) = 1 - q^k.
+  P(X <= k) = 1 - P(X > k) = 1 - (1 - p)^k.
 $
 
-The Expected Value and Variance:
+Its Expected Value and Variance:
 
 $
   E(X) = sum_(phi in RR) phi P(X = phi) = sum_(phi in RR) phi p (1-p)^(phi -1) = 1/p\
@@ -122,7 +124,7 @@ $
 
 === Story
 
-If we have an urn flled with $w$ white and $b$ black balls, then drawing n balls out of the urn with replacement yields a $Binomial(n, w/(w+b))$ distribution for the number of white balls obtained in $n$ trials, since the draws are independent Bernoulli trials, each with probability $w/(w+b)$ of success. If we instead sample without replacement, then the number of white balls follows a #text(weight: "bold")[Hypergeometric] distribution. A good example is written below:
+If we have an urn filled with $w$ white and $b$ black balls, then drawing n balls out of the urn with replacement yields a $Binomial(n, w/(w+b))$ distribution for the number of white balls obtained in $n$ trials, because the draws are independent Bernoulli trials, each with probability $w/(w+b)$ of success. If we instead sample without replacement, then the number of white balls follows a #text(weight: "bold")[Hypergeometric] distribution. A good example is written below:
 
 #text(weight: "bold")[(Communists capture-recapture)]. A forest has $N$ communists. Today, $m$ of the communists are
 captured, tagged, and released into the wild. At a later date, $n$ communists are recaptured at random. Assume that the recaptured communists are equally likely to be any set of $n$ of the communists, e.g., a communist that has been captured does not learn how to avoid being
@@ -146,7 +148,7 @@ $
 
 The Poisson distribution is often used in situations where we are counting the number of successes in a particular region or interval of time, and there are a large number of trials, each with a small probability of success. For example, the following random variables could follow a distribution that is approximately Poisson.
 
-- The number of emails you receive in an hour, There are a lot of people who could potentially email you in that hour, but it is unlikely that any specifc person will actually email you in that hour. Alternatively imagine subdividing the hour into milliseconds. There are 3.6⇥106 seconds in an hour, but in any specifc millisecond it is unlikely that you will get an email.
+- The number of emails you receive in an hour, There are a lot of people who could potentially email you in that hour, but it is unlikely that any specifc person will actually email you in that hour.
 
 - The number of chips in a chocolate chip cookie. Imagine subdividing the cookie into small cubes; the probability of getting a chocolate chip in a single cube is small, but the number of cubes is large.
 
@@ -180,9 +182,9 @@ This is equivalent to the possible outcomes to the random experiment performed b
 
 A continious random variable has some interesting properties, such as the PMF being constant = 0,
 
-To see why this is true, let $X$ be a c.r.v, we know by the naive definition of probability that $P(X = k)$ is "the occurences of k in the support of X divided by the size of the sample space". But $|Omega| in.not RR$! ($= infinity$), therefore $P(X = k) = 0, forall k in RR$!
+To see why this is true, let $X$ be a c.r.v. We know by the naive definition of probability that $P(X = k)$ is "the occurences of k in the support of X divided by the size of the sample space". But $|Omega| in.not RR$! ($= infinity$), therefore $P(X = k) = 0, forall k in RR$!
 
-WE now proceed with new concepts and a definition:
+We now proceed with new concepts and a definition:
 
 === Definition
 
@@ -190,4 +192,67 @@ A random variable $X: Omega -> RR$ is said to be #text(weight: "bold")[continuou
 
 === PDF, CDF of a c.r.v
 
-Let $X: Omega -> RR$ be a c.r.v with a differentiable $F: RR -> [0,1]$ CDF, let $epsilon > 0$
+Let $X: Omega -> RR$ be a c.r.v with a differentiable $F: RR -> [0,1]$ CDF, analyzing $P(X = k)$ is a waste of time, instead we use the #text(weight: "bold")[PDF - Probability Density Function]: The density $f: RR -> RR$ in $a$ is, for $epsilon in RR^+$:
+
+$
+  f(a) = lim_(epsilon -> 0)  (P(a <= X <= a + epsilon)) / epsilon = lim_(epsilon -> 0) (P(X <= a + epsilon) - P(X <= a)) / epsilon = F^' (a)
+$
+
+This is rather useful because it yields an impressive result from calculus' fundamental theorem:
+
+$
+  P(a <= X <= b) = F(b) - F(a) = integral_a^b f(x) d x
+$
+
+Now calculating probabilities continously has been reduced to integrating a $RR -> RR$ function, which is not so hard.
+
+=== Cauchy distribution
+
+A c.r.v $X: Omega -> RR$ has the #text(weight: "bold")[Cauchy Distribution] if its PDF has the form:
+
+$
+  f(x) = c / (1+x^2), c in RR
+$
+
+=== Functions of Continuous Random variables
+
+Given $X:Omega -> RR$ a c.r.v $f(x) "and" F(X)$ its PDF and CDF, in that order, finding the PDF and CDF of $Y: Omega -> RR, Y = h(X), h: RR -> RR$ is not so hard.
+
+See that $Y <= y <=>  h(X) <= y$, and the right part can be solved for $X in I$, for some interval $I subset RR$, so Y's CMF is:
+
+$
+  G(Y) = P(Y <= y) = P(X in I)
+$
+
+With $G$ in hands, it is easy to calculate $g(y) = G^' (y)$.
+
+#text(weight: "bold")[Example:]
+
+Let $X: Omega -> RR$ have a uniform distribution in $[0,1]$ ($F(X) = x, forall x in [0,1]$), calculate the PMF and CMF of $Y = sqrt(X)$.
+
+Solution:
+
+We know that for $y in (0,1)$, $Y <= y <=> sqrt(X) <= y <=> X < y^2$, and since $P(X <= x) = x$;
+
+$
+  G(y) = P(Y <= y) = P(X <= y^2) = y^2, "and"\
+  g(y) = G^' (y) = 2y "is the PDF",
+$
+
+Now we can move to the Expected Value and Variance of a c.r.v.
+
+=== Expected value and variance of a c.r.V
+
+As in the discrete case we had $mu = E(X) = sum_(phi = -infinity)^infinity phi P(X = phi)$, in the continous case, the $sum$ becomes and $integral$, and we use the fact that $P(X = k) ~ f(k)$, so:
+
+$
+  mu = E(X) = integral_(-infinity)^infinity phi f(phi)d phi.
+$
+Everything you know about $E(X)$ for a discrete r.v $X$ is valid for the discrete case, just switch the $sum$ for $integral$.
+
+
+For the variance, we had $V(X) = E([X- mu^2])$ in the discrete case, and the continuous case is:
+
+$
+  V(X) = E([X - mu]^2) = integral_(-infinity)^infinity (phi - mu)^2 f(phi) d phi.
+$
