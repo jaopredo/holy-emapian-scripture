@@ -31,7 +31,7 @@ $
 
 = Lecture 6 - Projectors
 
-$P in C^(m times n)$ is said to be a #text(weight: "bold")[Projector] if"
+$P in C^(m times n)$ is said to be a #text(weight: "bold")[Projector] if
 
 $
   P^2 = P
@@ -42,9 +42,7 @@ $
 $
 
 
-
-
-
+A Projector is #text(weight: "bold")[Orthogonal] if and only f it is hermitian: $P^* = P$.
 
 
 
