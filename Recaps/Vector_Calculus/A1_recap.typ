@@ -9,9 +9,8 @@
 
   #datetime.today().display("[day]/[month]/[year]")
 ])
-= Riemann integral(s)
-something cool
-== Spherical and Cylindrical coordinates
+
+= Spherical and Cylindrical coordinates
 
 Everything described in this section has an easier version in $RR^2$
 
@@ -35,7 +34,7 @@ $
   integral.triple_A f(x , y, z) d x d y d z = integral.triple_S(A) f( rho sin phi cos theta, rho sin phi sin theta, rho cos theta) rho^2 sin phi d rho d theta d phi
 $
 
-== Jacobian Determinant For Multiple Integrals
+= Jacobian Determinant For Multiple Integrals
 
 More general change of variables require some technicalities:
 
