@@ -65,7 +65,7 @@ $
 
 = Physics
 
-== Center of Mass and Centroid
+== Mass Center and Centroid
 
 Given a plane region $S^2 subset RR^2$, its #text(weight: "bold")[centroid] is the point $(x_c , y_c)$, where:
 
@@ -75,7 +75,7 @@ $
   y_c = 1 / ("area"(S)) integral.double_S y d x d y
 $
 
-If the region/body/whatever has #text(weight: "bold")[constant] density $mu(x,y), forall x, y in RR$, then its centroid is the same as the center of mass, which is the point $(hat(x_c), hat(y_c))$ where:
+If the region/body/whatever has #text(weight: "bold")[constant] density $mu(x,y), forall x, y in RR$, then its centroid is the same as the mass center, which is the point $(hat(x_c), hat(y_c))$ where:
 
 $
   hat(x_c) = (integral.double_S mu(x,y) x d x d y) / (integral.double_S mu(x,y) d x d y)\
@@ -110,18 +110,70 @@ $
 
 $L = omega I$ is called the #text(weight: "bold")[angular momentum], it is conserved if there are no external rotational forces.
 
-
 = Vector Calculus
 
 == Curves
 
+A Curve is a continuous function $gamma: [a,b] -> RR^n$, it is of class $C^1$ if $gamma '$ exists and is continuous in [a,b], if $gamma(a) = gamma(b)$, the curve is #text(weight: "bold")[closed].
+
+A curve is said to be  $C^1$ _by parts_ if there is a partition of $[a,b]$ in a finite number of subintervals such that the curve is $C^1$ in each of tese subintervals.
+
 == Scalar Line Integrals
+
+Given $f: RR^n -> RR$ a function and $gamma:[a,b] -> RR^n$ a $C^1$ class curve in $RR^n$, the #text(weight: "bold")[scalar line integral] of f along $gamma$ is:
+
+$
+  integral_gamma f d s = integral_a^b f(gamma(t)) ||gamma^' (y)|| d t
+$
+
+If $gamma$ is $C^1$ _by parts_, we integrate on the $C^1$ partition-subintervals and sum each odf the smaller integrals.
+
+
 
 == Centroid and Mass Center of a Curve
 
+Given $gamma subset RR^3$ a curve, and let $f(x,y,z)$ be the mass density per unit of lenght of $gamma$, we know that the $gamma$'s mass is given by:
+
+$
+  M = integral_gamma f(x, y, z) d s.
+$
+
+So the mass center of $gamma$ is the point $c_m = (x_c, y_c, z_c)$ s.t:
+
+$
+  x_c = (integral_gamma x f (x, y , z) d s ) / M\
+
+  y_c = (integral_gamma y f (x, y , z) d s ) / M\
+
+  z_c = (integral_gamma z f (x, y , z) d s ) / M\
+$
+
+If $f$ is constant (homogeneous curve), then the mass center is the centroid as well
+
 == Vectorial Line Integrals
 
-== Conservative Vector Fields
+Consider now $F: RR^n -> RR^n$, usually called a _vector field_, and a class $C^1$ curve $gamma: [a,b] -> RR^n$ in this field.
 
-== Angle Variation
+The integral of F _along_ $gamma$ is:
 
+$
+  integral_gamma F = integral_a^b F(gamma(t)) gamma^' (t) d t
+$
+
+This line integral is linear: $integral_gamma ( a F+ b G) = a integral_gamma F + b integral_gamma G$ 
+
+== Conservative Vector Fields and Angle Variation
+
+=== Foreword
+
+We have been trained in the mysterious and dark arts of newtonian and lagrangian mechanics by Master Paulo Verdasca Amorim himself, this is nothing to us.
+
+=== Conservative Vector Fields
+
+A field $F: Omega subset RR^n -> RR^n$, $Omega$ an open and connected set, is said to be conservative if $exists U: Omega -> RR$ s.t $F  = Delta U$, $U$ is called $F$'s #text(weight: "bold")[potential]
+
+#text(weight: "bold")[Theorem]: Let $F:Omega -> RR^n$ be a vector field and $f:Omega -> RR$ be its potential, i.e $F = Delta f$. Let $A, B in Omega$ and $c:[a, b] -> RR^n$ be a $C^1$ by parts curve s.t c(a) = A and c(b) = B, then:
+
+$
+  integral_c F = f(B) - f(A)
+$ This looks like Calculus' Fundamental Theorem
