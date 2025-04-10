@@ -131,6 +131,8 @@ If $gamma$ is $C^1$ _by parts_, we integrate on the $C^1$ partition-subintervals
 
 == Centroid and Mass Center of a Curve
 
+=== Mass Cernter
+
 Given $gamma subset RR^3$ a curve, and let $f(x,y,z)$ be the mass density per unit of lenght of $gamma$, we know that the $gamma$'s mass is given by:
 
 $
@@ -149,6 +151,20 @@ $
 
 If $f$ is constant (homogeneous curve), then the mass center is the centroid as well
 
+=== Centroid
+
+Let $gamma subset RR^3$ be a smooth or piecewise smooth curve, parameterized by $gamma(t): [a, b] -> RR^3$. If the curve is #text(weight: "bold")[homogeneous], meaning the mass density per unit length is constant, then its #text(weight: "bold")[centroid] is the point $(x_c, y_c, z_c)$ given by:
+
+$ x_c = 1 / L integral_gamma x d s\
+
+y_c = 1 / L integral_gamma y d s\
+
+z_c = 1 / L integral_gamma z d s
+$
+
+Where $L$ is the total arc length of the curve:
+
+$ L = integral_gamma d s = integral_a^b ||gamma^' (t)|| d t $
 == Vectorial Line Integrals
 
 Consider now $F: RR^n -> RR^n$, usually called a _vector field_, and a class $C^1$ curve $gamma: [a,b] -> RR^n$ in this field.
@@ -176,3 +192,23 @@ A field $F: Omega subset RR^n -> RR^n$, $Omega$ an open and connected set, is sa
 $
   integral_c F = f(B) - f(A)
 $ This looks like Calculus' Fundamental Theorem
+
+=== Angle Variation
+
+We conclude this section on line integrals with a counterexample: a vector field that satisfies $partial F_1 / partial y = partial F_2 / partial x$ but is not conservative.
+
+Let $F(x, y) = 1 / (x^2 + y^2) (-y, x)$, defined over $RR^2 without 0$. Note that:
+
+$ partial F_1 / partial y = partial F_2 / partial x = (y^2 - x^2) / (x^2 + y^2)^2 $
+
+So the field meets the symmetry of mixed partials, but $F$ is still not conservative — the domain is not simply connected.
+
+Take the closed curve $c: [0, 2pi] -> RR^2$ given by:
+
+$ c(t) = (cos t, sin t) $
+
+Then:
+
+$ integral_c F = integral_0^{2pi} (-sin t, cos t) dot (-sin t, cos t) d t = integral_0^{2pi} 1 d t = 2pi != 0 $
+
+Since the line integral over a closed curve is nonzero, $F$ is not conservative.
