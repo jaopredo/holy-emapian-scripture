@@ -32,14 +32,14 @@ To use the materials in this repository:
 
 ## Contributing
 
-Contributions are welcome to enhance the repository's value:
+Contributions are welcome to enhance the repository's value:
 
-- **Add New Materials**: Submit notes, problem sets, or summaries from different semesters.
-- **Improve Existing Content**: Refine current materials for clarity and accuracy.
-- **Organize Resources**: Help structure the repository for better navigation.
+- **Add New Materials**: Submit notes, problem sets, or summaries from different semesters.
+- **Improve Existing Content**: Refine current materials for clarity and accuracy.
+- **Organize Resources**: Help structure the repository for better navigation.
 
-To contribute, fork the repository, make your changes, and submit a pull request.
+To contribute, fork the repository, make your changes, and submit a pull request.
 
 ## License
 
-This project is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html). You are free to use, modify, and distribute the materials, provided that you adhere to the terms of this license.
+This project is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html). You are free to use, modify, and distribute the materials, provided that you adhere to the terms of this license.
