@@ -2,13 +2,14 @@
 
 **Student-Curated Academic Resources for EMAp**
 
-This repository serves as a centralized collection of notes, problem sets, recaps, and other useful materials curated by students for the benefit of the [EMAp](https://emap.fgv.br/) community. It aims to support students in their academic journey by providing accessible and organized study resources.
+This repository serves as a centralized collection of notes, problem sets, recaps, and other useful materials curated by students for the benefit of the [EMAp](https://emap.fgv.br/) **undergraduate** community. It aims to support **undergraduate** students in their academic journey by providing accessible and organized study resources.
 
 ## Contents
 
 The repository is structured into semester-based directories, each containing relevant materials:
 
-- **3rd_semester/**: Resources pertaining to the third semester, including lecture notes, assignments, and summaries.
+- **[3rd semester](https://github.com/arthurabello/holy_emapian_scripture/tree/main/3rd_semester)**:
+Resources for third semester, including lecture notes, assignments, and summaries.
 
 Additional semesters and materials will be incorporated as they become available.
 
