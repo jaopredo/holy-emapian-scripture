@@ -59,7 +59,7 @@ $
 And the equivalent integral onto the new system is:
 
 $
-  integral.triple_A f(x, y, z) d x d y d z = integral.triple_T(A) f(x(u, v, w), y(u, v, w), z(u, v, w)) (diff(x , y , z)) / diff(u , v , w) d u d v d w
+  integral.triple_A f(x, y, z) d x d y d z = integral.triple_T(A) f(x(u, v, w), y(u, v, w), z(u, v, w)) |(diff(x , y , z)) / diff(u , v , w)| d u d v d w
 $
 
 = Physics
@@ -69,7 +69,7 @@ $
 Given a plane region $S^2 subset RR^2$, its #text(weight: "bold")[centroid] is the point $(x_c , y_c)$, where:
 
 $
-  x_c = 1 / ("area"(S)) integral.double x d x d y\
+  x_c = 1 / ("area"(S)) integral.double_S x d x d y\
 
   y_c = 1 / ("area"(S)) integral.double_S y d x d y
 $
