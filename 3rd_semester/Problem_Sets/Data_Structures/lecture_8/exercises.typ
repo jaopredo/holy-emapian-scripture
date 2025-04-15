@@ -164,10 +164,14 @@ while (i > 0) {
     i /= 2;
 }
 ```
-The only difference is that now the operation a += i is being executed when $i = n , n/2 , n/4 , ... , 0$, which is a sum that shows the total complexity of the algorithm:
+At each iteration, i is divided by 2: i = n, n/2, n/4, $dots$, 1.
+
+This loop executes $log_2 n$ times, and each step does constant work.
+
+Therefore, the time complexity is:
 
 $
-  sum_(i = 0)^log(n) n/2^i = 2n-1 in O(n).
+  O(log_2 n)
 $
 
 === g)
@@ -182,11 +186,11 @@ while (i > 0) {
 }
  ```
 
-A cada iteração do while, o valor de i é dividido por 2. Na primeira iteração, o for executa n vezes, depois n/2, n/4, ..., até i = 1. A soma total de operações é:
+At each iteration of the while, the value of i is divided by 2. In the first iteration, the for executes n times, then n/2, n/4, ..., until i = 1. The total sum of operations is:
 
-$ T(n) = n + n/2 + n/4 + ... + 1 = 2n - 1 in O(n) $
+$ T(n) = n + n/2 + n/4 + ... + 1 = 2n - 1 \in O(n) $
 
-Portanto, a complexidade do algoritmo é $O(n)$.
+Therefore, the time complexity of the algorithm is $O(n)$.
 
  === h)
 
@@ -200,7 +204,7 @@ float soma(float *arr, int n) {
 }
 ```
 
-O algoritmo percorre uma vez o vetor de tamanho $n$, realizando uma soma por elemento. Portanto, sua complexidade é linear: $O(n)$.
+The algorithm traverses the array of size $n$ once, performing one addition per element. Therefore, its complexity is linear: $O(n)$.
 
 === i)
 
@@ -215,7 +219,7 @@ int buscaSequencial(int *arr, int n, int x) {
 }
 ```
 
-No pior caso (quando $x$ não está no vetor), o algoritmo percorre todos os $n$ elementos. Assim, sua complexidade no pior caso é $O(n)$.
+In the worst case (when $x$ is not in the array), the algorithm goes through all $n$ elements. Thus, its worst-case complexity is $O(n)$.
 
 ==== j)
 
@@ -236,7 +240,7 @@ int buscaBinaria(int *arr, int x, int i, int j) {
 }
 ```
 
-A cada chamada recursiva o espaço de busca é reduzido pela metade. Assim, a complexidade da busca binária no pior caso é $O(log n)$.
+At each recursive call the search space is halved. Thus, the worst-case complexity of binary search is $O(log_2 n)$.
 
 ==== k)
 
@@ -253,7 +257,7 @@ void multiplicacaiMatriz(float **a, float **b, int n, int p, int m, float **x) {
 }
 ```
 
-A multiplicação de matrizes de dimensões $n p$ por $p m$ realiza $n m p$ multiplicações. Logo, a complexidade é $O(n m p)$.
+The multiplication of matrices of dimensions $n p$ by $p m$ performs $n m p$ multiplications. Therefore, the complexity is $O(n m p)$.
 
 = Exercise 4
 == Solution
