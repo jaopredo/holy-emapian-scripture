@@ -21,27 +21,16 @@ StackFromLinkedList* initialize_stack() {
 void push(StackFromLinkedList* stack, int value_of_element_to_be_inserted) {
     Node* node_to_be_inserted = new Node{};
     node_to_be_inserted->value = value_of_element_to_be_inserted;
-
-    if(stack->head == nullptr) {
-        stack->head = node_to_be_inserted;
-        node_to_be_inserted->next = nullptr;
-        stack->size++;
-
-    } else {
-        Node* temporary_node = new Node{};
-        temporary_node = stack->head;
-        stack->head = node_to_be_inserted;
-        node_to_be_inserted->next = temporary_node;
-        delete temporary_node;
-        stack->size++;
-    }
+    node_to_be_inserted->next = stack->head;
+    stack->head = node_to_be_inserted;
+    stack->size++;
 }
 
+
 void pop(StackFromLinkedList* stack) {
-    if(stack->head != nullptr) {
-        Node* temporary_node = new Node{};
-        temporary_node = stack->head;
-        stack->head = temporary_node->next;
+    if (stack->head != nullptr) {
+        Node* temporary_node = stack->head;
+        stack->head = stack->head->next;
         delete temporary_node;
         stack->size--;
     }
@@ -53,4 +42,13 @@ bool emptiness_checker(StackFromLinkedList* stack) {
 
 Node* peek(StackFromLinkedList* stack) {
     return (stack->head);
+}
+
+void delete_stack(StackFromLinkedList* stack) {
+    while (stack->head != nullptr) {
+        Node* temporary_node = stack->head;
+        stack->head = stack->head->next;
+        delete temporary_node;
+    }
+    delete stack;
 }
