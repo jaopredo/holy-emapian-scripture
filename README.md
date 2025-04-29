@@ -36,7 +36,7 @@ Contributions are welcome to enhance the repository's value:
 
 - **Add New Materials**: Submit notes, problem sets, or summaries from different semesters.
 - **Improve Existing Content**: Refine current materials for clarity and accuracy.
-- **Organize Resources**: Help structure the repository for better navigation.
+- **Organization**: _Please_ maintain the current structure of the repository, follow the pattern seen on folder and file names
 
 To contribute, fork the repository, make your changes, and submit a pull request.
 
