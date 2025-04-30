@@ -73,9 +73,41 @@
   $
 ]
 
+Here are some examples:
+
+#example[
+
+]
+
+#example[
+
+]
+
+#example[
+
+]
+
 = Scalar Surface Integrals
 
-We are interested on the integra
+#definition[
+  Given $phi: D subset RR^2 -> RR^3$ a parametrized $phi(u, v) = (x(u, v), y(u, v), z(u, v))$ surface, with $S = phi(D)$ and $f: S subset RR^3 -> RR$ a continuous real function in $S$, we are interested on the integral of $f$ along $S = phi(D)$, which is:
+  
+  $
+    integral.double_S f d S = integral.double_D f(phi(u, v)) norm((diff phi) / (diff u) times (diff phi) / (diff v)) d u d v 
+  $
+]
+
+Notice that when $f = 1$, the surface integral becomes the area of the surface. Here are some examples:
+
+#example[
+
+]
+
+#example[
+
+]
+
+
 
 = Tangent Plane to a Surface
 
