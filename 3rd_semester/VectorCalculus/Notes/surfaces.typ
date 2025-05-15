@@ -67,13 +67,13 @@
   Given $phi: D subset RR^2 -> RR^3$ a $C^1$ class surface with parametrization $phi$, to find the area, divide $D$ into infinitely man small rectangles, such that the associated portions of the surface are close enough to a paralellogram. And let $(u, u + delta u) times (v, v + delta v)$ be one of these rectangles in the plane $u v$, so the  portion of the surface associated is a paralellogram with sides approximated by the vectors $a = phi(u + delta u, v) - phi(u,v)$ and $b = phi(v, delta + v) - phi(u, v)$. So the area of the paralellogram is $||a times b||$:
 
   $
-    norm((phi(u , u + delta u) - phi(u, v)) / (delta u) times (phi(v , v + delta v) - phi(u, v)) / (delta v)) delta u delta v
+    A(S) = norm((phi(u , u + delta u) - phi(u, v)) / (delta u) times (phi(v , v + delta v) - phi(u, v)) / (delta v)) delta u dot delta v
   $
 
-  On the limit $delta u -> 0$ and $delta v -> 0$, these are the partial derivatives, so area of $S = phi(D)$ is:
+  On the limit $delta u -> 0$ and $delta v -> 0$, these are the partial derivatives, so area of $S = phi(D)$ is: 
 
   $
-    A(S) = integral.double_D || (diff phi) / (diff x) times (diff phi) / (diff y) ||
+    A(S) = integral.double_D norm((diff phi) / (diff x) times (diff phi) / (diff y)) 
   $
 ]
 

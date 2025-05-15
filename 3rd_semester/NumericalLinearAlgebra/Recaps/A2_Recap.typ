@@ -28,11 +28,29 @@
 // A bunch of lets here
 #set page(numbering: "1")
 
+#set math.equation(
+  numbering: "(1)",
+  supplement: none,
+)
+#show ref: it => {
+  // provide custom reference for equations
+  if it.element != none and it.element.func() == math.equation {
+    // optional: wrap inside link, so whole label is linked
+    link(it.target)[eq.~(#it)]
+  } else {
+    it
+  }
+}
+
 #align(center, text(17pt)[
   Algebra Linear Numérica A2 Recap
 
   #datetime.today().display("[day]/[month]/[year]")
 ])
+
+#outline()
+
+#pagebreak()
 
 #par[Olha só, agora é em português! Coisa boa. Esse documento se refere aos capítulos 16 e posteriores.]
 
@@ -262,3 +280,136 @@ Esse algoritmo é *backwards stable*, e é bem passo-a-passo já que cada passo 
      $
    ]
 ]
+
+= Lecture 24 - Problemas de Autovalores
+
+Esse capítulo nada mais é do que uma revisão de resultados da A2 de álgebra linear.
+
+== Definições
+
+Dada uma matriz $A in CC^(m times n)$, pela decomposição SVD $A = U Sigma V^*$ sabemos que $A$ é uma transformação que *estica* e *rotaciona* vetores. Por isso, estamos interessados em subespaços de $CC^m$ nos quais a matriz age como uma multiplicação escalar, ou seja, estamos interessados nos $x in CC^n$ que são somente esticados pela matriz. Como $A x in CC^m$ e $lambda x in CC^n$, concluimos que $m = n$: A matriz *deve ser quadrada*. Afinal, não faz sentido se $lambda x$ e $A x$ estiverem em conjuntos distintos. Com isso, prosseguimos com a definição:
+
+#definition[(Autovalores e Autovetores)
+  Dada $A in CC^(m times m)$, um _autovetor_ de $A$ é $x in CC^m without {0}$ que satisfaz:
+
+  $
+    A x = lambda x
+  $ <eq_autovalores_autovetores>
+
+  $lambda in CC$ é dito _autovalor_ associado a $x$.
+] <def_autovalor_autovetor>
+
+== Decomposição em Autovalores
+
+Uma *decomposição em autovalores* de uma matriz $A in CC^(m times n)$ é uma fatoração:
+
+$
+  A = X Lambda X^(-1)
+$ <decomposicao_autovalores>
+
+Onde $Lambda$ é diagonal e $det(X) != 0$.
+
+Isso é equivalente a:
+
+$
+  underbrace(mat(
+    space, space, space, space;
+    space, space, A, space, space;
+    space, space, space, space
+  ), A) dot underbrace(mat(
+    bar, bar, bar, bar,;
+    x_1, x_2, dots, x_n;
+    bar, bar, bar, bar
+  ), X) = underbrace(mat(
+    lambda_1, 0, dots, 0;
+    0, lambda_2, dots, 0;
+    0, 0, dots, 0
+  ), Lambda) dot underbrace(mat(
+    bar, bar, bar, bar,;
+    x_1, x_2, dots, x_n;
+    bar, bar, bar, bar
+  ), X)
+$ <eq_decomposicao_autovalores_matricial>
+
+Da @eq_decomposicao_autovalores_matricial e da @def_autovalor_autovetor, decorre que $A x_i = lambda_i x_i$, então a i-ésima coluna de $X$ é um autovetor de $A$ e $lambda_i$ é o autovalor associado (a $x_i$).
+
+A decomposição apresentada pode representar uma mudança de base: Considere $A x = b$ e $A = X Lambda X^(-1)$, então:
+
+$
+  A x = b <=> X Lambda X^(-1) x = b <=> Lambda (X^(-1) x) = X^(-1) b
+$
+
+Então para calcular $A x$, podemos expandir $x$ como combinação das colunas de $X$ e aplicar $Lambda$. Como $Lambda$ é diagonal, o resultado ainda vai ser uma combinação das colunas de $X$.
+
+== Multiplicidades Algébrica e Geométrica
+
+Como mencionado anteriormente, definimos os conjuntos nos quais a matriz atua como multiplicação escalar:
+
+#definition[(Autoespaço)
+  Dada $A in CC^(m times n), lambda in CC$, o definimos $S_lambda in CC^m$ como sendo o *autoespaço* gerado por todos os $v_ in CC^m$ tais que $A v = lambda v$
+] <def_autoespaço>
+
+Interpretaremos $dim(S_lambda)$ como a maior quantidade de autovetores L.I associados a um único $lambda$, e chamaremos isso de _multiplicidade geométrica_ de $lambda$. Então temos:
+
+#definition[(Multiplicidade Geométrica)
+  A multiplicidade geométrica de $lambda$ é $dim(S_lambda)$
+] <def_multiplicidade_geometrica>
+
+Note que da @eq_autovalores_autovetores:
+
+$
+  A x = lambda x <=> A x - lambda x = 0 <=> (A - lambda I) x = 0\
+$
+
+Mas como $x != 0$ e $x in N(A - lambda I)$, $(A - lambda I)$ não é injetiva. Logo não é inversível:
+
+$
+  det(A - lambda I) = 0
+$ <eq_polinimio_caracteristico>
+
+A @eq_polinimio_caracteristico se chama _polinômio característico_ de $A$ e é um polinômio de grau $m$ em $lambda$. Pelo teorema fundamental da Álgebra, se $lambda_1, dots, lambda_n$ são raízes de @eq_polinimio_caracteristico, então podemos escrever isso como:
+
+$
+  p(phi) = (phi - lambda_1)(phi - lambda_2)...(phi - lambda_n)
+$
+
+Com isso, prosseguimos com:
+
+#definition[(Multiplicidade Algébrica)
+  A multiplicidade algébrica de $lambda$ é a multiplicidade de $lambda$ como raiz do polinômio característico de $A$
+] <def_multiplicidade_algebrica>
+
+== Transformações Similares
+== Diagonalização
+== Autovalores e Matrizes Deficientes
+== Determinante e Traço
+== Diagonalização Unitária
+== Forma de Schur
+
+= Lecture 25 - Algoritmos de Autovalores
+== Ideia da Iteração de Potência
+== A ideia dos Algoritmos de Autovalores
+Escrever pqq tem q ser iterativo. (pag 192 trefethen)
+== Forma de Schur e Diagonalização
+== As 2 fases do Cálculo de Autovalores, Forma de Hessenberg
+
+= Lecture 26 - Redução à forma de Hessenberg
+== A Redução
+== Redução à Hessenberg via Householder
+== Custo Computacional
+== O Caso Hermitiano
+== Estabilidade do Algoritmo
+
+= Lecture 27 - Quociente de Rayleigh e Iteração Inversa
+== Restrição à matrizzes reais e simétricas
+== Quociente de Rayleigh
+== Iteração de Potência com o Quociente de Rayleigh
+== Iteração Inversa 
+
+
+
+
+
+
+
+
