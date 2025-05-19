@@ -22,7 +22,7 @@
   titlefmt: strong
 )
 #let definition = thmbox("definition", "Definição", inset: (x: 1.2em, top: 1em))
-#let example = thmplain("example", "Exemplo").with(numbering: none)
+#let example = thmplain("example", "Exemplo").with(numbering: "1.")
 #let proof = thmproof("proof", "Demonstração")
 
 // A bunch of lets here
