@@ -9,6 +9,10 @@ Cada projeto é linkado com seu respectivo repositório no GitHub e a nota que e
 - 🔗 [View Repository](https://github.com/jaopredo/linear-algebra/tree/main/numerical/algoritmos/projects/project1)
 - 🏅 Grade: **8.5**
 
+### 📝 Projeto 2 – Mínimos Quadrados
+- 🔗 [View Repository](https://github.com/jaopredo/linear-algebra/tree/main/numerical/algoritmos/projects/project2)
+- 🏅 Grade: **A ser determinada**
+
 ---
 # 📚 Numerical Linear Algebra - Assignments
 Welcome to the centralized collection of **Numerical Linear Algebra** assignments for the 3rd semester.     
@@ -19,5 +23,9 @@ Each assignment is linked to its respective GitHub repository and includes the g
 ### 📝 Assignment 1 – Iterative Methods - Jacobi and Gauss-Seidel
 - 🔗 [View Repository](https://github.com/jaopredo/linear-algebra/tree/main/numerical/algoritmos/projects/project1)
 - 🏅 Grade: **8.5**
+
+### 📝 Assignment 2 – Least Square Problems
+- 🔗 [View Repository](https://github.com/jaopredo/linear-algebra/tree/main/numerical/algoritmos/projects/project2)
+- 🏅 Grade: **To be determined**
 ---
 
