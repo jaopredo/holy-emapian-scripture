@@ -22,11 +22,8 @@
   titlefmt: strong
 )
 #let definition = thmbox("definition", "Definição", inset: (x: 1.2em, top: 1em))
-#let example = thmplain("example", "Exemplo").with(numbering: "1.")
+#let example = thmplain("example", "Exemplo").with(numbering: none)
 #let proof = thmproof("proof", "Demonstração")
-
-// A bunch of lets here
-#set page(numbering: "1")
 
 #set math.equation(
   numbering: "(1)",
@@ -42,17 +39,47 @@
   }
 }
 
-#align(center, text(17pt)[
-  Algebra Linear Numérica A2 Recap
+// ============================ PRIMEIRA PÁGINA =============================
+#align(center + top)[
+  FGV EMAp
 
-  #datetime.today().display("[day]/[month]/[year]")
-])
+  João Pedro Jerônimo e Arthur Rabello
+]
 
+#align(horizon + center)[
+  #text(17pt)[
+    Algebra Linear Numérica
+  ]
+  
+  #text(14pt)[
+    Revisão para A2
+  ]
+]
+
+#align(bottom + center)[
+  Rio de Janeiro
+
+  2025
+]
+
+#pagebreak()
+
+// ============================ PÁGINAS POSTERIORES =========================
 #outline()
 
 #pagebreak()
 
-#par[Olha só, agora é em português! Coisa boa. Esse documento se refere aos capítulos 16 e posteriores.]
+// ========================== CONTEÚDO ======================================
+
+#block(
+  width: 100%,
+  fill: rgb(255, 148, 162),
+  inset: 1em,
+  stroke: 1.5pt + rgb(117, 6, 21),
+  radius: 5pt
+)[
+  *Disclaimer*: Nesse resumo, quando falarmos de *computadores ideais*, estamos nos referindo a computadores que satisfaçam: *$"fl"(x) = x(1 + epsilon)$* e *$x dot.circle y = (x dot y)(1 + epsilon)$*. Se essa notação lhe é estranha, veja o resumo anterior, mais especificamente sobre a *Lecture 13*
+]
 
 = Lecture 16 - Estabilidade da Triangularização de Householder
 Nesse capítulo, a gente tem uma visão mais aprofundada da análise de *erro retroativo* (Backwards Stable). Dando uma breve recapitulada, para mostrar que um algoritmo $accent(f, ~): X -> Y$ é *backwards stable*, você tem que mostrar que, ao aplicar $accent(f, ~)$ em uma entrada $x$, o resultado retornado seria o mesmo que aplicar o problema original $f: X->Y$ em uma entrada levemente perturbada $x + Delta x$, de forma que $Delta x = O(epsilon_"machine")$.
@@ -196,19 +223,24 @@ De forma que $accent(Q, ~)$ é perfeitamente unitária e cada matriz $accent(Q, 
 == Algoritmo para resolver $A x = b$
 Vimos que o algoritmo de householder é backwards stable, show! Porém, sabemos que não costumamos fazer essas fatorações só por fazer né, a gente faz pra resolver um sistema $A x = b$, ou outros tipos de problemas. Certo, mas, se fizermos um algoritmo que resolve $A x = b$ usando a fatoração QR obtida com householder, a gente precisa que $Q$ e $R$ sejam precisos? Ou só precisamos que $Q R$ seja preciso? O bom é que precisamos apenas que $Q R$ seja precisa! Vamos mostrar isso para a resolução de sistemas $m times m$ não singulares.
 
-#pseudocode-list(booktabs: true, title: [Algoritmo para resolver $A x = b$])[
-  + *function* ResolverSistema($A in CC^(m times n)$, $b in CC^(m times 1)$) {
-    + $Q R = "Householder"(A)$
-    + $y = Q^* b$
-    + $x = R^(-1)y$
-    + *return* $x$
-  + }
-]<solve-Ax-hh>
+#figure(
+  kind: "algorithm",
+  supplement: [Algoritmo],
+  caption: [Algoritmo para calcular $A x = b$],
+  pseudocode-list(booktabs: true)[
+    + *function* ResolverSistema($A in CC^(m times n)$, $b in CC^(m times 1)$) {
+      + $Q R = "Householder"(A)$
+      + $y = Q^* b$
+      + $x = R^(-1)y$
+      + *return* $x$
+    + }
+  ]
+)<solve-Axb-hh>
 
 Esse algoritmo é *backwards stable*, e é bem passo-a-passo já que cada passo dentro do algoritmo é *backwards stable*.
 
 #theorem[
-  O algoritmo descrito anterioremente para solucionar $A x = b$ é *backwards stable*, satisfazendo
+  O @solve-Axb-hh para solucionar $A x = b$ é *backwards stable*, satisfazendo
   $
     (A + Delta A)accent(x, ~) = b
   $
@@ -280,6 +312,105 @@ Esse algoritmo é *backwards stable*, e é bem passo-a-passo já que cada passo 
      $
    ]
 ]
+
+= Lecture 17 - Estabilidade da Back Substitution
+Só para esclarecer, o termo *back substitution* se refere ao algoritmo de resolver um sistema triangular superior
+
+$
+mat(r_11, r_12, ..., r_(1m);,r_22,...,r_(2m);,,dots.down,dots.v;,,,r_(m m))
+mat(x_1;dots.v;x_m) = mat(b_1;dots.v;b_m)
+$
+
+E é aquele esquema, a gente vai resolvendo de baixo para cima, o que resulta nesse algoritmo (A gente escreve como uma sequência de fórmulas por conveniência, mas é o mesmo que escrever um loop):
+
+#figure(
+  kind: "algorithm",
+  supplement: [Algoritmo],
+  caption: [Algoritmo de *Back Substitution*],
+  pseudocode-list(booktabs: true)[
+    + *function* BackSubstitution($R in CC^(m times m)$, $b in CC^(m times 1)$) {
+      + $x_m = b_m \/ r_(m m)$
+      + $x_(m - 1) = (b_(m - 1) - x_(m)r_(m-1, m)) \/ r_(m-1, m-1)$
+      + $x_(m - 2) = (b_(m - 2) - x_(m-1)r_(m-2, m-1) - x_m r_(m-2, m))\/r_(m-2, m-2)$
+      + $dots.v$
+      + $x_j = (b_j - sum^m_(k=j+1)x_k r_(j k))\/r_(j j)$
+    + }
+  ]
+)<back-substitution>
+
+== Teorema da Estabilidade Retroativa (Backward Stability)
+A gente viu no último tópico (Estabilidade de Householder) que a *back substitution* era um dos passos para chegar no resultado final, porém, nós apenas assumimos que ela era *backward stable*, mas a gente *não* provou isso! Porém, antes de provarmos isso, vamos estabelecer que as subtrações serão feitas da esquerda para a direita (Sim, isso pode influenciar). Mas, como o livro não explica muito bem o porquê de isso influenciar, vou dar uma breve explicação e exemplificação:
+
+Quando realizamos uma sequência de subtrações pela *direita*, caso os números sejam muito próximos, pode ocorrer o chamado *cancelamento catastrófico*, que é a perca de muitos dígitos significativos, veja um exemplo:
+
+#grid(
+  columns: (50%, 45%),
+  rows: (auto),
+  gutter: 20pt,
+  block[
+    #codly(
+      header: [*CÓDIGO*],
+      header-cell-args: (align: center),
+      inset: 0.25em
+    )
+    ```python
+      a = 1e16
+      b = 1e16
+      c = 1
+      print((a-b)-c)
+    ```
+  ],
+  block[
+    #codly(
+      inset: 0.25em,
+      header: [*SAÍDA*],
+      header-cell-args: (align: center),
+    )```
+    -1.0
+    ```
+  ]
+)
+
+O que parece correto! Mas veja o que acontece se invertermos a ordem e executarmos $a - (b - c)$
+
+#grid(
+  columns: (50%, 45%),
+  rows: (auto),
+  gutter: 20pt,
+  block[
+    #codly(
+      header: [*CÓDIGO*],
+      header-cell-args: (align: center),
+      inset: 0.25em
+    )
+    ```python
+      a = 1e16
+      b = 1e16
+      c = 1
+      print(a-(b-c))
+    ```
+  ],
+  block[
+    #codly(
+      inset: 0.25em,
+      header: [*SAÍDA*],
+      header-cell-args: (align: center),
+    )```
+    0.0
+    ```
+  ]
+)
+
+Veja que houve um problema no arredondamento! Então os sistemas, por 
+convenção, utilizam o esquema de subtrações pela esquerda.
+
+Voltando ao algoritmo de *back substitution*, temos o seguinte teorema:
+
+#theorem[
+  Deixe o @back-substitution ser aplicado a um problema de $R x = b$ com $R$ triangular superior.
+]
+
+
 
 = Lecture 24 - Problemas de Autovalores
 
@@ -419,11 +550,4 @@ $
 $
 
 Retorna os valores singulares de $A$ com $kappa(A)$, e não $kappa^2(A)$ PQ CARALHOS
-
-
-
-
-
-
-
 
