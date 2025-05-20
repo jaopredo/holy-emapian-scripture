@@ -407,6 +407,20 @@ Escrever pqq tem q ser iterativo. (pag 192 trefethen)
 == Iteração Inversa 
 
 
+= Lecture 30 - Calculando a SVD
+
+Calcular autovalores da matriz:
+
+$
+  mat(
+    0, A;
+    A^*, 0
+  )
+$
+
+Retorna os valores singulares de $A$ com $kappa(A)$, e não $kappa^2(A)$ PQ CARALHOS
+
+
 
 
 
