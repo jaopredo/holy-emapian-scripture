@@ -38,12 +38,16 @@
     it
   }
 }
+// ATALHOS:
+
+#let herm(term) = $term^*$
+
 
 // ============================ PRIMEIRA PÁGINA =============================
 #align(center + top)[
   FGV EMAp
 
-  João Pedro Jerônimo e Arthur Rabello
+  João Pedro Jerônimo e Arthur Rabello Oliveira
 ]
 
 #align(horizon + center)[
@@ -78,7 +82,7 @@
   stroke: 1.5pt + rgb(117, 6, 21),
   radius: 5pt
 )[
-  *Disclaimer*: Nesse resumo, quando falarmos de *computadores ideais*, estamos nos referindo a computadores que satisfaçam: *$"fl"(x) = x(1 + epsilon)$* e *$x dot.circle y = (x dot y)(1 + epsilon)$*. Se essa notação lhe é estranha, veja o resumo anterior, mais especificamente sobre a *Lecture 13*
+  *Nota*: Os *computadores ideais* que mencionaremos, são computadores nos quais o _axioma fundamental da aritmética de ponto flutuante_ é satisfeito. Convidamos o leitor a ler sobre isso no resumo anterior (A1), especificamente na *lecture 13*
 ]
 
 = Lecture 16 - Estabilidade da Triangularização de Householder
@@ -532,7 +536,7 @@ Escrever pqq tem q ser iterativo. (pag 192 trefethen)
 == Estabilidade do Algoritmo
 
 = Lecture 27 - Quociente de Rayleigh e Iteração Inversa
-== Restrição à matrizzes reais e simétricas
+== Restrição à matrizes reais e simétricas
 == Quociente de Rayleigh
 == Iteração de Potência com o Quociente de Rayleigh
 == Iteração Inversa 
@@ -543,11 +547,24 @@ Escrever pqq tem q ser iterativo. (pag 192 trefethen)
 Calcular autovalores da matriz:
 
 $
-  mat(
+  hat(A) = mat(
     0, A;
     A^*, 0
   )
 $
 
 Retorna os valores singulares de $A$ com $kappa(A)$, e não $kappa^2(A)$ PQ CARALHOS
+
+Ideia:
+
+$
+  mat(
+    0, A;
+    herm(A), 0
+  ) dot vec(u, v) = vec(A v, herm(A) u) = vec( sigma u, herm(A) v)
+$
+
+Dps calcula $kappa(hat(A)) = (sigma_1 (A)) / (sigma_2 (A))$ e magia 
+
+
 
