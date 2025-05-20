@@ -16,14 +16,33 @@
 #let example = thmplain("example", "Exemplo").with(numbering: none)
 #let proof = thmproof("proof", "Prova")
 
-// Um monte de lets aqui
-#set page(numbering: "1")
+#align(center + top)[
+  FGV EMAp
 
-#align(center, text(17pt)[
-  Resumo de Álgebra Linear Numérica A1
+  João Pedro Jerônimo
+]
 
-  #datetime.today().display("[day]/[month]/[year]")
-])
+#align(horizon + center)[
+  #text(17pt)[
+    Algebra Linear Numérica
+  ]
+  
+  #text(14pt)[
+    Revisão para A1
+  ]
+]
+
+#align(bottom + center)[
+  Rio de Janeiro
+
+  2025
+]
+
+#pagebreak()
+
+#outline(title: [Sumário])
+
+#pagebreak()
 
 As aulas abaixo referem-se ao livro de Trefethen sobre álgebra linear numérica
 
