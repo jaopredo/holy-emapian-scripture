@@ -13,6 +13,7 @@
 #set par(
   justify: true
 )
+#set page(numbering: "1")
 
 #let theorem = thmbox("theorem", "Teorema")
 #let corollary = thmplain(
@@ -24,11 +25,12 @@
 #let definition = thmbox("definition", "Definição", inset: (x: 1.2em, top: 1em))
 #let example = thmplain("example", "Exemplo").with(numbering: "1.")
 #let property = thmplain("property", "Propriedade").with(numbering: "1.")
+#let proposition = thmplain("proposition", "Proposição").with(numbering: "1.")
 #let proof = thmproof("proof", "Demonstração")
 
 // A bunch of lets here
-#set page(numbering: "1")
 #let int = $integral$
+#let Expo = "Expo"
 
 #set math.equation(
   numbering: "(1)",
@@ -43,6 +45,10 @@
     it
   }
 }
+
+//atalhos
+
+#let inv(var) = $var^(-1)$
 
 #align(center, text(17pt)[
   Teoria da Probabilidade, Resumo da A2
@@ -63,7 +69,7 @@
 Definimos aqui o necessário sobre variáveis aleatórias contínuas para a compreensão dos conteúdos do teste:
 
 #definition[(V.A Contínua)\
-  Uma v.a contínua é uma variável aleatória $X: Omega -> RR$ com CDF $F_X (phi)$ é diferenciável
+  Uma v.a $X: Omega -> RR$ é dita contínua se e somente se sua CDF $F_X$ for derivável
 ]<definiticao_variavel_aleatoria_continua>
 
 #definition[(Função de Distribuição - CDF)\
@@ -104,7 +110,7 @@ Definimos aqui o necessário sobre variáveis aleatórias contínuas para a comp
 == Propriedades da CDF e PDF
 <secao_propriedades_CDF_PDF>
 
-Dada uma v.a contínua $X$ com PDF $f_X (phi)$ e CDF $F_X (phi)$, é intuitivo que com $phi -> oo$, $P(X <= phi) = F_X (phi) -> 1$, e analogamente com $phi -> -oo$, $P(X <= phi) = F_X (phi) -> 0$. Então enunciamos as seguintes propriedades:
+Dada uma v.a contínua $X$ com PDF $f_X$ e CDF $F_X$, é intuitivo que com $phi -> oo$, $P(X <= phi) = F_X (phi) -> 1$, e analogamente com $phi -> -oo$, $P(X <= phi) = F_X (phi) -> 0$. Então enunciamos as seguintes propriedades:
 
 #property[
   $
@@ -122,6 +128,16 @@ Logo, $F_X (phi)$ é uma função crescente, e $F_X (phi) in [0,1]$.
     int_(-oo)^(oo) f_X (psi) d psi = 1\
   $
 ] <propriedade_pdf_integra_1>
+
+#property[
+  Seja $X$ uma v.a contínua com PDF $f_X$ e CDF $F_X$, tome $h:RR -> RR$ crescente e $Y = g(X)$ com PDF e CDF $f_Y, F_Y$, respectivamente. Então:
+
+  $
+    f_Y (y) = (f_X (phi)) / (h^' (phi))
+  $
+
+  Com $phi = inv(h)(y)$
+] <propriedade_derivada_inversa>
 
 
 
@@ -193,8 +209,129 @@ Dadas v.a's contínuas $X, Y$ com PDF $f_X (phi), f_Y (phi)$ e $a,b in RR$, temo
 == Distribuição Uniforme
 <secao_dist_uniforme>
 
+Uma v.a contínua $X$ tem distribuição uniforme no intervalo $[a,b]$ se sua PDF for da forma:
+
+$
+  f_X (phi) = cases(0"," "se" phi < a, 1/(b-a)"," "se" a <= phi <= b )
+$
+
+Desta forma sua CDF é:
+
+$
+  F_X (phi) = cases(0"," "se" phi < a, (phi - a)/(b-a)"," "se" a <= phi <= b, 1"," "se" phi > b )
+$
+
+O seguinte teorema é extremamente importante:
+
+#theorem[(Universalidade da Uniforme)\
+  Se $X$ é uma v.a contínua com PDF $f_X$ e CDF $F_X$, então $Y = F_X (X)$ é uma uniforme em $[0,1]$, ou seja: $Y ~ U[0,1]$
+] <teorema_universalidade_uniforme>
+
+#proof[
+
+  $
+    F_Y (y) = P(Y <= y) = P(F_X (X) <= y) = P(X <= F_X^(-1)(y)) = F_X (F_X^(-1)(y)) = y
+  $
+
+  Logo $Y$ é uma uniforme em $[0,1]$.
+]
+
+=== Esperança
+
+Com $X ~ U[a,b]$, temos
+
+$
+  E(X) = int_(-oo)^(oo) phi f_X (phi) d phi = int_(a)^(b) phi (1/(b-a)) d phi = (a + b) /2 
+$
+
+=== Variância
+
+Com $X ~ U[a, b]$, temos:
+
+$
+  E(X^2) = int_(-oo)^(oo) phi^2 f_X (phi) d phi = int_(a)^(b) phi^2 (1/(b-a)) d phi = (1/(b-a)) int_(a)^(b) phi^2 d phi\
+
+  = (1/(b-a)) [phi^3/3]_(a)^(b) = (1/(b-a)) [(b^3 - a^3)/3] = (b^2 + a b + a^2)/3
+$ <esperanca_uniforme>
+
+E a variância fica:
+
+$
+  V(X) = E(X^2) - E(X)^2 = (b^2 + a b + a^2)/3 - ((a + b)/2)^2 = (b-a)^2 / 12
+$ <variancia_uniforme>
+
 == Distribuição Exponencial
 <secao_dist_exponencial>
+
+Uma v.a contínua $X$ tem distribuição exponencial se sua PDF for da forma:
+
+$
+  f_X (phi) = cases(0"," "se" phi < 0, lambda e^(-lambda phi)"," "se" phi >= 0 )
+$
+
+$lambda > 0$ é o parâmetro da distribuição. A CDF é dada por:
+
+$
+  F_X (phi) = cases(0"," "se" phi < 0, 1 - e^(-lambda phi)"," "se" phi >= 0 )
+$
+
+#figure(
+  image("images/pdf_cdf_expo.png", width: 70%),
+  caption: [
+    PDF e CDF Da Exponencial com $lambda = 2$
+  ]
+)
+
+Isto também é útil:
+
+#proposition[
+  Se $X ~ Expo(lambda)$, $Y = a X$, então $Y ~ Expo(lambda / a)$
+]
+
+#proof[
+  Pela @propriedade_derivada_inversa, temos:
+
+  $
+    f_Y (y) = (f_X (phi)) / (h^' (phi))\
+    h^' (phi) = a\
+    phi = inv(h)(y) = y/a
+  $
+
+  Então:
+
+  $
+    f_Y (y) = (lambda e^(-lambda (y/a))) / a = (lambda / a) e^(-lambda (y/a))\
+    F_Y (y) = 1 - e^(-lambda (y/a))
+  $
+
+  O que conclui a prova.
+] <proposicao_exponencial>
+
+#corollary[
+  Se $X ~ Expo(lambda)$, então $lambda X ~ Expo(1)$
+] <corolario_exponencial>
+
+=== Esperança
+
+Com $X ~ Expo(lambda)$
+
+$
+  E(X) = int_(-oo)^(oo) phi f_X (phi) d phi = int_(0)^(oo) phi lambda e^(-lambda phi) d phi = 1/lambda
+$
+
+=== Variância
+
+Com $X ~ Expo(lambda)$, temos:
+
+$
+  E(X^2) = int_(-oo)^(oo) phi^2 f_X (phi) d phi = int_(0)^(oo) phi^2 lambda e^(-lambda phi) d phi = 2/lambda^2  
+$ <esperanca_exponencial>
+
+E a variância fica:
+
+$
+  V(X) = E(X^2) - E(X)^2 = 2/lambda^2 - (1/lambda)^2 = 1/lambda^2
+$ <variancia_exponencial>
 
 == Distribuição Gamma
 <secao_dist_gamma>
