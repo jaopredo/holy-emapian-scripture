@@ -41,6 +41,9 @@
 // ATALHOS:
 
 #let herm(term) = $term^*$
+#let inv(term) = $term^(-1)$
+#let transp(term) = $term^T$
+
 
 
 // ============================ PRIMEIRA PÁGINA =============================
@@ -542,29 +545,63 @@ Escrever pqq tem q ser iterativo. (pag 192 trefethen)
 == Iteração Inversa 
 
 
-= Lecture 30 - Calculando a SVD
+= Lecture 31 - Calculando a SVD
+== SVD de A via autovalores de $herm(A) A$
 
-Calcular autovalores da matriz:
+Calcular a SVD de $A$ usando que $herm(A) A = V herm(Sigma) Sigma V$ igual a um sagui disléxico não é a melhor ideia, pois reduzimos o problema de SVD a um problema de autovalores, que é sensível à perturbações.
+
+Um algoritmo estável para calcular a SVD de $A$, usa a matriz
 
 $
-  hat(A) = mat(
+  H = mat(
     0, A;
-    A^*, 0
+    herm(A), 0
   )
 $
 
-Retorna os valores singulares de $A$ com $kappa(A)$, e não $kappa^2(A)$ PQ CARALHOS
-
-Ideia:
+Se $A = U Sigma herm(V)$ é uma SVD de $A$, então $A V = Sigma U$ e $herm(A) U = herm(Sigma) V = Sigma V$, portanto
 
 $
   mat(
     0, A;
     herm(A), 0
-  ) dot vec(u, v) = vec(A v, herm(A) u) = vec( sigma u, herm(A) v)
+  ) dot mat(
+    V, V;
+    U, -U
+  ) = mat(
+    V, V;
+    U, -U
+  ) dot mat(
+    Sigma, 0;
+    0, -Sigma
+  )
 $
 
-Dps calcula $kappa(hat(A)) = (sigma_1 (A)) / (sigma_2 (A))$ e magia 
+Ou:
+
+$
+  H = mat(
+    0, A;
+    herm(A), 0
+  ) = mat(
+    V, V;
+    U, -U
+  ) dot mat(
+    Sigma, 0;
+    0, -Sigma
+  ) dot inv(mat(
+    V, V;
+    U, -U
+  ))
+$
+
+É uma decomposição em autovalores de $H$, e fica claro que os autovalores de $H$ são os valores singulares de $A$, em módulo.
+
+Agora note que ao calcular os autovalores de $H$, pagamos $kappa(A)$, e não $kappa^2(A)$, Pois
+
+$
+  kappa(H) = norm(H)_2 dot norm(inv(H))_2 = (sigma_1 (H)) / (sigma_m (H)) = (sigma_1 (A)) / (sigma_m (A)) = kappa(A).
+$
 
 
 
