@@ -1,11 +1,5 @@
 #import "@preview/ctheorems:1.1.3": *
-#import "@preview/lovelace:0.3.0": *
 #show: thmrules.with(qed-symbol: $square$)
-
-#import "@preview/codly:1.3.0": *
-#import "@preview/codly-languages:0.1.1": *
-#show: codly-init.with()
-#codly(languages: codly-languages, stroke: 1pt + luma(100))
 
 #set page(width: 21cm, height: 30cm, margin: 1.5cm)
 #set heading(numbering: "1.1.")
@@ -15,7 +9,8 @@
 )
 #set page(numbering: "1")
 
-#let theorem = thmbox("theorem", "Teorema")
+#let theorem = thmbox("theorem", "Teorema", fill: rgb("#ab343447"))
+
 #let corollary = thmplain(
   "corollary",
   "Corolário",
@@ -137,6 +132,30 @@ Logo, $F_X (phi)$ é uma função crescente, e $F_X (phi) in [0,1]$.
   $
 
   Com $phi = inv(h)(y)$
+
+  Caso $h$ seja decrescente:
+
+  $
+    f_Y (y) = - (f_X (phi)) / (h^' (phi))
+  $
+
+  Caso seja injetiva (pode ser crescente e decrescente em lugares diferentes):
+
+  $
+    f_Y (y) = (f_X (phi)) / (abs(h^' (phi)))
+  $
+
+  Caso seja uma função fudida quem nem injetiva é, mas pelo menos derivável, defina $forall y in "Im"(h)$:
+
+  $
+    I_y = {x in RR | h(x) = y}
+  $
+
+  Contendo um número finito de elementos $x_1 (y), dots, x_(k(y)) (y)$. Então a densidade de $Y$ é dada por:
+
+  $
+    f_Y (y) = sum_(i=1)^(k(y)) (f_X (x_i (y))) / (abs(h^' (x_i (y))))
+  $
 ] <propriedade_derivada_inversa>
 
 
@@ -336,28 +355,325 @@ $ <variancia_exponencial>
 == Distribuição Gamma
 <secao_dist_gamma>
 
+=== A função Gamma
+
+A função $Gamma$ é definida como:
+
+$
+  Gamma(phi) = int_(0)^(oo) t^(phi - 1) e^(-t) d t
+$
+
+As propriedades abaixo serão muito úteis:
+
+#property[
+  $
+    n in NN => Gamma(n) = (n - 1)!
+  $
+] <propriedade_natural_funcao_gamma>
+
+#property[
+  $
+    Gamma(phi + 1) = phi Gamma(phi), forall phi > 0.
+  $
+] <propriedade_funcao_gamma_phimaisum>
+
+Alguns valores úteis de $Gamma$ são:
+
+$
+  Gamma(1/2) = sqrt(pi)\
+  Gamma(3/2) = (1/2) sqrt(pi)\
+  Gamma(5/2) = 3/4 sqrt(pi)\
+  Gamma(7/2) = 15/8 sqrt(pi)\
+  Gamma(1) = 1\
+  Gamma(2) = 1\
+  Gamma(3) = 2\
+  Gamma(4) = 6\
+  Gamma(5) = 24\
+  dots.v
+$
+
+=== A distribuição Gamma
+
+Uma variável aleatória $X$ tem distribuição gamma com parâmetros $alpha, lambda > 0$ se sua PDF é dada por:
+
+$
+  f_X (phi) = cases(0"," "se" phi < 0, lambda^alpha / Gamma(alpha) phi^(alpha - 1) e^(-lambda phi)"," "se" phi >= 0 )
+$
+
+==== Esperança
+
+A esperança de $Z ~ Gamma(alpha, lambda)$ é:
+
+$
+  E(Z) = int_(-oo)^(oo) phi f_Z (phi) d phi = int_(0)^(oo) phi lambda^alpha / Gamma(alpha) phi^(alpha - 1) e^(-lambda phi) d phi = 1 / Gamma(alpha) int_(0)^(oo) (lambda phi)^alpha e^(-lambda phi) d phi
+$
+
+Fazendo $x = lambda phi$, temos:
+
+$
+  E(Z) = 1 / Gamma(alpha) int_(0)^(oo) x^alpha e^(-x) (d x)/lambda = 1 /( lambda Gamma(alpha)) Gamma(alpha + 1) = alpha / lambda\
+$
+
+=== Variância
+
+Dada $Z ~ Gamma(alpha, lambda)$:
+
+$
+  E(Z^2) = 1 / (lambda Gamma(alpha)) int_(0)^(oo) (lambda x)^(alpha + 1) e^(-lambda x) d x = (1 / lambda^2 Gamma(alpha)) int_(0)^(oo) x^(alpha + 1) e^(-x) d x\
+  
+  = (1 / lambda Gamma(alpha)) Gamma(alpha + 2) = (alpha (alpha + 1)) / lambda^2
+$
+
+E a variância fica:
+
+$
+  V(Z) = E(Z^2) - E(Z)^2 = (alpha (alpha + 1)) / lambda^2 - (alpha / lambda)^2 = alpha / lambda^2
+$
+
+Isso também pode ser útil:
+
+#proposition[
+  Se $X ~ Gamma(alpha, lambda)$ e $Z = lambda X$, então $Z ~ Gamma(alpha, 1)$
+]
+
+#proof[
+  Pela @propriedade_derivada_inversa, temos:
+
+  $
+    f_Z (z) = (f_X (phi)) / (h^' (phi))\
+    h^' (phi) = lambda\
+    phi = inv(h)(z) = z/lambda
+  $
+
+  Então:
+
+  $
+    f_Z (z) = (lambda^alpha / Gamma(alpha) (z/lambda)^(alpha - 1) e^(-lambda (z/lambda))) / lambda = (1 / Gamma(alpha)) z^(alpha - 1) e^(-z)
+  $
+
+  Assim $Z ~ Gamma(alpha, 1)$.  
+]
+
 == Distribuição Normal
 <secao_dist_normal>
 
+$X$ v.a contínua tem distribuição normal com média $mu$ e variância $sigma^2$ se sua PDF é dada por:
+
+$
+  f_X (phi) = 1 / (sigma sqrt(2 pi)) e^(- ((phi - mu)^2) / (2 sigma^2))
+$
+
+Note que $f(mu + a) = f(mu - a)$, então a PDF é simétrica em torno de $mu$ (a média).
+
+A PROPOSIÇÃO ABAIXO É MUITO IMPORTANTE PARA RESOLVER PROBLEMS COM A NORMAL:
+
+#proposition[
+  Se $X ~  N(mu, sigma^2)$, então $Z = (X - mu) / sigma ~ N(0, 1)$
+] <proposicao_magia_normal>
+
+#proof[
+  Pela @propriedade_derivada_inversa, temos:
+
+  $
+    f_Z (z) = (f_X (phi)) / (h^' (phi))\
+    h^' (phi) = 1/sigma\
+    phi = inv(h)(z) = mu + sigma z
+  $
+
+  Então:
+
+  $
+    f_Z (z) = (1 / (sigma sqrt(2 pi))) e^(- ((mu + sigma z - mu)^2) / (2 sigma^2)) / (1/sigma)\
+    = 1 / sqrt(2 pi) e^(- z^2 / 2)
+  $
+
+  Logo $Z ~ N(0,1)$.
+]
+
+
+A @proposicao_magia_normal é muito útil para resolver problemas com uma tabela de valores da FDA de $N(0,1)$.
+
+=== Esperança
+
+Com $X ~ N(mu, sigma^2)$, temos:
+
+$
+  E(X) = int_(-oo)^(oo) phi f_X (phi) d phi = int_(-oo)^(oo) phi (1 / (sigma sqrt(2 pi))) e^(- ((phi - mu)^2) / (2 sigma^2)) d phi = mu
+$
+
+=== Variância
+
+Com $X ~ N(mu, sigma^2)$, temos:
+$
+  E(X^2) = int_(-oo)^(oo) phi^2 f_X (phi) d phi = int_(-oo)^(oo) phi^2 (1 / (sigma sqrt(2 pi))) e^(- ((phi - mu)^2) / (2 sigma^2)) d phi = mu^2 + sigma^2
+$
+
+Logo a variância fica:
+
+$
+  V(X) = E(X^2) - E(X)^2 = mu^2 + sigma^2 - mu^2 = sigma^2
+$
+
 == Taxa de Falhas
 <secao_taxa_falhas>
+
+#definition[
+  Seja $T$ o tempo de vida de um equipamento, ou seja o instante da sua primeira falha, cuja FDS é $F(t)$. A *confiabilidade* do equipamento é dada por:
+
+  $
+    R(t) = P(T > t) = 1 - F(t)
+  $
+] <definicao_confiabilidade>
+
+#definition[
+  A *taxa média de falhas* de um equipamento num intevalo $[t, t + Delta t]$, é a probabilidade de ele falhar nos próximos $Delta t$, dado que ainda não falhou:
+
+  $
+    "TMF" = (P(T <= t + Delta t | T > t)) / Delta t = P(T <= t + Delta t) / (Delta t dot P(T > t)) = (F(t + Delta t) - F(t)) / (Delta t [1 - F(t)])\
+
+    = (R(t + Delta t) - R(t)) / (R(t) dot Delta t)
+  $
+
+  Quando $Delta t -> 0$, obtemos a *taxa de falhas*:
+  $
+    "TF" = lim_(Delta t -> 0) (R(t + Delta t) - R(t)) / (R(t) dot Delta t) = (-R'(t)) / R(t)
+  $
+]
 
 = Variáveis Aleatórias Contínuas Bidimensionais
 == Função de Densidade Conjunta
 <secao_fdc>
 
+#definition[(Função de Densidade Conjunta)\
+
+  Uma função de densidade conjunta $f(x,y)$ das variáveis $X$ e $Y$ é uma função com a seguinte propriedade:
+
+  $
+    P((X,Y) in R) = integral.double_(R) f(x,y) d A
+  $
+
+  Onde $R subset RR^2$. Por conseguinte, $f$ deve satisfazer:
+
+  $
+    f(x,y) >= 0, forall (x,y) in RR^2\
+    int_(-oo)^(oo) int_(-oo)^(oo) f(x,y) d x d y = 1\
+  $
+] <definicao_conjunta>
+
+=== Esperança, Variância e Desvio-Padrão
+
+#definition[(Esperança)\
+  Dadas $X, Y$ com densidade conjunta $f(x,y)$, a esperança de $X$ é:
+
+  $
+    E(X) = integral.double_(RR^2) x f(x,y) d A
+  $
+] <definicao_esperanca_conjunta>
+
+#definition[(Variância, Desvio-Padrão)\
+  A variância de $X$ é análoga ao caso anterior:
+
+  $
+    V(X) = E(X^2) - E(X)^2
+  $
+
+  O desvio padrão é:
+
+  $
+    sigma(X) = sqrt(V(X))
+  $
+] <definicao_variancia_desviopadrao_conjunta>
+
+=== LOTUS 2
+
+Dadas $X, Y$ com densidade conjunta $f(x,y)$, o valor esperado de uma função qualquer $g(X,Y)$ é:
+
+$
+  E(g(X,Y)) = integral.double_(RR^2) g(x,y) f(x,y) d A
+$ <lotus2>
+
+Quando a densidade conjunta é constante em $S subset RR^2$ e $0$ fora de $S$, dizemos que $f(x,y)$ é uma função de densidade uniforme em $S$:
+
+$
+  f(x,y) = cases(0"," "se" (x,y) in.not S, 1/"Área"(S)"," "se" (x,y) in S )
+$
+
 == Distribuições Marginais e Condicionais
 <secao_distr_marginais_condicionais>
+
+Lembrando o caso discreto, dadas $X, Y$ v.a's discretas com densidade conjunta $p(x,y) = P(X = x inter Y = y)$, temos os conceitos e covariância e correlação:
+
+$
+  "Cov"(X,Y) = E(X Y) - E(X) E(Y)\
+  rho(X, Y) = "Cov"(X,Y) / (sigma(X) sigma(Y))\
+$
+
+Também temos as distribuições marginais e condicionais (Pelo teorema de Bayes e a Lei da Probabilidade Total):
+
+$
+  p_X (x) = P(X = x) = sum_(y) p(x,y)\
+  p_Y (y) = P(Y = y) = sum_(x) p(x,y)\
+  p_(X|Y) (x|y) = P(X = x | Y = y) = p(x,y) / (p_Y (y))\
+$
+
+Com $f(x,y)$ sendo uma densidade conjunta, a diferença agora é a transição de $sum -> int$:
+
+#definition[(Distribuição Marginal)\
+  A distribuição marginal de $X$ é dada por:
+
+  $
+    f_X (x) = int_(-oo)^(oo) f(x,y) d y
+  $
+] <definicao_distr_marginal>
+
+#definition[(Distribuição Condicional)\
+  A distribuição condicional de $X$ dado $Y$ é dada por:
+
+  $
+    f_(X|Y) (x|y) = f(x,y) / (f_Y (y))
+  $
+] <definicao_distr_condicional>
+
 
 == Covariância e Correlação
 <secao_covariancia_correlacao>
 
-== Mudança de Variáveis Contínuas
-<secao_mudanca_variaveis_continuas>
+A Covariância e correlação são *análogas* ao caso discreto:
 
-= Soluções de Exercícios de Testes Anteriores
-== Teste 2022
-<secao_exercicios_2022>
+#definition[(Covariância)\
+  A covariância de $X$ e $Y$ é dada por:
 
-== Teste 2021
-<secao_exercicios_2021>
+  $
+    "Cov"(X,Y) = E(X Y) - E(X) E(Y)
+  $
+] <definicao_covariancia>
+
+#definition[(Correlação)\
+  A correlação de $X$ e $Y$ é dada por:
+
+  $
+    rho(X,Y) = "Cov"(X,Y) / (sigma(X) sigma(Y))
+  $
+] <definicao_correlacao>
+
+== Esperança Condicional
+
+Isso é bem útil:
+
+#definition[
+  A esperança condicional de $X$ na certeza de $Y = y$ é:
+
+  $
+    E(X | Y = y) = int_(-oo)^(oo) x f_(X|Y) (x|y) d x 
+  $
+
+  (As vezes denotado por $E[X|y]$).
+]
+
+== Independência
+
+As v.a's contínuas $X$ e $Y$ são ditas *independentes* se e somente se a densidade conjunta $f(x,y)$ for o produto das marginais:
+
+$
+  f(x,y) = f_X (x) f_Y (y)
+$
