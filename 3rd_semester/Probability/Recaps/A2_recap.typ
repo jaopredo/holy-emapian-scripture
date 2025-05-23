@@ -414,7 +414,7 @@ $
   E(Z) = 1 / Gamma(alpha) int_(0)^(oo) x^alpha e^(-x) (d x)/lambda = 1 /( lambda Gamma(alpha)) Gamma(alpha + 1) = alpha / lambda\
 $
 
-=== Variância
+==== Variância
 
 Dada $Z ~ Gamma(alpha, lambda)$:
 
