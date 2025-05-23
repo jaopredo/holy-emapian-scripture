@@ -670,6 +670,32 @@ Isso é bem útil:
   (As vezes denotado por $E[X|y]$).
 ]
 
+Os teoremas da gênesis também são úteis:
+
+#theorem[(Lei de Adão)\
+  $forall$ v.a's $X, Y$ temos:
+
+  $
+    E(E(X|Y)) = E(X)
+  $
+]
+
+#proof[
+  Trivial
+]
+
+#theorem[(Lei de Eva)\
+  $forall$ v.a's $X, Y$, temos:
+
+  $
+    V(Y) = E(V(Y|X)) + V(E(Y|X))
+  $
+]
+
+#proof[
+  Trivial
+]
+
 == Independência
 
 As v.a's contínuas $X$ e $Y$ são ditas *independentes* se e somente se a densidade conjunta $f(x,y)$ for o produto das marginais:
