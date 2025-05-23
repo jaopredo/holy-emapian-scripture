@@ -352,6 +352,16 @@ $
   V(X) = E(X^2) - E(X)^2 = 2/lambda^2 - (1/lambda)^2 = 1/lambda^2
 $ <variancia_exponencial>
 
+=== Perda de Memória
+
+Uma v.a $X$ tem a propriedade de *perda de memória* se:
+$
+  P(X > s + t | X > s) = P(X > t)
+$
+Isto é, a probabilidade de $X$ ser maior que $s + t$, dado que já passou $s$, é a mesma que a probabilidade de $X$ ser maior que $t$.
+
+*A distribuição exponencial é a única distribuição contínua que tem a propriedade de perda de memória.*
+
 == Distribuição Gamma
 <secao_dist_gamma>
 
