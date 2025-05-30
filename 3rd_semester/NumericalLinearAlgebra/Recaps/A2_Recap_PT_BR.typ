@@ -553,7 +553,7 @@ Voltando ao algoritmo de *back substitution*, temos o seguinte teorema:
 Vamos relembrar o problema dos mínimos quadrados?
 
 $
-  "Dada" A in CC^(m times n) "de posto completo," m >= n e b in CC^(m),\
+  "Dada" A in CC^(m times n) "de posto completo," m >= n " e " b in CC^(m),\
   "ache" x in CC^n "tal que" ||b - A x||_2 "seja a menor possível"
 $<min-squares>
 
@@ -1212,8 +1212,21 @@ Essa forma é *muito útil* em análise numérica tendo em vista que *toda matri
 
 #pagebreak()
 
-== Ideia da Iteração de Potência
+Essa Lecture é focada em mostrar a ideia geral dos algoritmos que são divididos em duas fases
 
+1. Redução da forma completa para uma forma estrategicamente estruturada
+2. Aplicação de um processo iterativo que leva à convergência dos autovalores
+
+Ela também foca em explicar as vantagens desses métodos
+
+== Algoritmos Óbvios (Ou nem tanto)
+Por mais que os autovetores e autovalores tenham propriedades bonitas e simples, calcular eles de uma maneira numericamente estável não é algo tão simples e os algoritmos não são os mais óbvios. O mais óbvio que pensamos é calcular o polinômio característico da matriz e achar suas raízes, acontece que isso é uma péssima ideia, já que achar as raízes de um polinômio é um problema mal-condicionado.
+
+Agora a gente pode tirar vantagem do fato que a sequência
+$
+  (x)/(||x||), (A x)/(||A x||), (A^2 x)/(||A^2 x||),...,(A^n x)/(||A^n x||)
+$
+converge, sobre certas condições, para o maior autovalor (Em valor absoluto) de $A$. Esse método é chamado de *Iteração sob Potências*, mas não é um método muito eficiente e não é utilizado em situações muito usuais.
 
 == A ideia dos Algoritmos de Autovalores
 Escrever pqq tem q ser iterativo. (pag 192 trefethen)
