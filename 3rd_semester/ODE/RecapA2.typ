@@ -112,7 +112,7 @@ $
   Se $F(s) = L{f(t)}$ existe, dada $f: RR -> RR$, então:
 
   $
-    L{u_c (t) f(t - c)} = e^(-s c) dot inv(L, 1) {f(t)}
+    L{u_c (t) f(t - c)} = e^(-s c) dot L{f(t)}
   $
 ]
 
@@ -149,6 +149,12 @@ A transformada de Laplace da função impulso é:
 
 $
   L{delta(t - c)} = e^(-s c)
+$
+
+E também vale:
+
+$
+  L{delta(t - c) f(t)} = f(c) e^(-s c)
 $
 
 
