@@ -1728,7 +1728,7 @@ Mas não precisamos entrer em detalhes mais aprofundados. Assim como na lecture 
 ]
 
 == Iteração Simultânea
-Conforme $k -> infinity$, os vetores $v_j^((k))$ vão convergindo para múltiplos do autovetor dominante (Associado ao autovalor). Quando eu digo múltiplos, eu quero dizer muito próximos. Por mais que o span deles convirja para algo útil, eles em si formam uma base muito mal condicionada.
+Conforme $k -> infinity$, os vetores $v_j^((k))$ vão convergindo para múltiplos do autovetor dominante (Associado ao autovalor). Quando eu digo múltiplos, eu quero dizer muito próximos. Por mais que o span deles converja para algo útil, eles em si formam uma base muito mal condicionada.
 
 Vamos fazer uma alteração então, vamos construir uma sequência de matrizes $Z^((k))$ tal que $C(Z^((k))) = C(V^((k)))$
 
@@ -1869,22 +1869,84 @@ $
 Perceba que $underline(Q)^((k))P$ é ortogonal ($underline(Q)^((k))$ é ortogonal e $P$ também) e $P(underline(R)^((k)))^(-T)P$ é triangular superior ($(underline(R)^((k)))^(-T)$ é triangular inferior, daí eu inverto a ordem das colunas, e depois a ordem das linhas, aí fica triangular superior), ou seja, a equação anterior pode ser interpretada como uma fatoração QR de $A^(-k)P$. Isso que fizemos é a mesma coisa que aplicar o agloritmo QR na matriz $A^(-1)$ usando a matriz $P$ como ponto de partida do algoritmo.
 
 == Conexão com o Algoritmo de Iteração Reversa com Shifts
-Ok, a gente viu então que o algoritmo QR é tipo uma mistureba da iteração reversa e da iteração simultânea reversa. O negócio é que a gente viu em umas lectures anteriores que o último que mencionei pode ser melhorado com o uso de shifts (@shifted-qr-with-well-known-shifts). Isso é como inserir shifts nos dois algoritmos que comentei anterioremente.
+Ok, a gente viu então que o algoritmo QR é tipo uma mistureba da iteração reversa e da iteração simultânea reversa. O negócio é que a gente viu em umas lectures anteriores que o último que mencionei pode ser melhorado com o uso de shifts (@shifted-qr-with-well-known-shifts). Isso é como inserir shifts nos dois algoritmos que comentei anterioremente. Vou escrever o algoritmo aqui novamente (Omiti a parte final de obter as submatrizes):
 
-Deixe que $mu^((k))$ seja a aproximação de autovalor que a gente escolhe no $k$-ésimo passo do algoritmo QR. De acordo com o @shifted-qr-with-well-known-shifts, 
+#figure(
+  kind: "algorithm",
+  supplement: [Algoritmo],
+  pseudocode-list(booktabs: true)[
+    + *function* ShiftedQR($A in CC^(m times m)$) {
+      + $(Q^((0)))^T A^((0)) Q^((0)) = A$
+      + *for* $k = 1, 2, 3, ...$
+        + Escolha um shift $mu^((k))$
+        + $Q^((k)), R^((k)) = "qr"(A^((k-1)) - mu^((k))I)$
+        + $A^((k)) = R^((k)) Q^((k)) + mu^((k))I$
+        + ...
+    + }
+  ]
+)
 
+Deixe que $mu^((k))$ seja a aproximação de autovalor que a gente escolhe no $k$-ésimo passo do algoritmo QR. De acordo com o @shifted-qr-with-well-known-shifts, a relação entre os passos $k-1$ e $k$ do algoritmo é:
+$
+  A^((k-1)) - mu^((k))I = Q^((k))R^((k))    \
+  A^((k)) = R^((k))Q^((k)) + mu^((k))I
+$
 
+Isso nos dá o seguinte (Só fazer umas substituições):
+$
+  A^((k)) = (Q^((k)))^T A^((k-1))Q^((k))
+$
 
+Aí se a gente aplica uma indução, temos:
+$
+  A^((k)) = (underline(Q)^((k)))^T  A  underline(Q)^((k))
+$
 
+Se você para pra olhar, é a mesma coisa que a gente definiu no @unshifted-qr-and-sumultanious-iteration-equivalence (Segunda equação). O problema é que a primeira equação não vale mais, ela vai ser substituida por:
+$
+  product_(j=k)^1 (A - mu^((j))I) = underline(Q)^((k)) underline(R)^((k))
+$
 
+Aí a gente não precisa entrar em detalhes da prova dessa equivalência. Isso acarreta que as colunas de $underline(Q)^((k))$ aos poucos vão convergindo para autovetores de A. O livro da uma ênfase na primeira e na última coluna, onde cada uma é equivalente a apliar o algoritmo da iteração reversa com shifts nos vetores canônicos $e_1$ e $e_m$ respectivamente.
 
+== Conexão com a Iteração do Quociente de Rayleigh
+Beleza, vimos que os shifts são bem poderosos para o cálculo das matrizes, mas aí tu pode tá se perguntando: "Q djabo eu faço pra escolher meus shift? Eu tenho q ser Mãe de Ná?". E você está corretíssimo, precisamos de um método para escolher shifts interessantes para o algoritmo.
 
+Faz sentido a gente tentar usar o quociente de Rayleigh pra isso. A gente quer tentar fazer com que a última coluna de $underline(Q)^((k))$ converja. Então faz sentido a gente usar o Quociente de Rayleigh com essa última coluna né?
+$
+  mu^((k)) = ((q_m^((k)))^T A q_m^((k)))/(q_m^((k))^T q_m^((k))) = (q_m^((k)))^T A q_m^((k)))
+$
 
+Se escolhermos esse valor, as estimativas $mu^((k))$ (Estimativa de autovalor) e $q_m^((k))$ estimativa de autovetor são identicos àqueles computados pela iteração do quociente de rayleigh com o vetor inicial sendo $e_m$
 
+Tem um negócio bem massa que a gente pode ver com isso. Que o valor $A^((k))_(m m)$ é igual a $r(q_m^((k)))$ ($r$ sendo a função do quociente de rayleigh), a gente pode visualizar assim:
+$
+  A^((k))_(m m) = e_m^T A^((k)) e_m = e_m^T (underline(Q)^((k)))^T A underline(Q)^((k)) e_m = q_m^((k))^T A q_m^((k))
+$
 
+Ou seja, escolher $mu^((k))$ como sendo o coeficiente de rayleigh de $q_m^((k))$ é a mesma coisa que escolher ele como sendo a última entrada de $A^((k))$. A gente chama isso de *Shift do Quociente de Rayleigh*.
 
+== Wilkinson Shift
+A gente tem um problema com o método anterior. Nem sempre escolhermos $A^((k))_(m m)$ ou $r(q_m^((k)))$ como os shifts para convergência funciona. Um exemplo disso é a matriz:
+$
+  mat(0, 1;1, 0)
+$
 
+Isso ocorre porque temos uma simetria nos autovalores ($1$ e $-1$) e $A^((k))_(m m) = 0$, o que acarreta que ao escolhermos esse valor como shift, o algoritmo tende a beneficiar ambos os autovalores igualmente (Ou seja, eu não tá mais próximo de nenhum, vou ta igualmente distante dos dois). A gente precisa de uma estimativa que quebre a simetria, vamo fazer o seguinte então:
 
+Deixe $B$ ser definida pelo bloco $2 times 2$ inferior direito da matriz $A^((k))$
+$
+  B = mat(a_(m-1),b_(m-1);b_(m-1),a_m)
+$
+
+O *Shift de Wilkinson* é definido como o autovalor mais próximo de $a_m$. Em caso de empate, eu seleciono qualquer um dos dois autovalores arbitrariamente. Aqui tem uma fórmula numericamente estável pra achar esses autovalores:
+$
+  mu = a_m - ("sign"(delta)b_(m-1)^2)/(|delta| + sqrt(delta^2 + b_(m-1)^2))
+$
+
+onde $delta = (a_(m-1) - a_m)/2$. Se $delta = 0$, eu posso definir $"sign"(delta)$ como sendo $1$ ou $-1$ arbitrariamente. O *Shift de Wilkinson* também atinge convergência cúbica e, nos piores casos, pelo menos quadrática (Pode ser mostrado). Em partiular, o algoritmo QR com shift de Wilkinson sempre converge.
+
+== Estabilidade e Precisão
 
 
 
