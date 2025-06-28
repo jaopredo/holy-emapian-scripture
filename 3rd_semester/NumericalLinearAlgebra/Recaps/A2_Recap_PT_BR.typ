@@ -2264,7 +2264,51 @@ já que ela é similar a $T$ ($mat(Q_1^T;,Q_2^T)mat(Q_1;,Q_2)=I$). Mas como que 
 #pagebreak()
 == SVD de A via autovalores de $herm(A) A$
 
-Calcular a SVD de $A$ usando que $herm(A) A = V herm(Sigma) Sigma V$ igual a um sagui disléxico não é a melhor ideia, pois reduzimos o problema de SVD a um problema de autovalores, que é sensível à perturbações.
+Calcular a SVD de $A$ usando que $herm(A) A = V herm(Sigma) Sigma V$ igual a um sagui disléxico não é a melhor ideia. O algoritmo padrão seria:
+
+1. Calcule $A^* A$
+2. Calcular $A^* A = V Lambda V$
+3. Defina $Sigma$ como a matriz $m times n$ não-negativa que é a raíz de $Lambda$
+4. Resolva $U Sigma = A V$ para uma $U$ unitária
+
+Só que a gente pode mostrar que esse algoritmo não é ideal é instável. Pelo Exercício 26.3 (b) do livro, temos o seguinte:
+
+#theorem[
+  Suponha que $A$ é normal. Para cada autovalor $accent(lambda, ~)_j$ de $A + delta A$, existe um autovalor $lambda_j$ de $A$ tal que
+  $
+    |accent(lambda, ~)_j - lambda_j| < ||delta A||_2
+  $
+]
+
+Usando esse teorema, fazemos uma perturbação $delta B$ em $A^* A$, de forma que:
+$
+  |lambda_k (A^*A + delta B) - lambda_k (A^*A)| <= ||delta B||_2
+$
+
+Agora vamos supor um algoritmo *backward stable* que calcula os valores singulares de $A$. Esse algoritmo vai retornar valores $accent(sigma, ~)$ tais que:
+$
+  accent(sigma, ~)_k = sigma_k (A + delta A), space (||delta A||)/(||A||) = O(epsilon_"machine")
+$
+
+ou seja, temos que
+$
+  |accent(sigma, ~)_k - sigma_k| = O(epsilon_"machine" dot ||A||)
+$
+
+Porém, a gente também pode supor um algoritmo *backward stable* para calcular os autovalores de $A^* A$, então esse algoritmo nos daria valores $accent(lambda, ~)$ tais que:
+$
+  |accent(lambda, ~)_k - lambda_k| = O(epsilon_"machine" dot ||A^*A||) = O(epsilon_"machine" dot ||A||^2)
+$
+
+Então a gente pode tirar a raíz desses valores computados, correto?
+$
+  |accent(sigma_k, ~) - sigma_k| = O(|accent(lambda, ~)_k - lambda_k|\/sqrt(lambda_k)) = O(epsilon_"machine" ||A||^2 \/ sigma_k)
+$
+
+E isso é pior do que antes, ou seja, mesmo que utilizemos algoritmos estáveis para calcular os autovalores de $A^*A$ e tirar sua raíz quadrada, ainda teríamos erros maiores do que algoritmos diretos para calcular os valores singulares.
+
+== Redução para um problema de Autovalores
+Por conta disso, reduzimos o problema de SVD a um problema de autovalores, que é sensível à perturbações.
 
 Um algoritmo estável para calcular a SVD de $A$, usa a matriz
 
@@ -2275,8 +2319,7 @@ $
   )
 $
 
-Se $A = U Sigma herm(V)$ é uma SVD de $A$, então $A V = Sigma U$ e $herm(A) U = herm(Sigma) V = Sigma V$, portant
-
+Se $A = U Sigma herm(V)$ é uma SVD de $A$, então $A V = Sigma U$ e $herm(A) U = herm(Sigma) V = Sigma V$, portanto
 $
   mat(
     0, A;
@@ -2318,3 +2361,49 @@ Agora note que ao calcular os autovalores de $H$, pagamos $kappa(A)$, e não $ka
 $
   kappa(H) = norm(H)_2 dot norm(inv(H))_2 = (sigma_1 (H)) / (sigma_m (H)) = (sigma_1 (A)) / (sigma_m (A)) = kappa(A).
 $
+
+== Divisão em duas fases
+Porém, nós vimos algoritmos de autovalores para matrizes tridiagonais, e $H$ não é tridiagonal, como podemos ver. Então o que fazemos? Nós dividimos o processo de achar a SVD em duas etapas, uma de tridiagonalização (Ou bidiagonalização, como veremos), e uma de diagonalização (Achar os autovalores da matriz bidiagonalizada)
+
+#figure(
+  caption: [As fases de um algoritmo de SVD],
+  image("images/svd-algorithm-phases.png")
+)
+
+== Bidiagonalização de Galub-Kahan
+A ideia é aplicar matrizes unitárias distintas na esquerda de $A$ e na sua direita, e advinha que tipo de matrizes usamo? Exatamente: *Refletores de Householder*. A ideia é aplicar refletores a esquerda de $A$ para colocar zeros abaixo da diagonal principal e a direita para aplicar zeros após a diagonal superior de $A$:
+
+#figure(
+  image(width: 70%, "images/galub-kahan-diagonalization.png"),
+  caption: [Bidiagonalização de Galub-Kahan exemplificada]
+)
+
+== Métodos de Bidiagonalização mais eficientes
+Um método mais rápido que podemos aplicar quando $m > n$ é a _Bidiagonalização de Lawson-Hanson-Chan_, que consiste em aplicar a bidiagonalização de Galub-Kahan em $R$ da fatoração QR de $A$. Pois assim reduzimos o problema para uma bidiagonalização numa matriz triangular, veja:
+
+#figure(
+  image("images/lhc-bidiagonalization.png"),
+  caption: [Bidiagonalização LHC exemplificada]
+)
+
+Isso gera uma redução na quantidade de operações gastas para fazer o algoritmo. O problema é que, de acordo com o livro, isso só vale a pena quando $m > 5/3 n$. O interessante seria generalizar isso para o caso $m > n$. E isso é possível!
+
+A ideia para essa generalização é não fazer a fatoração QR no inicio do algoritmo, mas em pontos adequados do algoritmo. Mas que pontos são esses? Conforme vamos fazendo a bidiagonalização, a proporção de $m$ e $n$ vai alterando a cada passo do algoritmo, como assim? Imagine que estamos aplicando o algoritmo numa matriz $10000 times 30$, no segundo passo do algoritmo, perceba que vamos aplicar na matriz $9999 times 29$, se fizermos a proporção de ambos:
+$
+  10000/30 approx 333,33 \
+  9999/29 approx 344,79 \
+  9998/28 approx 357,07
+$
+
+Perceba que a proporção só aumenta pois eu estou sempre aplicando em matrizes com $m$ muito grande. O livro fala que o que fazemos é aplicar a fatoração QR no $k$-ésimo passo quando:
+$
+  (m-k)/(n-k) = 2
+$
+Veja a ilustração do processo:
+#figure(
+  image(width: 90%, "images/lah-optimization.png"),
+  caption: [Aplicação da QR em pontos-chave da iteração]
+)
+
+== Fase 2
+A fase 2 é aplicar algum algoritmo de autovalores na matriz que encontramos. Os dois principais algoritmos que são utilizados é uma versão modificada do algoritmo QR e o dividir e conquistar
