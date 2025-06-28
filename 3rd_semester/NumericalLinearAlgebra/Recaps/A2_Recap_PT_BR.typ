@@ -1400,7 +1400,7 @@ Assim como o algoritmo de Householder, para a fatoração QR, esse algoritmo é 
     accent(Q, ~)accent(H, ~)accent(Q, ~)^* = A + delta A," tal que " (||delta A||)/(||A||) = O(epsilon_"machine")
   $
   para algum $delta A in CC^(m times m)$
-]
+]<householder-stability-and-precision>
 
 
 #pagebreak()
@@ -1947,7 +1947,310 @@ $
 onde $delta = (a_(m-1) - a_m)/2$. Se $delta = 0$, eu posso definir $"sign"(delta)$ como sendo $1$ ou $-1$ arbitrariamente. O *Shift de Wilkinson* também atinge convergência cúbica e, nos piores casos, pelo menos quadrática (Pode ser mostrado). Em partiular, o algoritmo QR com shift de Wilkinson sempre converge.
 
 == Estabilidade e Precisão
+Como esperado, os algoritmos vistos anteriormente são *backward stable*, ou seja, calcular os autovalores de uma matriz $A$ com os algoritmos é o mesmo que calcular os autovalores de uma matriz levemente perturbada $accent(A, \~)$ do modo puramente matemático. O teorema a seguir pode ser provado, mas não é o intuito:
 
+#theorem[
+  Deixe uma matriz real, simétrica e tridiagonal $A in RR^(m times m)$ ser diagonalizada pelo algoritmo QR (@shifted-qr-with-well-known-shifts) em um computador ideal. Deixe $accent(Lambda, \~)$ ser a matriz de autovalores de $A$ computada por aritmética de ponto flutuante e $accent(Q, \~)$ a matriz exatamente ortogonal associada ao produto dos refletores de householder e rotações utilizadas nos algoritmos, temos que:
+  $
+    accent(Q, \~) accent(Lambda, \~) accent(Q, \~) = A + delta A
+  $
+  onde
+  $
+    (||delta A||)/(||A||) = O(epsilon_"machine")
+  $
+  para algua $delta A in CC^(m times m)$
+]<qr-algorithm-stability-and-precision>
+
+Isso mostra que temos resultados muito bom! Inclusive, juntando com alguns outros teoremas que vimos (@qr-algorithm-stability-and-precision e @householder-stability-and-precision), temos que, para todo autovalor $lambda_j$, o autovalor computado $accent(lambda_j, \~)$ satisfaz:
+$
+  (|accent(lambda_j, \~) - lambda_j|)/(||A||) = O(epsilon_"machine")
+$
+
+#pagebreak()
+
+#align(center + horizon)[
+  = Discos de Gershgorin
+]
+
+#pagebreak()
+Os Discos de Gershgorin é um método de estimar *onde* estão os autovalores de uma matriz complexa no plano de *Argand-Gauss* (Aquele plano que representa os complexos). Como assim? Vamos pegar uma matriz aleatória $A in CC^(3 times 3)$, eu sei que ela tem, no máximo, 3 autovalores. Aplicando o teorema dos discos (Vou explicar posteriormente como aplicar, vamos só entender a ideia) eu obtive o seguinte resultado:
+
+#figure(
+  image("images/Gershgorin-Circles.jpg"),
+  caption: [Ilustração dos Discos de Gershgorin de uma matriz $3 times 3$]
+)
+
+Isso significa que os autovalores da minha matriz $A$ estão em *algum lugar* dentro desses círculos roxos. Mas qual é a utilidade disso? Na verdade é muito útil, pois nos dá uma noção de *shifts* para utilizarmos em algoritmos
+
+#theorem[
+  Os autovalores de uma matriz complexa $A = [a_(i j)] in CC^(m times m)$ estão contidos na união dos discos:
+  $
+    union.big_(i = 1)^m { z in CC: |z - a_(i i)| <= sum_(j != i)|a_(i j)| }
+  $
+]<gershgorin-discs-theorem>
+#proof[
+  Dada uma matriz $A in CC^(m times m)$ e um autovetor $v$ de $A$ tal que $A v = lambda v$ e seja $v_i$ a entrada de maior magnitude de $v$, temos:
+  $
+    sum_(j=1)^m A_(i j) v_j = lambda v_i \
+
+    A_(i i) v_i + sum_(j!=i)^m A_(i j) v_j = lambda v_i \
+
+    sum_(j!=i)^m A_(i j) v_j = lambda v_i - A_(i i) v_i  \
+
+    1/v_i sum_(j!=i)^m A_(i j) v_j = lambda - A_(i i) \
+
+    |1/v_i sum_(j!=i)^m A_(i j) v_j| = |lambda - A_(i i)| \
+  $
+
+  Por desigualdade triangular, reescrevemos como:
+  $
+    sum_(j!=i)^m |A_(i j) v_j/v_i| >= |lambda - A_(i i)|
+  $
+
+  Veja que, como $v_i$ é a entrada de maior magnitude de $v$, temos que $|v_j/v_i| <= 1$ $forall j$. Isso quer dizer que:
+  $
+    sum_(j!=i)^m |A_(i j) v_j/v_i| <= sum_(j!=i)^m |A_(i j)|
+  $
+
+  Ou seja, podemos reescrever como:
+  $
+    sum_(j!=i)^m |A_(i j)| >= |lambda - A_(i i)|
+  $
+
+  Isso quer dizer que o autovalor $lambda$ está localizado dentro de um disco com centro $A_(i i)$ e raio $sum_(j!=i)^m |A_(i j)|$
+]
+
+
+
+#pagebreak()
+
+#align(center + horizon)[
+  = Lecture 30 - Outros algoritmos de Autovalores
+]
+
+#pagebreak()
+
+== Algoritmo de Jacobi
+A gente pode imaginar uma matriz $A$ como uma representação de um elipsóide num plano. Tente imaginar no plano $3$D. Se a gente conseguir rotacionar essa matriz $A$ (Rotacionar a elipe) até o ponto de que os eixos da elipse se alinhem com os eixos do plano, então $A$ seria diagonal (Ou seja, a gente obteria uma diagonalização de $A$).
+
+Para uma melhor vizualisação desse conceito, veja #underline[#link("https://youtu.be/dQQ2PXo2maM?si=zsqU_lXXAm8mig0O")[esse vídeo]]
+
+Ok, então o que podemos fazer pra ir fazendo isso? Vamos aplicando pequenas rotações $2 times 2$ até obter o resultado designado, as rotações são do tipo:
+$
+  mat(
+    c, s;
+    -s, c
+  )
+$
+
+onde $c = cos(theta)$ e $s = sin(theta)$ para algum $theta$. Vale dizer também que essa rotação é para o caso de $A in RR^(2 times 2)$. Se $A$ é uma matriz de dimensão maior, então a matriz de rotação é a identidade com um bloco do tipo que apresentei antes em algum lugar (Qualquer lugar da matriz). No final a gente teria uma matriz $J$ tal que:
+$
+  J^T A J = "Diagonal"
+$
+
+== Bisection
+Antes de tudo, vou explicar o que é o algoritmo de Bisection. Ele é um algoritmo pra estimar as raízes de uma função.
+
+Temos uma função $f(x)$ e queremos estimar suas raízes. Então pegamos uma região $[a, b]$ de forma que $f(a)<0$ e $f(b)>0$ (Ou o contrário). Pelo TVI, isso significa que uma raíz $f(delta)=0$ é tal que $delta in [a, b]$. Pegamos então o ponto médio do intervalo $c = (a+b)/2$ e calculamos $f(c)$. Daí, fazemos a seguinte análise:
+
+- Se $f(a)f(c)<0$, então a raíz $delta$ está a esquerda de $c$, então eu vou fazer o processo novamente no intervalo $[a, c]$. Se não, então a raíz não está no intervalo $[a, c]$
+- Se $f(b)f(c)<0$, então a raíz $delta$ está a direita de $c$, então eu vou fazer o processo novamente no intervalo $[c, b]$. Se não, então a raíz não está no intervalo $[c, b]$
+
+#image("images/function-example.png")
+
+Essa é a ideia para achar os autovalores, aplicamos isso no polinômio característico. Ué, mas usar o polinômio não era uma ideia ruim de autovalor? Na real que a ideia ruim é achar a raíz do polinômio pelos seus *coeficientes*, isso sim é instável. No método de bisection a gente não precisa calcular isso.
+
+Vamos definir algumas coisas antes de continuar com o algoritmo.
+
+Chame de $A^((j))$ a submatriz principal de $A$ com tamanho $j times j$ e tenha que $A in RR^(m times m)$ é tridiagonal, simétrica e não-redutível (0 fora da diagonal, com exceção das diagonais superior e inferior)
+$
+  A = mat(
+    a_1, b_1;
+    b_1, a_2, b_2;
+    , b_2, a_3, dots.down;
+    ,,dots.down, dots.down, b_(m-1);
+    ,,,b_(m-1), a_m
+  )
+$
+
+Tenha também o seguinte teorema (É um exercício do livro)
+
+#theorem[
+  Se $A in CC^(m times m)$ é tridiagonal, hermitiana e as entradas acima e abaixo da diagonal são diferentes de 0, então os autovalores de $A$ são todos distintos
+]<tridiagonal-distinct-eigenvalues>
+
+Esse ponto é muito importante. Por conta dele, podemos organizar os autovalores de $A^((k))$ como:
+$
+  lambda_1^((k)) < lambda_2^((k)) < ... < lambda_m^((k))
+$
+
+Então é possível provar que $lambda_j^((k+1)) < lambda_j^((k)) < lambda_(j+1)^((k+1))$, veja a figura para ter uma noção visual:
+
+#image("images/Overlaping-property.png")
+
+Por conta disso eu consigo dizer quantos autovalores de uma matriz são positivos ou negativos, etc. Imagina a seguinte matriz:
+
+$
+  mat(
+    1,1;
+    1,0,1;
+    ,1,2,1;
+    ,,1,-1
+  )
+$
+
+E vamos analisar a seguinte sequência (Lembre-se que $det(A) = product_(i=1)^m lambda_i$):
+- $det(A^((1))) = 1 =>$ 0 autovalores negativos
+- $det(A^((2))) = -1 =>$ 1 autovalor negativo
+- $det(A^((3))) = -3 =>$ 1 autovalor negativo
+- $det(A^((4))) = 4 =>$ 2 autovalores negativos
+
+#definition("Sequência de Sturm")[
+  A sequência de Sturm é definida por:
+  $
+    1, det(A^((1))), det(A^((2))), ..., det(A^((m)))
+  $
+]
+
+É fácil notar que a quantidade de autovalores negativos de $A$ está ligado a quantas vezes o sinal do determinante muda na sequência de Sturm (de 0 e + para - ou de - para 0 ou +). Mas por que isso é interessante? Eu falei e falei mas não estou vendo muito a utilidade disso.
+
+Por conta dessas estimações, conseguimos, por exemplo, saber quantos autovalores estão dentro de um intervalo $[a,b]$. Vamos fazer a inserção de um shift $x I$. Vamos calcular os autovalores de $A - x I$, mas por quê? Acontece que os autovalores de $A - x I$ são $lambda - x$, ou seja, se eu pegar todos os valores de $lambda - x < 0 <=> lambda < x$, logo, eu consigo estimar a quantidade de autovalores de $A$ no intervalo $[-infinity, x]$
+
+Também podemos fazer uma pequena troca e fazer um passo-a-passo mais conciso. Se vermos como $A$ é formada, temos que:
+$
+  det(A^((k))) = a_k det(A^((k-1))) - b^2_(k-1) det(A^((k-2)))
+$
+
+Se trocarmos $det(A^((k)))$ por $det(A^((k)) - x I) = p^((k))(x)$
+$
+  p^((k))(x) = (a_k - x)p^((k-1))(x) - b_(k-1)^2 p^((k-2))(x)
+$
+
+E se definirmos $p^((-1))(x)=0$ e $p^((0))(x)=1$, conseguimos, uma fórmula de recorrência para $k = 1, 2, ..., m$
+
+== Dividir para Conquistar
+Esse método consiste em pegar a matriz tridiagonal e subdividi-la em matrizes menores que são mais fáceis de se trabalhar. A ideia principal é a seguinte. Temos $T in RR^(m times m)$ com $m >= 2$ simétrica, tridiagonal e irredutível (No sentido que os valores fora da diagonal são diferentes de 0). Então podemos dividir a matriz $T$ da seguinte forma:
+
+#image("images/tridiagonal-sum-factorization.png")
+
+Fazemos essa divisão em que $T_1$ é $n times n$ e $T_2$ é $m-n times m-n$. A diferença de $T_1$ para $accent(T, \^)_1$ é que o elemento $t_(n n)$ foi substituido por $t_(n n) - beta$ e a diferença de $T_2$ para $accent(T, \^)_2$ é que o elemento $t_(n+1 n+1)$ foi trocado por $t_(n+1 n+1) - beta$. Após fazer essa divisão, a gente vai subdividindo $accent(T, \^)_j$ da mesma forma que fizemos com $T$, de forma que no final vamos ter uma matriz $1 times 1$ (A qual sabemos com certeza quem é o autovalor).
+
+Beleza, mas como que isso vai me ajudar? É possível mostrar que, sabendo os autovalores de $accent(T, \^)_j$, conseguimos achar os autovalores de $T$. Mostrando isso, acaba que isso vira um caso de recursão, já que, ao acharmos o autovalor da matriz $1 times 1$ (Trivial), vamos subindo até o caso $m times m$ ($T$).
+
+Vamos supor que conhecemos os autovalores de $accent(T, \^)_j$. Vamos então supor a seguinte diagonalização: $accent(T, \^) = Q_j D_j Q_j^T$. Podemos então fazer a seguinte transformação de similaridade:
+$
+  T = mat(
+    Q_1;
+    ,Q_2
+  )
+  (
+    mat(
+      D_1;
+      ,D_2
+    )
+    +
+    beta z z^T
+  )
+  mat(
+    Q_1^T;
+    ,Q_2^T
+  )
+$
+
+Onde $z^T = mat(q_1^T, q_2^T)$, onde $q_1^T$ é a última linha de $Q_1$ e $q_2^T$ é a última linha de $Q_2$. O segundo termo do interior da matriz pode ser dificil de visualizar. O primeiro é bem intuitivo de que vai se transformar em $mat(accent(T, \^)_1;,accent(T, \^)_2)$, mas o segundo não é tão intuitivo. Vou tentar explicar melhor.
+
+Pelo que definimos antes, podemos visualizar $Q_1$ e $Q_2$ como
+$
+  Q_1 = mat(
+    ,dots.v;
+    -,q_1,-;
+  )
+  " e "
+  Q_2 = mat(
+    -,q_2,-;
+    ,dots.v;
+  )
+$
+
+Vamos ver o que acontece com a multiplicação:
+$
+  mat(
+    Q_1;
+    ,Q_2
+  )
+  
+  beta mat(q_1;q_2) mat(q_1^T, q_2^T)
+
+  mat(
+    Q_1^T;
+    ,Q_2^T
+  )
+  
+  \
+
+  beta
+
+  mat(
+    Q_1 q_1;
+    ,Q_2 q_2
+  )
+
+  mat(
+    q_1^T Q_1^T;
+    ,q_2^T Q_2^T
+  )
+
+  \
+  
+  beta
+
+  mat(
+    0;dots.v;1;
+    1;dots.v;0
+  )
+
+  mat(
+    0.dots.h,1,
+    1,dots.h,0
+  )
+
+  \
+
+  mat(
+    0;
+    ,dots.down;
+    ,,beta,beta;
+    ,,beta,beta;
+    ,,,,dots.down;
+    ,,,,,0
+  )
+$
+
+Que é justamente a matriz que tinhamos antes, então a fatoração está correta! Beleza, então eu só preciso achar os autovalores de
+$
+  mat(D_1;,D_2) + beta z z^T
+$
+já que ela é similar a $T$ ($mat(Q_1^T;,Q_2^T)mat(Q_1;,Q_2)=I$). Mas como que eu faço isso? Em vez de trabalhar com o caso especifico de $z$, vamos generalizar para qualquer vetor $w$.
+
+#theorem("Equação Secular")[
+  Queremos achar os autovalores de $D + w w^T$ onde $D$ é uma matriz diagonal com entradas distintas (@tridiagonal-distinct-eigenvalues), então esses autovalores são as raízes da função
+  $
+    f(lambda) = 1 + sum_(j=1)^m (w_j^2)/(d_j - lambda)
+  $
+  Onde $d_j$ são as entradas de $D$ e $w_j$ as entradas de $w$
+]
+#proof[
+  Vamos supor que $q$ é um autovetor de $D + w w^T$, então temos:
+  $
+    (D+w w^T)q = lambda q \
+    D q - lambda q + w w^T q = 0 \
+    (D - lambda I)q + w w^T q = 0 \
+    q + (D - lambda I)^(-1) w w^T q = 0 \
+    w^T q + w^T (D - lambda I)^(-1)w(w^T q) = 0 \
+    (1 + w^T (D - lambda I)^(-1)w)(w^T q) = 0
+  $
+  Se abrirmos $1 + w^T(D - lambda I)^(-1)w$ na mão vamos obter $f(lambda)$ que falei anteriormente, ou seja, a expressão total fica $f(lambda)(w^T q) = 0$, porém, se $w^T q = 0$, então $q$ seria autovetor de $D$ (Só olhar a primeira equação), ou seja, $f(lambda) = 0$
+]
 
 
 
