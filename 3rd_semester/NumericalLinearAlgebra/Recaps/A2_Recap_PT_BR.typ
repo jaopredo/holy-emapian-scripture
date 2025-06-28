@@ -553,7 +553,7 @@ Voltando ao algoritmo de *back substitution*, temos o seguinte teorema:
 Vamos relembrar o problema dos mínimos quadrados?
 
 $
-  "Dada" A in CC^(m times n) "de posto completo," m >= n e b in CC^(m),\
+  "Dada" A in CC^(m times n) "de posto completo," m >= n " e " b in CC^(m),\
   "ache" x in CC^n "tal que" ||b - A x||_2 "seja a menor possível"
 $<min-squares>
 
@@ -576,7 +576,7 @@ Não está explicito na imagem, mas podemos, também, definir o ângulo $theta$ 
 $
   theta = arccos((||y||)/(||b||))
 $
-(A gente define assim pois $y$ é a hipotenusa do triangulo retângulo formado por $b$ e $y - b$)
+(A gente define assim pois $b$ é a hipotenusa do triangulo retângulo formado por $b$ e $y - b$)
 
 E a segunda medida é $eta$, que representa por quanto $y$ não atinge seu valor máximo
 $
@@ -601,7 +601,7 @@ $
       [$b$], [$1/cos(theta)$], [$kappa(A)/(eta cos(theta))$],
       [$A$], [$kappa(A)/cos(theta)$], [$kappa(A) + (kappa(A)^2 tan(theta))/eta$]
     ),
-    caption: [Sesibilidade de $x$ e $y$ com relação a perturbações em $A$ e $b$]
+    caption: [Sensibilidade de $x$ e $y$ com relação a perturbações em $A$ e $b$]
   )
   Vale dizer também que a primeira linha são igualdades exatas, enquanto a linha de baixo são arredondamentos para cima
 ]<conditioning-min-squared-problems>
@@ -738,7 +738,7 @@ Vamos fazer isso na prática. Vamos montar um cenário para a aplicação de cad
   b = np.exp(np.sin(4*t))/2.00678728e+03
 ```<min-squared-algorithms-init>
 
-Oxe, por que que tem essa divisão esquisita no final? Quando a gente não faz essa divisão, ao fazer a previsão dos coeficientes que aproximam a função, temos que o último coeficiente previsto ($x_15$) é igual a `1.42775025e+07`, então, nós dividimos $b$ por esse valor para que o último coeficiente seja igual a $1$ no caso matematicamente correto (Sem erros numéricos), assim poderemos fazer comparações apenas visualizando o último número dos coeficientes calculados.
+Oxe, por que que tem essa divisão esquisita no final? Quando a gente não faz essa divisão, ao fazer a previsão dos coeficientes que aproximam a função, temos que o último coeficiente previsto ($x_15$) é igual a `2.00678728e+03`, então, nós dividimos $b$ por esse valor para que o último coeficiente seja igual a $1$ no caso matematicamente correto (Sem erros numéricos), assim poderemos fazer comparações apenas visualizando o último número dos coeficientes calculados.
 
 == Householder
 O algoritmo padrão para problemas de mínimos quadrados. Vejamos:
@@ -845,7 +845,7 @@ A gente também pode tentar resolver pelo método de Gram-Schmidt modificado, va
   ]
 )
 
-Meu amigo, esse erro é *terrível*. O resultado obtido é tenebroso de ruim. O livro comenta também de outro método que involve fazer umas manipulações em $Q$, mas como o próprio diz que involve trabalho extra, desnecessário e não deveria ser usado na prática, nem vou comentar sobre aqui.
+Meu amigo, esse erro é *terrível*. O resultado obtido é tenebroso de ruim. O livro comenta também de outro método que envolve fazer umas manipulações em $Q$, mas como o próprio diz que envolve trabalho extra, desnecessário e não deveria ser usado na prática, nem vou comentar sobre aqui.
 
 Mas a gente pode usar um método parecido com o que fizemos antes em unir $A$ e $b$ numa única matriz:
 
@@ -979,7 +979,15 @@ A gente viu a aplicação de algoritmos em problemas de mínimos quadrados utili
 
 #pagebreak()
 
-Esse capítulo nada mais é do que uma revisão de resultados da A2 de álgebra linear.
+#block(
+  width: 100%,
+  fill: rgb(255, 184, 106),
+  inset: 1em,
+  stroke: 1.5pt + rgb(202, 53, 0),
+  radius: 5pt
+)[
+  *Nota*: Esse capítulo é uma revisão bem superficial sobre autovalores e autovetores, se quiser uma visão mais aprofundada sobre o tema, leia os resumos sobre Álgebra Linear do segundo período (Se já estiverem disponíveis)
+]
 
 == Definições
 
@@ -1212,13 +1220,106 @@ Essa forma é *muito útil* em análise numérica tendo em vista que *toda matri
 
 #pagebreak()
 
-== Ideia da Iteração de Potência
+Essa Lecture é focada em mostrar a ideia geral dos algoritmos que são divididos em duas fases
 
+1. Redução da forma completa para uma forma estrategicamente estruturada
+2. Aplicação de um processo iterativo que leva à convergência dos autovalores
 
-== A ideia dos Algoritmos de Autovalores
-Escrever pqq tem q ser iterativo. (pag 192 trefethen)
-== Forma de Schur e Diagonalização
-== As 2 fases do Cálculo de Autovalores, Forma de Hessenberg
+Ela também foca em explicar as vantagens desses métodos
+
+== Algoritmos óbvios (Ou nem tanto)
+Por mais que os autovetores e autovalores tenham propriedades bonitas e simples, calcular eles de uma maneira numericamente estável não é algo tão simples e os algoritmos não são os mais óbvios. O mais óbvio que pensamos é calcular o polinômio característico da matriz e achar suas raízes, acontece que isso é uma péssima ideia, já que achar as raízes de um polinômio é um problema mal-condicionado.
+
+Agora a gente pode tirar vantagem do fato que a sequência
+$
+  (x)/(||x||), (A x)/(||A x||), (A^2 x)/(||A^2 x||),...,(A^n x)/(||A^n x||)
+$
+converge, sobre certas condições, para o maior autovalor (Em valor absoluto) de $A$. Esse método é chamado de *Iteração sob Potências*, mas não é um método muito eficiente e não é utilizado em situações muito usuais.
+
+Ao invés dessas ideias, é mais comum, para propósitos gerais, os algoritmos seguirem um princípio diferente: A computação de uma fatoração explícita de autovalores de $A$, onde um dos fatores da fatoração tem os autovalores de $A$ como entradas. A gente viu 3 desses métodos na última lecture (Diagonalização, Diagonalização Unitária e Fatoração de Schur). Na prática, os algoritmos vão aplicando transformações em $A$ de forma que eles inserem 0 nas colunas e entradas corretas (Tipo o que a gente viu no método de Householder)
+
+== Uma dificuldade fundamental
+Acontece que *todo algoritmo para calcular autovalores deve ser iterativo*. Ué, por quê? Lembra que problemas de autovalores podem ser reduzidos a problemas de achar as raízes de um polinômio? Pois é, o inverso também é válido. O livro mostra isso criando um polinômio e expressando ele como o determinante de uma matriz e que as raízes do polinômio são os *autovalores* dessa matriz, mas isso não é o foco aqui. O foco é fazer a associação.
+
+É bem conhecido o fato de que, para polinômios com grau maior ou igual a 5, não existe uma sequência de fórmulas com somas, subtrações, etc. (Fórmula fechada) que encontre suas raízes. O que isso quer dizer? Quer dizer que, se o problema de raízes de polinômios pode ser reduzido para um problema de autovalores, matrizes com dimensão maior ou igual a 5 não podem ter seus autovalores expressos em uma sequência finita de passos.
+
+Por issos que os algoritmos de autovalores devem ser algoritmos iterativos que *convergem* para a solução
+
+== Fatoração  e Diagonalização de Schur
+A maioria dos algoritmos de fatoração atuais envolvem o uso da fatoração de Schur de uma matriz. A gente pega a matriz $A$ e vai aplicando transformações nela com matrizes unitárias $Q_j$ (Transformação $X |-> Q_j^* X Q_j$) de forma que o produto:
+$
+  Q_j^*...Q_2^*Q_1^* A Q_1 Q_2 ... Q_j
+$<upper-triangular-transformation>
+Converja para uma matriz triangular superior $T$ conforme $j -> infinity$
+
+O livro fala também que é possível utilizar de alguns truques para computar os autovalores complexos e que os algoritmos que veremos também podem ser usados, em matrizes Hermitianas, para obter sua diagonalização unitária.
+
+== Duas fases da computação de Autovalores
+A sendo Hermitiana ou não, a gente separa a sequência @upper-triangular-transformation em duas partes.
+
+1. A primeira fase consiste em produzir diretamente uma matriz *upper-Hessenberg*, isto é, uma matriz com zeros em baixo da primeira subdiagonal
+2. Uma iteração é aplicada para que uma sequência formal de matrizes de Hessenberg converjam para uma matriz triangular superior. O processo se parece com isso:
+$
+  underbrace(mat(
+    times, times, times, times, times;
+    times, times, times, times, times;
+    times, times, times, times, times;
+    times, times, times, times, times;
+    times, times, times, times, times;
+  ), A != A^*)
+  
+  ->
+
+  underbrace(mat(
+    times, times, times, times, times;
+    times, times, times, times, times;
+    , times, times, times, times;
+    , , times, times, times;
+    , , , times, times;
+  ), H)
+
+  ->
+
+  underbrace(mat(
+    times, times, times, times, times;
+    , times, times, times, times;
+    , , times, times, times;
+    , , , times, times;
+    , , , , times;
+  ), T)
+$
+
+Se $A$ é hermitiana, isso fica ainda mais rápido já que vamos ter uma matriz tri-diagonal e, logo depois, uma diagonal
+
+$
+  underbrace(mat(
+    times, times, times, times, times;
+    times, times, times, times, times;
+    times, times, times, times, times;
+    times, times, times, times, times;
+    times, times, times, times, times;
+  ), A = A^*)
+  
+  ->
+
+  underbrace(mat(
+    times, times, , ,;
+    times, times, times, ,;
+    , times, times, times,;
+    , , times, times, times;
+    , , , times, times;
+  ), H)
+
+  ->
+
+  underbrace(mat(
+    times, , , ,;
+    , times, , ,;
+    , , times, ,;
+    , , , times,;
+    , , , , times;
+  ), T)
+$
 
 #pagebreak()
 
@@ -1227,11 +1328,80 @@ Escrever pqq tem q ser iterativo. (pag 192 trefethen)
 ]
 
 #pagebreak()
-== A Redução
-== Redução à Hessenberg via Householder
-== Custo Computacional
-== O Caso Hermitiano
-== Estabilidade do Algoritmo
+
+Beleza, vimos antes a importância da redução de Hessenberg, mas como ela funciona?
+
+== Uma ideia de Girico\
+A gente pode começar pensando "Macho, essa fatoração é mamão com açúcar, só eu multiplicar pelo refletor de Householder que eu vou ter 0 abaixo da diagonal que eu quiser". Só que isso tem um problema, a gente precisa que o refletor multiplique de ambos os lados, ou seja:
+$
+  Q_1^* A Q_1
+$
+Isso faz com que os zeros que a gente colocou antes se percam, e a gente obtem uma matriz que a gente não queria :\(.
+
+== Uma boa ideia
+A gente vai fazer o seguinte: Vamos multiplicar $A$ por um refletor de householder $Q_1^*$ que mantém as duas primeiras linhas inalteradas, ou seja, vamos fazer combinações lineares das duas primeiras linhas de forma que todas as outras fiquem com 0 na primeira entrada, depois, ao multiplicar $Q_1^*A$ por $Q_1$, a primeira coluna se mantém *inalterada*:
+$
+  undershell(mat(
+    x, x, x, x, x;
+    x, x, x, x, x;
+    x, x, x, x, x;
+    x, x, x, x, x;
+    x, x, x, x, x;
+  ), A)
+
+  ->
+
+  undershell(mat(
+    x, x, x, x, x;
+    bold(x), bold(x), bold(x), bold(x), bold(x);
+    0, bold(x), bold(x), bold(x), bold(x);
+    0, bold(x), bold(x), bold(x), bold(x);
+    0, bold(x), bold(x), bold(x), bold(x);
+  ), Q_1^*A)
+
+  ->
+
+  undershell(mat(
+    x, bold(x), bold(x), bold(x), bold(x);
+    x, bold(x), bold(x), bold(x), bold(x);
+    , bold(x), bold(x), bold(x), bold(x);
+    , bold(x), bold(x), bold(x), bold(x);
+    , bold(x), bold(x), bold(x), bold(x);
+  ), Q_1^*A Q_1)
+$
+
+Essa ideia continua a ser repetida para colunas subsequentes. Temos um algoritmo da forma:
+
+#figure(
+  kind: "algorithm",
+  supplement: [Algoritmo],
+  caption: [Redução de Householder para forma de Hessenberg],
+  pseudocode-list(booktabs: true)[
+    + *function* HessenbergReduction($A in CC^(m times m)$) {
+      + *for* $k = 1$ *to* $m - 2$
+        + $x = A_(k+1:m,k)$
+        + $v_k = "sign"(x_1)||x||_2e_1 + x$
+        + $v_k = v_k \/ ||v_k||$
+        + $A_(k+1:m,k:m) = A_(k+1:m,k:m) - 2v_k (v_k^*A_(k+1:m,k:m))$
+        + $A_(1:m,k+1:m) = A_(1:m,k+1:m) - 2(A_(1:m,k+1:m)v_k)v_k^*$
+    + }
+  ]
+)<householder-reduction-to-hessenberg-form>
+
+== Hermitiana
+É bem tranquilo de ver que o @householder-reduction-to-hessenberg-form gera uma matriz tri-diagonal no caso em que $A$ é hermitiana, já que $Q A Q^*$ é hermitiana. Inclusive, essa propriedade pose gerar uma redução de custo, tendo em vista que podemos realizar as operações apenas da diagonal para cima, ignorando a parte de baixo das operações.
+
+== Estabilidade
+Assim como o algoritmo de Householder, para a fatoração QR, esse algoritmo é *backward stable*. Seja $accent(H, ~)$ a matriz de Hessenberg computada pelo computador ideal, $accent(Q, ~)$ seja a matriz exatamente unitária que reflete os vetores $v_k$, então o resultado a seguir pode ser demonstrado:
+
+#theorem[
+  Deixe a redução de Hessenberg $A = Q T Q^*$ de uma matriz $A$ ser computada pelo @householder-reduction-to-hessenberg-form em um computador ideal e sejam as matrizes $accent(Q, ~)$ e $accent(H, ~)$ definidas como falamos anteriormente, então:
+  $
+    accent(Q, ~)accent(H, ~)accent(Q, ~)^* = A + delta A," tal que " (||delta A||)/(||A||) = O(epsilon_"machine")
+  $
+  para algum $delta A in CC^(m times m)$
+]<householder-stability-and-precision>
+
 
 #pagebreak()
 
@@ -1240,10 +1410,849 @@ Escrever pqq tem q ser iterativo. (pag 192 trefethen)
 ]
 
 #pagebreak()
+
 == Restrição à matrizes reais e simétricas
+Aqui nós iremos fazer essa restrição por questões que, ao compararmos os casos gerais e hermitianos, eles tem diferenças consideráveis, então por simplificação, falaremos apenas sobre o caso onde $A$ é real e simétrica, ou seja:
+- Autovalores reais
+- Autovetores ortonormais
+Isso vai continuar pelas próximas lectures até que se especifique que não vai mais continuar. Também vale ressaltar que a maioria das ideias descritas nas próximas lectures se referem a parte 2 das duas fases mencionadas na lecture 25. Ou seja, quando vamos aplicar as ideias que veremos aqui, $A$ já terá sido transformada em uma tri-diagonal. Vale citar que também utilizaremos $||dot|| = ||dot||_2$
+
 == Quociente de Rayleigh
-== Iteração de Potência com o Quociente de Rayleigh
-== Iteração Inversa 
+#definition("Quociente de Rayleigh")[
+  O Quociente de Rayleigh de um vetor $x in RR^m$ é o escalar
+  $
+    r(x) = (transp(x)A x)/(transp(x)x)
+  $
+]
+
+Perceba que se $x$ é um autovetor de $A$ com autovalor $lambda$ associado, então $r(x) = lambda$. Uma motivação para essa fórmula é pensarmos no seguinte: Dado um $x$, qual escalar $alpha$ "mais se comporta como um autovalor" no sentido de minimizar $||A x - alpha x||$? Isso é um problema de mínimos quadrados $m times 1$ da forma $alpha x approx A x$. Se escrevermos as equações normais:
+$
+  x^T alpha x = x^T A x => alpha = r(x)
+$
+A gente pode fazer essas ideias mais quantitativas se tomarmos $r(x): RR^m -> RR$, então podemos tomar interesse no comportamento local de $r(x)$ quando $x$ está perto de um autovalor. A gente pode calcular as derivadas parciais para isso:
+$
+  (diff r(x))/(diff x_j) = (diff/(diff x_j)(x^T A x))/(x^T x)-((x^T A x)diff/(diff x_j)(x^T x))/(x^T x)^2\
+  = (2(A x)_j)/(x^T x) - ((x^T A x)2 x_j)/(x^T x)^2 = 2/(x^T x)(A x - r(x)x)_j
+$
+Podemos então expressar o gradiente como:
+$
+  nabla r(x) = 2/(x^T x)(A x - r(x)x)
+$
+É bem fácil de ver que, se a gente tem $nabla r(x) = 0$, com $x != 0$ então $x$ é um autovetor de $A$ (Tenta fazer mentalmente e lembra que $r(x) in RR$) e o inverso também, se $x$ é autovetor de $A$ então $nabla r(x) = 0$.
+
+Expressando geometricamente, os autovetores de $A$ são pontos estacionários (pontos críticos) de $r(x)$ e os autovalores de $A$ são os valores de $r(x)$ nesses pontos críticos.
+
+#figure(
+  image("images/r(x)-example.png", width: 40%),
+  caption: [$r(x)$ em função dos vetores no $RR^2$ para a matriz $mat(5, 4;0,3)$]
+)<rayleigh-coefficient-example>
+
+Mas algo interessante que podemos perceber é que, aparentemente, não há apenas *um* ponto crítico nessa função, mas uma *reta*. Ué, mas por quê? O que acontece se, dado que $A x = lambda x$, eu pego um múltiplo $mu x$ de $x$?
+$
+  A (mu x) = lambda (mu x)
+$
+$mu x$ *ainda é autovetor de $A$*. O que isso quer dizer? Quer dizer que, se um vetor $x$ faz com que $r(x)$ seja igual a um autovalor de $A$, então $alpha x$ também o fará $forall alpha in RR$. Não acredita em mim? Veja por conta própria:
+$
+  "Dado que" A x = lambda x\
+
+  r(alpha x) = ((alpha x)^T A (alpha x))/((alpha x)^T (alpha x)) = (alpha^2 x^T A x)/(alpha^2 x^T A x) = (lambda x^T x)/(x^T x) = lambda
+$
+Mas podemos contornar isso *limitando* o domínio de $r(x)$. Podemos fazer isso fazendo com $r(x): RR^m -> RR "tal que" ||x|| = 1$, dessa forma, limitamos a $m$-esfera unitária em $RR^m$ (No exemplo da @rayleigh-coefficient-example, seria uma circunferência em $RR^2$). Dessa forma, em vez de serem retas com infinitos valores possíveis para zerar $nabla r(x)$, temos pontos isolados *na* esfera.
+
+#figure(
+  image(width:40%, "images/r(x)-unit-sphere.png"),
+  caption: [Mesma função da @rayleigh-coefficient-example limitada dentro do cilíndro $x^2+y^2<=1$. Só não coloquei $=1$ pois o Geogebra não conseguia fazer a plotagem]
+)
+
+Seja $q_j$ um autovetor de $A$, do fato que $nabla r(q_j) = 0$ nós chegamos que:
+$
+  r(x) - r(q_j) = O(||x-q_j||^2), x->q_j
+$
+Não precisamos entender o passo-a-passo até chegar nesse resultado, o importante dele é que o quociente de Rayleigh é uma *ótima* aproximação dos autovalores de $A$.
+
+Um jeito mais explícito de vermos isso é expressar $x$ como uma combinação linear dos autovetores de $A$ (A gente pode fazer isso já que todos os autovetores de uma matriz são L.I), ou seja: $x = sum_(j=1)^m a_j q_j$, o que significa que $r(x) = sum_(j=1)^m a_j^2 lambda_j \/ sum_(j=1)^m a_j^2$, que é uma média ponderada dos autovalores de $A$.
+
+== Iteração por Potências
+Agora nós invertemo as bola. Suponha que $v^((0))$ é um vetor com $||v^((0))|| = 1$. O processo de iteração por potência, citado antes como não muito bom, é esperado para convergir para o maior autovalor de $A$
+
+#figure(
+  kind: "algorithm",
+  supplement: [Algoritmo],
+  caption: [Iteração por potências],
+  pseudocode-list(booktabs: true)[
+    + *function* PowerIteration($A in CC^(m times m)$, $v^((0)) "com" ||v^((0))||=1$) {
+      + *for* $k = 1, 2, 3, ...$
+        + $w = A v^((k-1))$
+        + $v^((k)) = w\/||w||$
+        + $lambda^((k)) = (v^((k)))^T A v^((k))$
+    + }
+  ]
+)<power-iteration>
+
+#theorem[
+  Suponha que $|lambda_1| > |lambda_2| >= ... >= |lambda_m| > 0$ e $q_1^T v^((0)) != 0$. Então as iterações do @power-iteration satisfazem:
+  $
+    ||v^(k) - (plus.minus q_1)|| = O(|lambda_2/lambda_1|^k), |lambda^((k)) - lambda_1| = O(|lambda_2/lambda_1|^(2k))
+  $
+  Conforme $k -> infinity$. O sinal $plus.minus$ significa que, a cada passo $k$, um dos dois sinais será escolhido para melhor estabilidade numérica
+]<power-iteration-stability>
+#proof[
+  Escreva $v^((0)) = a_1 q_1 + ... + a_m q_m$. Como $v^((k))$ é múltiplo de $A^(k)v^((0))$ temos que, para algumas contantes $c_k$
+  $
+    v^((k)) = c_k A^k v^((0))\
+    = c_k (a_1lambda_1^k q_1 + ... + a_m lambda_m^k q_m)\
+    = c_k lambda_1^k (a_1q_1 + ... + a_m (lambda_1\/lambda_m)^k q_m)\
+  $
+
+  A primeira equação se da ao fato de que, quando $lim_(k->infinity)(lambda_j/lambda_1)^k=0$, porém, como $lambda_2$ é o maior entre $lambda_j$, acaba que $(lambda_2/lambda_1)^k$ domina o fator de erro $v^((k))-(plus.minus q_1)$.
+
+  A segunda envolve uma análise complicada que não há necessidade prática de visualizarmos
+]
+
+O método de iteração por potências é bem ruim pois depende de alguns fatores específicos.
+1. Só pode encontrar o maior autovalor de uma matriz
+2. Se os dois maiores autovalores são próximos, a convergência demora muito
+3. Se os dois maiores autovalores possuem mesmo valor, então o algoritmo não converge
+
+== Iteração Inversa
+Antes de entendermos o que a iteração inversa faz, vamos conferir um teorema:
+
+#theorem[
+  Dado $mu in RR$ tal que $mu$ *não é* autovalor de $A$, então os autovetores de $(A - mu I)^(-1)$ são os mesmos de $A$, onde os autovalores correspondentes são ${(lambda_j - mu)^(-1)}$ de tal forma que $lambda_j$ são os autovalores de $A$
+]
+#proof[
+  Muito importante ressaltar que, como $mu$ *não é* autovalor de $A$, então $A - mu I$ é *inversível*.
+  $
+    A v = lambda v \
+    A v - mu I v = lambda v - mu I v \
+    (A - mu I)v = (lambda - mu)v \
+    (A - mu I)^(-1)(A - mu I) v = (A - mu I)^(-1)(lambda - mu)v \
+    1/(lambda - mu)v = (A - mu I)^(-1)v
+  $
+]
+
+E isso nos dá uma ideia! Se aplicarmos a iteração de potências em $(A - mu I)^(-1)$, o valor convergirá rapidamente para $q_j$ (Autovetor de $A$)
+
+
+#figure(
+  kind: "algorithm",
+  supplement: [Algoritmo],
+  caption: [Iteração Inversa],
+  pseudocode-list(booktabs: true)[
+    + *function* ReverseIteration($A in CC^(m times m)$, $v^((0)) "com" ||v^((0))||=1$) {
+      + *for* $k = 1, 2, 3, ...$
+        + Resolva $(A - mu I)w = v^((k-1))$ para $w$
+        + $v^((k)) = w\/||w||$
+        + $lambda^((k)) = (v^((k)))^T A v^((k))$
+    + }
+  ]
+)<inverse-power-iteration>
+
+Você pode estar se perguntando: "Mas e se $mu$ for um autovalor de $A$? Isso vai fazer com que $A - mu I$ não seja inversível! Ou de $mu$ for muito próximo de um autovalor de $A$, se isso acontecer, $A - mu I$ vai ser *muito* mal-condicionada e vai ser quase impossível uma inversa precisa! Isso não vai quebrar o algoritmo?". São perguntas válidas, mas não, isso não quebra o algoritmo! Há um exercício no livro que aborda isso (Se eu conseguir resolver antes da A2, eu coloco aqui).
+
+Aqui o algoritmo também é um pouco mais interessante pois, dependendo do $mu$ que escolhermos, podemos encontrar um autovalor diferente, ou seja, podemos escolher qual autovalor encontrar se fizermos a escolha certa de $mu$
+
+#theorem[
+  Suponha que $lambda_J$ é o autovalor *mais próximo* de $mu$ e $lambda_K$ é o *segundo* mais próximo. Suponha então que $q^T_J v^((0)) != 0$, então as iterações do @inverse-power-iteration satisfazem:
+  $
+    ||v^((k)) - (plus.minus q_J)|| = O(| (mu - lambda_J)/(mu - lambda_K) |^k)\
+
+    |lambda^((k)) - lambda_J| = O(| (mu - lambda_J)/(mu - lambda_K) |^(2k))
+  $
+  Conforme $k -> infinity$ e $plus.minus$ tem o mesmo significado que @power-iteration-stability
+]
+
+Esse algoritmo, como mencionado, é muito útil se os autovalores são conhecidos ou se tem uma noção de quanto eles valem aproximadamente ($mu$ converge para o mais próximo)
+
+== Iteração do Quociente de Rayleigh
+Beleza, a gente ja bisoiou 2 métodos, um que a gente tem uma estimativa inicial de autovetor, e vai aproximando o autovalor, depois uma que a gente tem uma aproximação de um autovalor e vamos aproximando um autovetor, combinar as duas ideias me parece uma *boa ideia*.
+
+#figure(
+  image(width: 70%, "images/rayleigh-iteration.png"),
+  caption: [Iteração do Quociente de Rayleigh]
+)
+
+A ideia é a gente ficar melhorando a estimativa de autovalores que temos pra que o algoritmo de *iteração reversa* tenha uma convergência muito mais rápida
+
+#figure(
+  kind: "algorithm",
+  supplement: [Algoritmo],
+  caption: [Iteração do Quociente de Rayleigh],
+  pseudocode-list(booktabs: true)[
+    + *function* RayleighQuotientIteration($A in CC^(m times m)$) {
+      + $v^((0)) "com" ||v^((0))||=1$
+      + $lambda^((0)) = (v^((0)))^T A v^((0))$
+      + *for* $k = 1, 2, 3, ...$
+        + Resolva $(A - lambda^((k-1)) I)w = v^((k-1))$ para $w$
+        + $v^((k)) = w\/||w||$
+        + $lambda^((k)) = (v^((k)))^T A v^((k))$
+    + }
+  ]
+)<rayleigh-quotient-iteration>
+
+A convergência do algoritmo é ótima, a cada iteração o valor de precisão triplica.
+
+#theorem[
+  Quando o algoritmo de iteração do quociente de rayleigh converge para um autovalor $lambda_J$ e um autovetor $q_J$ de $A$ de forma que:
+  $
+    ||v^((k+1))-(plus.minus q_J)|| = O(||v^((k)) - (plus.minus q_J)||^3) \
+
+    |lambda^((k+1)) - lambda_J| = O(|lambda^((k))-lambda_J|^3)
+  $
+]
+
+Não há necessidade de uma demonstração formal, apenas a ideia de que há uma *ótima* conversão do algoritmo
+
+#pagebreak()
+
+#align(center + horizon)[
+  = Lecture 28 - Algoritmo QR sem Shift
+]
+
+#pagebreak()
+
+Agora vamos ver que o algoritmo de QR pode ser utilizado como um algoritmo estável para computar a fatoração QR de potências de $A$
+
+== O Algoritmo QR
+A versão mais simplificada parece coisa de doido.
+
+#figure(
+  kind: "algorithm",
+  supplement: [Algoritmo],
+  caption: [Algoritmo QR],
+  pseudocode-list(booktabs: true)[
+    + *function* QRIteration($A in CC^(m times m)$) {
+      + $A^((0)) = A$
+      + *for* $k = 1, 2, 3, ...$
+        + $Q^((k)), R^((k)) = "qr"(A^((k-1)))$
+        + $A^((k)) = R^((k)) Q^((k))$
+    + }
+  ]
+)<iteration-qr>
+
+É um algoritmo estupidamente simples, mas sobre certas circunstâncias, esse algoritmo converge para a forma de Schur de uma matriz (Triangular superior se for arbitrária e diagonal se for simétrica). Por questão de simplicidade, vamos continuar assumindo que $A$ é simétrica
+
+Pra que a redução a forma diagonal seja útil pra achar autovalor, a gente precisa que transformações similares estejam envolvidas. "Oxe, daonde?". Quando a gente faz $A^((k)) = R^((k)) Q^((k))$, a gente pode substituir $R^((k))$ por $(Q^((k)))^T A^((k-1))$, ou seja: $A^((k)) = (Q^((k)))^T A^((k-1)) Q^((k))$ (Mesmo que $M^(-1)A M$). O @iteration-qr converge cubicamente assim como o do @rayleigh-quotient-iteration, porém, para o algoritmo ser prático, precisamos introduzir *shifts*. Introdução de *shifts* é 1 de 3 modificações que fazemos nesse algoritmo para que ele fique prático.
+
+1. Antes de iniciar a iteração, $A$ é reduzida a forma tridiagonal
+2. Em vez de $A^((k))$, usamos uma matriz trocada $A^((k)) - mu^((k))I$ que é fatorada a cada iteração e $mu^((k))$ é uma estimativa de autovalor
+3. Quando possível (Especialmente quando um autovalor é encontrado) nós quebramos $A^((k))$ em submatrizes
+
+#figure(
+  kind: "algorithm",
+  supplement: [Algoritmo],
+  caption: [Algoritmo QR com *shifts*],
+  pseudocode-list(booktabs: true)[
+    + *function* ShiftedQR($A in CC^(m times m)$) {
+      + $(Q^((0)))^T A^((0)) Q^((0)) = A$
+      + *for* $k = 1, 2, 3, ...$
+        + Escolha um shift $mu^((k))$
+        + $Q^((k)), R^((k)) = "qr"(A^((k-1)) - mu^((k))I)$
+        + $A^((k)) = R^((k)) Q^((k)) + mu^((k))I$
+        + *Se* qualquer elemento $A^((k))_(j, j+1)$ fora da diagonal é suficientemente próximo de 0
+          + $A_(j, j+1) = A_(j+1, j) = 0$ para obter
+          + $mat(A_1, 0; 0, A_2) = A^((k))$
+          + e agora aplicamos o algoritmo em $A_1$ e $A_2$
+    + }
+  ]
+)<shifted-qr-with-well-known-shifts>
+
+Esse é um algoritmo muito usado desde 1960. Mas perceba que precisamos ter uma noção prévia de quanto vale os autovalores da matriz, pois necessitamos ter aproximações particularmente boas de $mu^((k))$ para que o algoritmo tenha uma boa convergência.Porém, nos anos 1990 um competidor surgiu (Vai ser discutido na lecture 30 e a gente detalha o algoritmo com shifts na próxima lecture).
+
+== Iterações Simultâneas Não-normalizadas
+A gente vai tentar relacionar (Eu vou tentar traduzir o que o livro fala né) o @iteration-qr com um algoritmo chamado *iterações simultâneas* que tem um comportamento mais simples de visualizar (De acordo com o livro, pq tudo pra ele é fácil né)
+
+A ideia do algoritmo é aplicar o @power-iteration (Iteração por Potências) para vários vetores simultaneamente. Vamo supor que a gente tem $n$ vetores LI iniciais $v_1^((0)), ..., v_n^((0))$. Se a gente aplica $A^k v^((0))_1$, conforme $k -> infinity$, isso converge para o autovetor correspondente ao autovalor de maior valor absoluto (Com algumas condições adequadas), meio que parece plausível que $"span"{A^k v^((0))_1, A^k v^((0))_2, ..., A^k v^((0))_n}$ converge para $"span"{q_1, ..., q_n}$ que é o espaço formado pelos autovetores associados aos $n$  (Novamente com condições adequadas). Ué, mas quando eu aplico o método a um único vetor ele não converge pro maior? Como que aplicar a vários muda isso? Vou primeiro definir uma estrutura importante no algoritmo e depois faço uma explicação mais simplificada e uma analogia pra entender isso melhor
+
+Na notação matricial, fazemos:
+$
+  V^((0)) = mat(
+    ,|,,|,;
+    v^((0))_1,|,...,|,v^((0))_n;
+    ,|,,|,;
+  )
+$<simultanious-iterations-step-1>
+
+E definimos
+$
+  V^((k)) = A^k V^((0)) = mat(
+    ,|,,|,;
+    v^((k))_1,|,...,|,v^((k))_n;
+    ,|,,|,;
+  )
+$
+
+Vamos tentar entender a pergunta que fiz antes. Quando a gente aplica o algoritmo a um único vetor, ele vai se alinhando ao vetor dominante, porém, se a gente faz o mesmo com vários vetores *ao mesmo tempo*,ou seja, eu aplico na matriz, não faz muito sentido isso ocorrer. Pensa que se isso acontecesse, eu ia ter como resultado uma matriz que todas as colunas fossem iguais (Meio esquisito isso). O que acontece é que o espaço das colunas de $V^((0))$ vai "girando" e se alinhando ao espaço que falei dos autovetores de $A$
+
+Imagine 3 agulhas em 3 direções diferentes (De forma que as agulhas representem vetores LI, e to falando apenas 3 pra representar $RR^3$, mas se aplica pra outros espaços). Aplicar o método de potência em um único vetor é como se aplicássemos um campo magnético que direciona todas as agulhas pra direção norte (Que seria a direção do autovetor associado ao maior autovalor). Aplicar na matriz $V^((0))$ seria aplicar um campo magnético complexo, em que cada vetor $v^((0))_j$ fica virado pra direção que ele "sente mais"
+
+Beleza, vamos continuar então. A gente ta interessado em $C(V^((k)))$. Que tal a gente pegar uma boa base desse espaço? Uma boa ideia é a fatoração QR dessa matriz né? Já que as colunas de $Q$ são uma base ortonormal de $C(V^((k)))$
+$
+  accent(Q, \^)^((k))accent(R, \^)^((k)) = V^((k))
+$<simultanious-iterations-step-2>
+
+Aqui estamos vendo a fatoração reduzida, logo, $accent(Q, \^)^((k))$ é $m times n$ e $accent(R, \^)^((k))$ é $n times n$. Bem, se as colunas de $accent(Q, \^)^((k))$ vão formando uma base do span dos autovetores que eu comentei antes, então faz sentido elas irem convergindo para os próprios autovetores de $A$ ($plus.minus q_1, ..., plus.minus q_n$). A gente pode argumentar melhor sobre isso fazendo uma expansão das colunas de $V^((0))$ e $V^((k))$ como combinação linear dos autovetores de $A$ que nem a gente fez em uma lecture anterior
+$
+  v_j^((0)) = a_(1j)q_1+...+ a_(m j)q_m\
+  
+  v_j^((k)) = lambda_1^k a_(1j)q_1+...+ lambda_m^k a_(m j)q_m
+$<v_j-decomposition>
+Mas não precisamos entrer em detalhes mais aprofundados. Assim como na lecture anterior, resultados vão convergir quando satisfazemos duas condições.
+1. A primeira é que, ao calcularmos $n$ autovalores, todos tenham valor absoluto distintos
+  $
+    |lambda_1| > |lambda_2| > ... > |lambda_n| > |lambda_(n+1)| >= |lambda_(n+2)| >= ... >= |lambda_m|
+  $<simultanious-iterations-assumption-1>
+2. A segunda condição é que os valores $a_(i j)$ na decomposição dos $v^((i))_j$ que comentei antes sejam, de certa forma, não-singulares. O que isso quer dizer? Significa que eu preciso formar uma boa mistura dos meus autovetores originais. Tipo, se eu formar $v^((i))_j$ ortogonal a algum autovetor, ele não vai ser muito bem aproximado pelo meu algoritmo. Vou formarlizar essa condição um pouco. Vamos definir $accent(Q, \^)$ como a matriz $m times n$ que as colunas são os autovetores $q_1, ..., q_n$ de $A$. Então podemos formalizar isso escrevendo:
+  $
+    "Todas as submatrizes consequentes de" accent(Q, \^)^T V^((0)) "são inversíveis"
+  $<simultanious-iterations-assumption-2>
+  Eu posso definir como essa multiplicação pois eu vou ter que o elemento $i j$ dessa matriz vai ser $q_i^T v^((0))_j$, que ao olharmos para a Equação @v_j-decomposition, é igual a $a_(i j)$
+
+#theorem[
+  Suponha que a iteração @simultanious-iterations-step-1 e @simultanious-iterations-step-2 é realizada e as condições @simultanious-iterations-assumption-1 e @simultanious-iterations-assumption-2 são satisfeitas. Conforme $k -> infinity$, as colunas da matriz $Q^((k))$ vão convergindo linearmente para os autovetores de $A$:
+  $
+    ||q^((k))_j - plus.minus q_j|| = O(C^k)
+  $
+  para cada $j$ com $1 <= j <= n$ e $C < 1$ é a constante $max_(1 <= k <= n)(|lambda_(k+1)|\/|lambda_k|)$
+]<simultanious-iteration-convergence>
+#proof[
+  Vamos transformar $accent(Q, \^) in RR^(m times n)$ em $Q in RR^(m times m)$, de forma que $Q$ tenha como colunas todos os autovetores de $A$. Definimos também $Lambda$ como a matriz de autovalores de $A$ de tal forma que $A = Q Lambda Q^T$. Defina também $accent(Lambda, \^)$ como sendo o bloco $n times n$ de $Lambda$ com os autovalores associados a matriz $accent(Q, \^)$.
+  $
+    V^((k)) = A^k V^((0)) = Q Lambda^k Q^T V^((0)) = accent(Q, \^) Lambda^k accent(Q, \^)^T V^((0)) + O(|lambda_(k+1)|)
+  $
+  Se a condição @simultanious-iterations-assumption-2 for satisfeita, podemos fazer uma manipulação simples
+  $
+    V^((k)) = (accent(Q, \^) Lambda^k + O(|lambda_(k+1)|)(accent(Q, \^)^T V^((0)))^(-1))accent(Q, \^)^T V^((0))
+  $
+  Como $accent(Q, \^)^T V^((0))$ é inversível, $C(V^((k))) = C(accent(Q, \^) Lambda^k + O(|lambda_(k+1)|)(accent(Q, \^)^T V^((0)))^(-1))$. Ou seja, a gente consegue perceber que o espaço vai convergindo para o span dos autovetores de $A$. A gente pode até tentar quantificar a convergência, mas não tem necessidade
+]
+
+== Iteração Simultânea
+Conforme $k -> infinity$, os vetores $v_j^((k))$ vão convergindo para múltiplos do autovetor dominante (Associado ao autovalor). Quando eu digo múltiplos, eu quero dizer muito próximos. Por mais que o span deles converja para algo útil, eles em si formam uma base muito mal condicionada.
+
+Vamos fazer uma alteração então, vamos construir uma sequência de matrizes $Z^((k))$ tal que $C(Z^((k))) = C(V^((k)))$
+
+#figure(
+  kind: "algorithm",
+  supplement: [Algoritmo],
+  caption: [Iteração Simultânea],
+  pseudocode-list(booktabs: true)[
+    + *function* SimultaniousAlgorithm($A in CC^(m times m)$) {
+      + Escolha $accent(Q, \^)^((0)) in RR^(m times n)$ com colunas ortonormais
+      + *for* $k = 1, 2, 3, ...$
+        + $Z = A accent(Q, \^)^((k-1))$
+        + $accent(Q, \^)^((k)), accent(R, \^)^((k)) = "qr"(Z)$  \# Fatoração Reduzida
+    + }
+  ]
+)<simultanious-iteration>
+
+Assim é mais tranquilo de ver que $C(Z^((k))) = C(accent(Q, \^)^((k))) = C(A^k accent(Q, \^)^((0)))$. Matematicamente falando, esse novo método converge igual o método anterior (Sob as mesmas circunstâncias)
+
+#theorem[
+  O @simultanious-iteration gera as mesmas matrizes $accent(Q, \^)^((k))$ que os passos de iteração @simultanious-iterations-step-1 \~ @simultanious-iterations-step-2 considerados no @simultanious-iteration-convergence e sob as mesmas condições @simultanious-iterations-assumption-1 e @simultanious-iterations-assumption-2
+]
+
+== Iteração Simultânea $<=>$ Algoritmo QR
+Beleza, agora a gente pode tentar entender o algoritmo QR (Não é um algoritmo pra calcular a fatoração QR, mas usa ela para calcular os autovalores e autovetores de A). A gente vai aplicar a iteração simultânea na identidade, assim, a gente até remove os acentos de $accent(Q,\^)^((k))$ e $accent(R,\^)^((k))$. A gente vai fazer umas substituições que eu vou explicar direitinho depois.
+
+Primeiro de tudos, temos um algoritmo de iteração simultânea com uma leve adaptação, mostraremos que ele e o algoritmo qr são equivalentes
+
+#figure(
+  kind: "algorithm",
+  supplement: [Algoritmo],
+  caption: [Iteração Simultânea Modificada],
+  pseudocode-list(booktabs: true)[
+    + *function* ModifiedSimultaniousAlgorithm($A in CC^(m times m)$) {
+      + $underline(Q)^((0)) = I$
+      + *for* $k = 1, 2, 3, ...$
+        + $Z = A underline(Q)^((k-1))$
+        + $underline(Q)^((k)), R^((k)) = "qr"(Z)$
+        + $A^((k)) = (underline(Q)^((k)))^T A underline(Q)^((k))$
+        + $underline(R)^((k)) = R^((k)) R^((k-1)) ... R^((1))$
+    + }
+  ]
+)<modified-simultanious-iteration>
+
+Aqui, a gente colocou $underline(Q)^((k))$ com esse traço em baixo só pra diferenciar o $Q$ do algoritmo de iteração simultânea e do algoritmo QR
+
+#figure(
+  kind: "algorithm",
+  supplement: [Algoritmo],
+  caption: [Algoritmo QR sem Shift],
+  pseudocode-list(booktabs: true)[
+    + *function* UnshiftedQRAlgorithm($A in CC^(m times m)$) {
+      + $A^((0)) = A$
+      + *for* $k = 1, 2, 3, ...$
+        + $Q^((k)), R^((k)) = "qr"(A^((k-1)))$
+        + $A^((k)) = R^((k))Q^((k))$
+        + $underline(Q)^((k)) = Q^((1)) Q^((2)) ... Q^((k))$
+        + $underline(R)^((k)) = R^((k)) R^((k-1)) ... R^((1))$
+    + }
+  ]
+)<unshifted-qr-algorithm>
+
+Agora podemos visualizar a convergência de ambos os algoritmos. 
+
+#theorem[
+  O @modified-simultanious-iteration e @unshifted-qr-algorithm geram a mesma sequência de matrizes $underline(Q)^((k))$, $underline(R)^((k))$ e $A^((k))$, de tal forma que:
+  $
+    A^k = underline(Q)^((k)) underline(R)^((k))
+  $<unshifted-qr-eigenvectors-estimative>
+  junto da projeção
+  $
+    A^((k)) = (underline(Q)^((k)))^T A underline(Q)^((k))
+  $<unshifted-qr-eigenvalues-estimative>
+]<unshifted-qr-and-sumultanious-iteration-equivalence>
+#proof[
+  Vamos fazer indução em $k$
+  - Caso base ($k = 1$): Trivial, já que $A^((0)) = underline(Q)^((0)) = underline(R)^((0)) = I$ e $A^((0)) = A$
+  - Passo indutivo ($k > 1$): A parte de que $A^((k)) = (underline(Q)^((k)))^T A underline(Q)^((k))$ por definição de $A^(k)$ (@modified-simultanious-iteration). Então só precisamos conferir que $A^k = underline(Q)^((k)) underline(R)^((k))$, e fazemos isso, primeiro, considerando o algoritmo de iteração simultânea (Assumindo que isso é válido para $A^(k-1)$):
+    $
+      A^k = A underline(Q)^((k-1)) underline(R)^((k-1)) = underline(Q)^((k)) R^((k)) underline(R)^((k-1)) = underline(Q)^((k)) underline(R)^((k))
+    $
+    Agora, faremos o mesmo assumindo o algoritmo QR
+    $
+      A^k = A underline(Q)^((k-1)) underline(R)^((k-1)) = underline(Q)^((k-1)) A^((k-1)) underline(R)^((k-1)) = underline(Q)^((k)) underline(R)^((k))
+    $
+    Então verificamos que
+    $
+      A^((k)) = (Q^((k)))^T A^((k-1)) Q^((k)) = (underline(Q)^((k)))^T A underline(Q)^((k))
+    $
+]
+
+== Convergência do algoritmo QR
+Show, agora a gente pode entender melhor como que esse algoritmo acha os autovalores e autovetores. A parte dos autovetores a gente consegue visualizara pela equação @unshifted-qr-eigenvectors-estimative, e pelo @unshifted-qr-and-sumultanious-iteration-equivalence, já que, se o método de iteração simultânea converge para autovetores e tanto ele quanto o algoritmo QR geram as mesmas matrizes, obviamente ambos vão ter as matrizes $Q$ convergindo para a matriz de colunas sendo os autovetores. Como $Q$ converge pra matriz de autovetores, por consequência, se eu faço $Q^T A Q$, isso vai convergir pra matriz com os autovalores de $A$ na diagonal (Diagonalização)
+
+#theorem[
+  Deixe que o @unshifted-qr-algorithm seja aplicado em uma matriz real simétrica $A$ que os autovalores satisfazem $|lambda_1| > |lambda_2| > ... > |lambda_m|$ e que a matriz de autovetores correspondente $Q$ não tem blocos singulares (Todos os blocos da matriz formam matrizes inversíveis). Então, conforme $k -> infinity$, $A^((k))$ converge linearmente com constante $max_j(|lambda_(j+1)|\/|lambda_j|)$ para a matriz com os autovalores na diagonal e $Q^((k))$ converge na mesma velocidade para $Q$
+]
+
+
+#pagebreak()
+
+#align(center + horizon)[
+  = Lecture 29 - Algoritmo QR com Shifts
+]
+
+#pagebreak()
+
+A ideia aqui é a inserção dos shifts $A -> A - mu I$ e discutir por que que essa ideia nada intuitiva funciona e leva a uma convergência cúbica.
+
+== Conexao com a Iteração Reversa
+A gente tinha visto que o algoritmo QR unshifted (@unshifted-qr-algorithm) era a mesma coisa que aplicar a iteração reversa na matriz identidade. Tem um porém, o @unshifted-qr-algorithm também é equivalente a aplicar a iteração inversa simultânea numa matriz identidade "invertida" P. Vamo tentar desenvolver melhor essa ideia:
+
+Seja $Q^((k))$, assim como na última lecture, o fator ortogonal no $k$-ésimo passo da iteração do algoritmo QR. Mostramos antes que o produto acumulado dessas matrizes forma:
+$
+  underline(Q)^((k)) = product_(j=1)^k Q^((j)) = mat(q_1^((k)),|,...,|,q_m^((k)))
+$
+
+É a mesma matriz ortogonal que aparece no $k$-ésimo passo do algoritmo de iteração simultânea.
+$
+  A^k = underline(Q)^((k)) underline(R)^((k))
+$
+
+Se a gente inverte essa fórmula, temos
+$
+  A^(-k) = (underline(R)^((k)))^(-1) (underline(Q)^((k)))^T = underline(Q)^((k)) (underline(R)^((k)))^(-T)
+$
+
+Essa segunda igualdade a gente tira porque $A^(-1)$ é simétrica (Ainda tamo usando que $A$ é simétrica). Deixe $P$ ser a matriz de permutação que troca a ordem de todas as linhas e colunas:
+$
+  P = mat(,,,1;,,dots.up;,1;1)
+$
+
+Bem, como $P^2 = I$, a gente pode reescrever a equação que tinhamos anteriormente como:
+$
+  A^(-k)P = (underline(Q)^((k))P)(P(underline(R)^((k)))^(-T)P)
+$
+
+Perceba que $underline(Q)^((k))P$ é ortogonal ($underline(Q)^((k))$ é ortogonal e $P$ também) e $P(underline(R)^((k)))^(-T)P$ é triangular superior ($(underline(R)^((k)))^(-T)$ é triangular inferior, daí eu inverto a ordem das colunas, e depois a ordem das linhas, aí fica triangular superior), ou seja, a equação anterior pode ser interpretada como uma fatoração QR de $A^(-k)P$. Isso que fizemos é a mesma coisa que aplicar o agloritmo QR na matriz $A^(-1)$ usando a matriz $P$ como ponto de partida do algoritmo.
+
+== Conexão com o Algoritmo de Iteração Reversa com Shifts
+Ok, a gente viu então que o algoritmo QR é tipo uma mistureba da iteração reversa e da iteração simultânea reversa. O negócio é que a gente viu em umas lectures anteriores que o último que mencionei pode ser melhorado com o uso de shifts (@shifted-qr-with-well-known-shifts). Isso é como inserir shifts nos dois algoritmos que comentei anterioremente. Vou escrever o algoritmo aqui novamente (Omiti a parte final de obter as submatrizes):
+
+#figure(
+  kind: "algorithm",
+  supplement: [Algoritmo],
+  pseudocode-list(booktabs: true)[
+    + *function* ShiftedQR($A in CC^(m times m)$) {
+      + $(Q^((0)))^T A^((0)) Q^((0)) = A$
+      + *for* $k = 1, 2, 3, ...$
+        + Escolha um shift $mu^((k))$
+        + $Q^((k)), R^((k)) = "qr"(A^((k-1)) - mu^((k))I)$
+        + $A^((k)) = R^((k)) Q^((k)) + mu^((k))I$
+        + ...
+    + }
+  ]
+)
+
+Deixe que $mu^((k))$ seja a aproximação de autovalor que a gente escolhe no $k$-ésimo passo do algoritmo QR. De acordo com o @shifted-qr-with-well-known-shifts, a relação entre os passos $k-1$ e $k$ do algoritmo é:
+$
+  A^((k-1)) - mu^((k))I = Q^((k))R^((k))    \
+  A^((k)) = R^((k))Q^((k)) + mu^((k))I
+$
+
+Isso nos dá o seguinte (Só fazer umas substituições):
+$
+  A^((k)) = (Q^((k)))^T A^((k-1))Q^((k))
+$
+
+Aí se a gente aplica uma indução, temos:
+$
+  A^((k)) = (underline(Q)^((k)))^T  A  underline(Q)^((k))
+$
+
+Se você para pra olhar, é a mesma coisa que a gente definiu no @unshifted-qr-and-sumultanious-iteration-equivalence (Segunda equação). O problema é que a primeira equação não vale mais, ela vai ser substituida por:
+$
+  product_(j=k)^1 (A - mu^((j))I) = underline(Q)^((k)) underline(R)^((k))
+$
+
+Aí a gente não precisa entrar em detalhes da prova dessa equivalência. Isso acarreta que as colunas de $underline(Q)^((k))$ aos poucos vão convergindo para autovetores de A. O livro da uma ênfase na primeira e na última coluna, onde cada uma é equivalente a apliar o algoritmo da iteração reversa com shifts nos vetores canônicos $e_1$ e $e_m$ respectivamente.
+
+== Conexão com a Iteração do Quociente de Rayleigh
+Beleza, vimos que os shifts são bem poderosos para o cálculo das matrizes, mas aí tu pode tá se perguntando: "Q djabo eu faço pra escolher meus shift? Eu tenho q ser Mãe de Ná?". E você está corretíssimo, precisamos de um método para escolher shifts interessantes para o algoritmo.
+
+Faz sentido a gente tentar usar o quociente de Rayleigh pra isso. A gente quer tentar fazer com que a última coluna de $underline(Q)^((k))$ converja. Então faz sentido a gente usar o Quociente de Rayleigh com essa última coluna né?
+$
+  mu^((k)) = ((q_m^((k)))^T A q_m^((k)))/(q_m^((k))^T q_m^((k))) = (q_m^((k)))^T A q_m^((k)))
+$
+
+Se escolhermos esse valor, as estimativas $mu^((k))$ (Estimativa de autovalor) e $q_m^((k))$ estimativa de autovetor são identicos àqueles computados pela iteração do quociente de rayleigh com o vetor inicial sendo $e_m$
+
+Tem um negócio bem massa que a gente pode ver com isso. Que o valor $A^((k))_(m m)$ é igual a $r(q_m^((k)))$ ($r$ sendo a função do quociente de rayleigh), a gente pode visualizar assim:
+$
+  A^((k))_(m m) = e_m^T A^((k)) e_m = e_m^T (underline(Q)^((k)))^T A underline(Q)^((k)) e_m = q_m^((k))^T A q_m^((k))
+$
+
+Ou seja, escolher $mu^((k))$ como sendo o coeficiente de rayleigh de $q_m^((k))$ é a mesma coisa que escolher ele como sendo a última entrada de $A^((k))$. A gente chama isso de *Shift do Quociente de Rayleigh*.
+
+== Wilkinson Shift
+A gente tem um problema com o método anterior. Nem sempre escolhermos $A^((k))_(m m)$ ou $r(q_m^((k)))$ como os shifts para convergência funciona. Um exemplo disso é a matriz:
+$
+  mat(0, 1;1, 0)
+$
+
+Isso ocorre porque temos uma simetria nos autovalores ($1$ e $-1$) e $A^((k))_(m m) = 0$, o que acarreta que ao escolhermos esse valor como shift, o algoritmo tende a beneficiar ambos os autovalores igualmente (Ou seja, eu não tá mais próximo de nenhum, vou ta igualmente distante dos dois). A gente precisa de uma estimativa que quebre a simetria, vamo fazer o seguinte então:
+
+Deixe $B$ ser definida pelo bloco $2 times 2$ inferior direito da matriz $A^((k))$
+$
+  B = mat(a_(m-1),b_(m-1);b_(m-1),a_m)
+$
+
+O *Shift de Wilkinson* é definido como o autovalor mais próximo de $a_m$. Em caso de empate, eu seleciono qualquer um dos dois autovalores arbitrariamente. Aqui tem uma fórmula numericamente estável pra achar esses autovalores:
+$
+  mu = a_m - ("sign"(delta)b_(m-1)^2)/(|delta| + sqrt(delta^2 + b_(m-1)^2))
+$
+
+onde $delta = (a_(m-1) - a_m)/2$. Se $delta = 0$, eu posso definir $"sign"(delta)$ como sendo $1$ ou $-1$ arbitrariamente. O *Shift de Wilkinson* também atinge convergência cúbica e, nos piores casos, pelo menos quadrática (Pode ser mostrado). Em partiular, o algoritmo QR com shift de Wilkinson sempre converge.
+
+== Estabilidade e Precisão
+Como esperado, os algoritmos vistos anteriormente são *backward stable*, ou seja, calcular os autovalores de uma matriz $A$ com os algoritmos é o mesmo que calcular os autovalores de uma matriz levemente perturbada $accent(A, \~)$ do modo puramente matemático. O teorema a seguir pode ser provado, mas não é o intuito:
+
+#theorem[
+  Deixe uma matriz real, simétrica e tridiagonal $A in RR^(m times m)$ ser diagonalizada pelo algoritmo QR (@shifted-qr-with-well-known-shifts) em um computador ideal. Deixe $accent(Lambda, \~)$ ser a matriz de autovalores de $A$ computada por aritmética de ponto flutuante e $accent(Q, \~)$ a matriz exatamente ortogonal associada ao produto dos refletores de householder e rotações utilizadas nos algoritmos, temos que:
+  $
+    accent(Q, \~) accent(Lambda, \~) accent(Q, \~) = A + delta A
+  $
+  onde
+  $
+    (||delta A||)/(||A||) = O(epsilon_"machine")
+  $
+  para algua $delta A in CC^(m times m)$
+]<qr-algorithm-stability-and-precision>
+
+Isso mostra que temos resultados muito bom! Inclusive, juntando com alguns outros teoremas que vimos (@qr-algorithm-stability-and-precision e @householder-stability-and-precision), temos que, para todo autovalor $lambda_j$, o autovalor computado $accent(lambda_j, \~)$ satisfaz:
+$
+  (|accent(lambda_j, \~) - lambda_j|)/(||A||) = O(epsilon_"machine")
+$
+
+#pagebreak()
+
+#align(center + horizon)[
+  = Discos de Gershgorin
+]
+
+#pagebreak()
+Os Discos de Gershgorin é um método de estimar *onde* estão os autovalores de uma matriz complexa no plano de *Argand-Gauss* (Aquele plano que representa os complexos). Como assim? Vamos pegar uma matriz aleatória $A in CC^(3 times 3)$, eu sei que ela tem, no máximo, 3 autovalores. Aplicando o teorema dos discos (Vou explicar posteriormente como aplicar, vamos só entender a ideia) eu obtive o seguinte resultado:
+
+#figure(
+  image("images/Gershgorin-Circles.jpg"),
+  caption: [Ilustração dos Discos de Gershgorin de uma matriz $3 times 3$]
+)
+
+Isso significa que os autovalores da minha matriz $A$ estão em *algum lugar* dentro desses círculos roxos. Mas qual é a utilidade disso? Na verdade é muito útil, pois nos dá uma noção de *shifts* para utilizarmos em algoritmos
+
+#theorem[
+  Os autovalores de uma matriz complexa $A = [a_(i j)] in CC^(m times m)$ estão contidos na união dos discos:
+  $
+    union.big_(i = 1)^m { z in CC: |z - a_(i i)| <= sum_(j != i)|a_(i j)| }
+  $
+]<gershgorin-discs-theorem>
+#proof[
+  Dada uma matriz $A in CC^(m times m)$ e um autovetor $v$ de $A$ tal que $A v = lambda v$ e seja $v_i$ a entrada de maior magnitude de $v$, temos:
+  $
+    sum_(j=1)^m A_(i j) v_j = lambda v_i \
+
+    A_(i i) v_i + sum_(j!=i)^m A_(i j) v_j = lambda v_i \
+
+    sum_(j!=i)^m A_(i j) v_j = lambda v_i - A_(i i) v_i  \
+
+    1/v_i sum_(j!=i)^m A_(i j) v_j = lambda - A_(i i) \
+
+    |1/v_i sum_(j!=i)^m A_(i j) v_j| = |lambda - A_(i i)| \
+  $
+
+  Por desigualdade triangular, reescrevemos como:
+  $
+    sum_(j!=i)^m |A_(i j) v_j/v_i| >= |lambda - A_(i i)|
+  $
+
+  Veja que, como $v_i$ é a entrada de maior magnitude de $v$, temos que $|v_j/v_i| <= 1$ $forall j$. Isso quer dizer que:
+  $
+    sum_(j!=i)^m |A_(i j) v_j/v_i| <= sum_(j!=i)^m |A_(i j)|
+  $
+
+  Ou seja, podemos reescrever como:
+  $
+    sum_(j!=i)^m |A_(i j)| >= |lambda - A_(i i)|
+  $
+
+  Isso quer dizer que o autovalor $lambda$ está localizado dentro de um disco com centro $A_(i i)$ e raio $sum_(j!=i)^m |A_(i j)|$
+]
+
+
+
+#pagebreak()
+
+#align(center + horizon)[
+  = Lecture 30 - Outros algoritmos de Autovalores
+]
+
+#pagebreak()
+
+== Algoritmo de Jacobi
+A gente pode imaginar uma matriz $A$ como uma representação de um elipsóide num plano. Tente imaginar no plano $3$D. Se a gente conseguir rotacionar essa matriz $A$ (Rotacionar a elipe) até o ponto de que os eixos da elipse se alinhem com os eixos do plano, então $A$ seria diagonal (Ou seja, a gente obteria uma diagonalização de $A$).
+
+Para uma melhor vizualisação desse conceito, veja #underline[#link("https://youtu.be/dQQ2PXo2maM?si=zsqU_lXXAm8mig0O")[esse vídeo]]
+
+Ok, então o que podemos fazer pra ir fazendo isso? Vamos aplicando pequenas rotações $2 times 2$ até obter o resultado designado, as rotações são do tipo:
+$
+  mat(
+    c, s;
+    -s, c
+  )
+$
+
+onde $c = cos(theta)$ e $s = sin(theta)$ para algum $theta$. Vale dizer também que essa rotação é para o caso de $A in RR^(2 times 2)$. Se $A$ é uma matriz de dimensão maior, então a matriz de rotação é a identidade com um bloco do tipo que apresentei antes em algum lugar (Qualquer lugar da matriz). No final a gente teria uma matriz $J$ tal que:
+$
+  J^T A J = "Diagonal"
+$
+
+== Bisection
+Antes de tudo, vou explicar o que é o algoritmo de Bisection. Ele é um algoritmo pra estimar as raízes de uma função.
+
+Temos uma função $f(x)$ e queremos estimar suas raízes. Então pegamos uma região $[a, b]$ de forma que $f(a)<0$ e $f(b)>0$ (Ou o contrário). Pelo TVI, isso significa que uma raíz $f(delta)=0$ é tal que $delta in [a, b]$. Pegamos então o ponto médio do intervalo $c = (a+b)/2$ e calculamos $f(c)$. Daí, fazemos a seguinte análise:
+
+- Se $f(a)f(c)<0$, então a raíz $delta$ está a esquerda de $c$, então eu vou fazer o processo novamente no intervalo $[a, c]$. Se não, então a raíz não está no intervalo $[a, c]$
+- Se $f(b)f(c)<0$, então a raíz $delta$ está a direita de $c$, então eu vou fazer o processo novamente no intervalo $[c, b]$. Se não, então a raíz não está no intervalo $[c, b]$
+
+#image("images/function-example.png")
+
+Essa é a ideia para achar os autovalores, aplicamos isso no polinômio característico. Ué, mas usar o polinômio não era uma ideia ruim de autovalor? Na real que a ideia ruim é achar a raíz do polinômio pelos seus *coeficientes*, isso sim é instável. No método de bisection a gente não precisa calcular isso.
+
+Vamos definir algumas coisas antes de continuar com o algoritmo.
+
+Chame de $A^((j))$ a submatriz principal de $A$ com tamanho $j times j$ e tenha que $A in RR^(m times m)$ é tridiagonal, simétrica e não-redutível (0 fora da diagonal, com exceção das diagonais superior e inferior)
+$
+  A = mat(
+    a_1, b_1;
+    b_1, a_2, b_2;
+    , b_2, a_3, dots.down;
+    ,,dots.down, dots.down, b_(m-1);
+    ,,,b_(m-1), a_m
+  )
+$
+
+Tenha também o seguinte teorema (É um exercício do livro)
+
+#theorem[
+  Se $A in CC^(m times m)$ é tridiagonal, hermitiana e as entradas acima e abaixo da diagonal são diferentes de 0, então os autovalores de $A$ são todos distintos
+]<tridiagonal-distinct-eigenvalues>
+
+Esse ponto é muito importante. Por conta dele, podemos organizar os autovalores de $A^((k))$ como:
+$
+  lambda_1^((k)) < lambda_2^((k)) < ... < lambda_m^((k))
+$
+
+Então é possível provar que $lambda_j^((k+1)) < lambda_j^((k)) < lambda_(j+1)^((k+1))$, veja a figura para ter uma noção visual:
+
+#image("images/Overlaping-property.png")
+
+Por conta disso eu consigo dizer quantos autovalores de uma matriz são positivos ou negativos, etc. Imagina a seguinte matriz:
+
+$
+  mat(
+    1,1;
+    1,0,1;
+    ,1,2,1;
+    ,,1,-1
+  )
+$
+
+E vamos analisar a seguinte sequência (Lembre-se que $det(A) = product_(i=1)^m lambda_i$):
+- $det(A^((1))) = 1 =>$ 0 autovalores negativos
+- $det(A^((2))) = -1 =>$ 1 autovalor negativo
+- $det(A^((3))) = -3 =>$ 1 autovalor negativo
+- $det(A^((4))) = 4 =>$ 2 autovalores negativos
+
+#definition("Sequência de Sturm")[
+  A sequência de Sturm é definida por:
+  $
+    1, det(A^((1))), det(A^((2))), ..., det(A^((m)))
+  $
+]
+
+É fácil notar que a quantidade de autovalores negativos de $A$ está ligado a quantas vezes o sinal do determinante muda na sequência de Sturm (de 0 e + para - ou de - para 0 ou +). Mas por que isso é interessante? Eu falei e falei mas não estou vendo muito a utilidade disso.
+
+Por conta dessas estimações, conseguimos, por exemplo, saber quantos autovalores estão dentro de um intervalo $[a,b]$. Vamos fazer a inserção de um shift $x I$. Vamos calcular os autovalores de $A - x I$, mas por quê? Acontece que os autovalores de $A - x I$ são $lambda - x$, ou seja, se eu pegar todos os valores de $lambda - x < 0 <=> lambda < x$, logo, eu consigo estimar a quantidade de autovalores de $A$ no intervalo $[-infinity, x]$
+
+Também podemos fazer uma pequena troca e fazer um passo-a-passo mais conciso. Se vermos como $A$ é formada, temos que:
+$
+  det(A^((k))) = a_k det(A^((k-1))) - b^2_(k-1) det(A^((k-2)))
+$
+
+Se trocarmos $det(A^((k)))$ por $det(A^((k)) - x I) = p^((k))(x)$
+$
+  p^((k))(x) = (a_k - x)p^((k-1))(x) - b_(k-1)^2 p^((k-2))(x)
+$
+
+E se definirmos $p^((-1))(x)=0$ e $p^((0))(x)=1$, conseguimos, uma fórmula de recorrência para $k = 1, 2, ..., m$
+
+== Dividir para Conquistar
+Esse método consiste em pegar a matriz tridiagonal e subdividi-la em matrizes menores que são mais fáceis de se trabalhar. A ideia principal é a seguinte. Temos $T in RR^(m times m)$ com $m >= 2$ simétrica, tridiagonal e irredutível (No sentido que os valores fora da diagonal são diferentes de 0). Então podemos dividir a matriz $T$ da seguinte forma:
+
+#image("images/tridiagonal-sum-factorization.png")
+
+Fazemos essa divisão em que $T_1$ é $n times n$ e $T_2$ é $m-n times m-n$. A diferença de $T_1$ para $accent(T, \^)_1$ é que o elemento $t_(n n)$ foi substituido por $t_(n n) - beta$ e a diferença de $T_2$ para $accent(T, \^)_2$ é que o elemento $t_(n+1 n+1)$ foi trocado por $t_(n+1 n+1) - beta$. Após fazer essa divisão, a gente vai subdividindo $accent(T, \^)_j$ da mesma forma que fizemos com $T$, de forma que no final vamos ter uma matriz $1 times 1$ (A qual sabemos com certeza quem é o autovalor).
+
+Beleza, mas como que isso vai me ajudar? É possível mostrar que, sabendo os autovalores de $accent(T, \^)_j$, conseguimos achar os autovalores de $T$. Mostrando isso, acaba que isso vira um caso de recursão, já que, ao acharmos o autovalor da matriz $1 times 1$ (Trivial), vamos subindo até o caso $m times m$ ($T$).
+
+Vamos supor que conhecemos os autovalores de $accent(T, \^)_j$. Vamos então supor a seguinte diagonalização: $accent(T, \^) = Q_j D_j Q_j^T$. Podemos então fazer a seguinte transformação de similaridade:
+$
+  T = mat(
+    Q_1;
+    ,Q_2
+  )
+  (
+    mat(
+      D_1;
+      ,D_2
+    )
+    +
+    beta z z^T
+  )
+  mat(
+    Q_1^T;
+    ,Q_2^T
+  )
+$
+
+Onde $z^T = mat(q_1^T, q_2^T)$, onde $q_1^T$ é a última linha de $Q_1$ e $q_2^T$ é a última linha de $Q_2$. O segundo termo do interior da matriz pode ser dificil de visualizar. O primeiro é bem intuitivo de que vai se transformar em $mat(accent(T, \^)_1;,accent(T, \^)_2)$, mas o segundo não é tão intuitivo. Vou tentar explicar melhor.
+
+Pelo que definimos antes, podemos visualizar $Q_1$ e $Q_2$ como
+$
+  Q_1 = mat(
+    ,dots.v;
+    -,q_1,-;
+  )
+  " e "
+  Q_2 = mat(
+    -,q_2,-;
+    ,dots.v;
+  )
+$
+
+Vamos ver o que acontece com a multiplicação:
+$
+  mat(
+    Q_1;
+    ,Q_2
+  )
+  
+  beta mat(q_1;q_2) mat(q_1^T, q_2^T)
+
+  mat(
+    Q_1^T;
+    ,Q_2^T
+  )
+  
+  \
+
+  beta
+
+  mat(
+    Q_1 q_1;
+    ,Q_2 q_2
+  )
+
+  mat(
+    q_1^T Q_1^T;
+    ,q_2^T Q_2^T
+  )
+
+  \
+  
+  beta
+
+  mat(
+    0;dots.v;1;
+    1;dots.v;0
+  )
+
+  mat(
+    0.dots.h,1,
+    1,dots.h,0
+  )
+
+  \
+
+  mat(
+    0;
+    ,dots.down;
+    ,,beta,beta;
+    ,,beta,beta;
+    ,,,,dots.down;
+    ,,,,,0
+  )
+$
+
+Que é justamente a matriz que tinhamos antes, então a fatoração está correta! Beleza, então eu só preciso achar os autovalores de
+$
+  mat(D_1;,D_2) + beta z z^T
+$
+já que ela é similar a $T$ ($mat(Q_1^T;,Q_2^T)mat(Q_1;,Q_2)=I$). Mas como que eu faço isso? Em vez de trabalhar com o caso especifico de $z$, vamos generalizar para qualquer vetor $w$.
+
+#theorem("Equação Secular")[
+  Queremos achar os autovalores de $D + w w^T$ onde $D$ é uma matriz diagonal com entradas distintas (@tridiagonal-distinct-eigenvalues), então esses autovalores são as raízes da função
+  $
+    f(lambda) = 1 + sum_(j=1)^m (w_j^2)/(d_j - lambda)
+  $
+  Onde $d_j$ são as entradas de $D$ e $w_j$ as entradas de $w$
+]
+#proof[
+  Vamos supor que $q$ é um autovetor de $D + w w^T$, então temos:
+  $
+    (D+w w^T)q = lambda q \
+    D q - lambda q + w w^T q = 0 \
+    (D - lambda I)q + w w^T q = 0 \
+    q + (D - lambda I)^(-1) w w^T q = 0 \
+    w^T q + w^T (D - lambda I)^(-1)w(w^T q) = 0 \
+    (1 + w^T (D - lambda I)^(-1)w)(w^T q) = 0
+  $
+  Se abrirmos $1 + w^T(D - lambda I)^(-1)w$ na mão vamos obter $f(lambda)$ que falei anteriormente, ou seja, a expressão total fica $f(lambda)(w^T q) = 0$, porém, se $w^T q = 0$, então $q$ seria autovetor de $D$ (Só olhar a primeira equação), ou seja, $f(lambda) = 0$
+]
+
+
 
 
 #pagebreak()
@@ -1255,7 +2264,51 @@ Escrever pqq tem q ser iterativo. (pag 192 trefethen)
 #pagebreak()
 == SVD de A via autovalores de $herm(A) A$
 
-Calcular a SVD de $A$ usando que $herm(A) A = V herm(Sigma) Sigma V$ igual a um sagui disléxico não é a melhor ideia, pois reduzimos o problema de SVD a um problema de autovalores, que é sensível à perturbações.
+Calcular a SVD de $A$ usando que $herm(A) A = V herm(Sigma) Sigma V$ igual a um sagui disléxico não é a melhor ideia. O algoritmo padrão seria:
+
+1. Calcule $A^* A$
+2. Calcular $A^* A = V Lambda V$
+3. Defina $Sigma$ como a matriz $m times n$ não-negativa que é a raíz de $Lambda$
+4. Resolva $U Sigma = A V$ para uma $U$ unitária
+
+Só que a gente pode mostrar que esse algoritmo não é ideal é instável. Pelo Exercício 26.3 (b) do livro, temos o seguinte:
+
+#theorem[
+  Suponha que $A$ é normal. Para cada autovalor $accent(lambda, ~)_j$ de $A + delta A$, existe um autovalor $lambda_j$ de $A$ tal que
+  $
+    |accent(lambda, ~)_j - lambda_j| < ||delta A||_2
+  $
+]
+
+Usando esse teorema, fazemos uma perturbação $delta B$ em $A^* A$, de forma que:
+$
+  |lambda_k (A^*A + delta B) - lambda_k (A^*A)| <= ||delta B||_2
+$
+
+Agora vamos supor um algoritmo *backward stable* que calcula os valores singulares de $A$. Esse algoritmo vai retornar valores $accent(sigma, ~)$ tais que:
+$
+  accent(sigma, ~)_k = sigma_k (A + delta A), space (||delta A||)/(||A||) = O(epsilon_"machine")
+$
+
+ou seja, temos que
+$
+  |accent(sigma, ~)_k - sigma_k| = O(epsilon_"machine" dot ||A||)
+$
+
+Porém, a gente também pode supor um algoritmo *backward stable* para calcular os autovalores de $A^* A$, então esse algoritmo nos daria valores $accent(lambda, ~)$ tais que:
+$
+  |accent(lambda, ~)_k - lambda_k| = O(epsilon_"machine" dot ||A^*A||) = O(epsilon_"machine" dot ||A||^2)
+$
+
+Então a gente pode tirar a raíz desses valores computados, correto?
+$
+  |accent(sigma_k, ~) - sigma_k| = O(|accent(lambda, ~)_k - lambda_k|\/sqrt(lambda_k)) = O(epsilon_"machine" ||A||^2 \/ sigma_k)
+$
+
+E isso é pior do que antes, ou seja, mesmo que utilizemos algoritmos estáveis para calcular os autovalores de $A^*A$ e tirar sua raíz quadrada, ainda teríamos erros maiores do que algoritmos diretos para calcular os valores singulares.
+
+== Redução para um problema de Autovalores
+Por conta disso, reduzimos o problema de SVD a um problema de autovalores, que é sensível à perturbações.
 
 Um algoritmo estável para calcular a SVD de $A$, usa a matriz
 
@@ -1266,8 +2319,7 @@ $
   )
 $
 
-Se $A = U Sigma herm(V)$ é uma SVD de $A$, então $A V = Sigma U$ e $herm(A) U = herm(Sigma) V = Sigma V$, portant
-
+Se $A = U Sigma herm(V)$ é uma SVD de $A$, então $A V = Sigma U$ e $herm(A) U = herm(Sigma) V = Sigma V$, portanto
 $
   mat(
     0, A;
@@ -1310,4 +2362,48 @@ $
   kappa(H) = norm(H)_2 dot norm(inv(H))_2 = (sigma_1 (H)) / (sigma_m (H)) = (sigma_1 (A)) / (sigma_m (A)) = kappa(A).
 $
 
+== Divisão em duas fases
+Porém, nós vimos algoritmos de autovalores para matrizes tridiagonais, e $H$ não é tridiagonal, como podemos ver. Então o que fazemos? Nós dividimos o processo de achar a SVD em duas etapas, uma de tridiagonalização (Ou bidiagonalização, como veremos), e uma de diagonalização (Achar os autovalores da matriz bidiagonalizada)
 
+#figure(
+  caption: [As fases de um algoritmo de SVD],
+  image("images/svd-algorithm-phases.png")
+)
+
+== Bidiagonalização de Galub-Kahan
+A ideia é aplicar matrizes unitárias distintas na esquerda de $A$ e na sua direita, e advinha que tipo de matrizes usamo? Exatamente: *Refletores de Householder*. A ideia é aplicar refletores a esquerda de $A$ para colocar zeros abaixo da diagonal principal e a direita para aplicar zeros após a diagonal superior de $A$:
+
+#figure(
+  image(width: 70%, "images/galub-kahan-diagonalization.png"),
+  caption: [Bidiagonalização de Galub-Kahan exemplificada]
+)
+
+== Métodos de Bidiagonalização mais eficientes
+Um método mais rápido que podemos aplicar quando $m > n$ é a _Bidiagonalização de Lawson-Hanson-Chan_, que consiste em aplicar a bidiagonalização de Galub-Kahan em $R$ da fatoração QR de $A$. Pois assim reduzimos o problema para uma bidiagonalização numa matriz triangular, veja:
+
+#figure(
+  image("images/lhc-bidiagonalization.png"),
+  caption: [Bidiagonalização LHC exemplificada]
+)
+
+Isso gera uma redução na quantidade de operações gastas para fazer o algoritmo. O problema é que, de acordo com o livro, isso só vale a pena quando $m > 5/3 n$. O interessante seria generalizar isso para o caso $m > n$. E isso é possível!
+
+A ideia para essa generalização é não fazer a fatoração QR no inicio do algoritmo, mas em pontos adequados do algoritmo. Mas que pontos são esses? Conforme vamos fazendo a bidiagonalização, a proporção de $m$ e $n$ vai alterando a cada passo do algoritmo, como assim? Imagine que estamos aplicando o algoritmo numa matriz $10000 times 30$, no segundo passo do algoritmo, perceba que vamos aplicar na matriz $9999 times 29$, se fizermos a proporção de ambos:
+$
+  10000/30 approx 333,33 \
+  9999/29 approx 344,79 \
+  9998/28 approx 357,07
+$
+
+Perceba que a proporção só aumenta pois eu estou sempre aplicando em matrizes com $m$ muito grande. O livro fala que o que fazemos é aplicar a fatoração QR no $k$-ésimo passo quando:
+$
+  (m-k)/(n-k) = 2
+$
+Veja a ilustração do processo:
+#figure(
+  image(width: 90%, "images/lah-optimization.png"),
+  caption: [Aplicação da QR em pontos-chave da iteração]
+)
+
+== Fase 2
+A fase 2 é aplicar algum algoritmo de autovalores na matriz que encontramos. Os dois principais algoritmos que são utilizados é uma versão modificada do algoritmo QR e o dividir e conquistar
