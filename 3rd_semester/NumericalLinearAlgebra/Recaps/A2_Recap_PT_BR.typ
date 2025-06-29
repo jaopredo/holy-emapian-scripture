@@ -41,6 +41,8 @@
     it
   }
 }
+
+#show link: underline
 // ATALHOS:
 #let herm(term) = $term^*$
 #let inv(term) = $term^(-1)$
@@ -89,7 +91,7 @@
   *Nota*: Os *computadores ideais* que mencionaremos, são computadores nos quais o _axioma fundamental da aritmética de ponto flutuante_ é satisfeito. Convidamos o leitor a ler sobre isso no resumo anterior (A1), especificamente na *lecture 13*
 ]
 
-Esse é um resumo feito por João Pedro Jerônimo (Ciência de Dados) e Arthur Rabello (Matemática Aplicada) com objetivo de traduzir os hieróglifos contidos no livro de #underline[#link("https://gvmail-my.sharepoint.com/:b:/g/personal/b435911_fgv_edu_br/EWLInlwjad1IqYMi_cDcTcsBvwp2_fzO6Oq8-YAEtjV6pg?e=UbXOk8")[Álgebra Linear Numérica do Trefthen e do Bau]]
+Esse é um resumo feito por João Pedro Jerônimo (Ciência de Dados) e Arthur Rabello (Matemática Aplicada) com objetivo de traduzir os hieróglifos contidos no livro de #underline[#link("https://www.stat.uchicago.edu/~lekheng/courses/309/books/Trefethen-Bau.pdf")[Álgebra Linear Numérica do Trefthen e do Bau]]
 
 #align(center + horizon)[
   #text(30pt)[\u{1F44D}]
@@ -99,6 +101,7 @@ Esse é um resumo feito por João Pedro Jerônimo (Ciência de Dados) e Arthur R
 
 #align(center + horizon)[
   = Lecture 16 - Estabilidade da Triangularização de Householder
+  <section_householder_stability>
 ]
 
 #pagebreak()
@@ -106,6 +109,7 @@ Esse é um resumo feito por João Pedro Jerônimo (Ciência de Dados) e Arthur R
 Nesse capítulo, a gente tem uma visão mais aprofundada da análise de *erro retroativo* (Backwards Stable). Dando uma breve recapitulada, para mostrar que um algoritmo $accent(f, ~): X -> Y$ é *backwards stable*, você tem que mostrar que, ao aplicar $accent(f, ~)$ em uma entrada $x$, o resultado retornado seria o mesmo que aplicar o problema original $f: X->Y$ em uma entrada levemente perturbada $x + Delta x$, de forma que $Delta x = O(epsilon_"machine")$.
 
 == O Experimento
+<section_householder_stability_experiment>
 O livro nos mostra um experimento no matlab para demonstrar a estabilidade em ação e alguns conceitos importantes, irei fazer o mesmo experimento, porém, utilizarei código em python e mostrarei meus resultados aqui.
 
 Primeiro de tudo, mostraremos na prática que o algoritmo de *Householder* é *backwards stable*. Vamos criar uma matriz $A$ com a fatoração $Q R$ conhecida, então vamos gerar as matrizes $Q$ e $R$. Aqui, temos que $epsilon_"machine" = 2.220446049250313 times 10^(-16)$:
@@ -215,6 +219,7 @@ Veja que, mesmo minhas matrizes $Q_2$ e $R_2$ tendo erros bem grandes com relaç
 Perceba o quão grande é esse erro, é *enorme*, então: $Q_2$ não é melhor que $Q_3$, $R_2$ não é melhor que $R_3$, mas $Q_2R_2$ é muito mais preciso do que $Q_3R_3$
 
 == Teorema
+<section_householder_stability_theorem>
 Vamos ver que, de fato, o algoritmo de *Householder* é *backwards stable* para toda e qualquer matriz $A$. Fazendo a análise de backwards stable, nosso resultado precisa ter esse formato aqui:
 $
   accent(Q, ~)accent(R, ~) = A + delta A
@@ -242,6 +247,7 @@ De forma que $accent(Q, ~)$ é perfeitamente unitária e cada matriz $accent(Q, 
 ]
 
 == Algoritmo para resolver $A x = b$
+<section_householder_stability_solve>
 Vimos que o algoritmo de householder é backwards stable, show! Porém, sabemos que não costumamos fazer essas fatorações só por fazer né, a gente faz pra resolver um sistema $A x = b$, ou outros tipos de problemas. Certo, mas, se fizermos um algoritmo que resolve $A x = b$ usando a fatoração QR obtida com householder, a gente precisa que $Q$ e $R$ sejam precisos? Ou só precisamos que $Q R$ seja preciso? O bom é que precisamos apenas que $Q R$ seja precisa! Vamos mostrar isso para a resolução de sistemas $m times m$ não singulares.
 
 #figure(
@@ -338,6 +344,7 @@ Esse algoritmo é *backwards stable*, e é bem passo-a-passo já que cada passo 
 
 #align(center + horizon)[
 = Lecture 17 - Estabilidade da Back Substitution
+<section_householder_stability_back_substitution>
 ]
 
 #pagebreak()
@@ -1212,6 +1219,16 @@ Essa forma é *muito útil* em análise numérica tendo em vista que *toda matri
     Essa era a fatoração de Schur que procurávamos
 ]
 
+== Fatoração de Cholesky
+
+Ainda na vibe da forma de Schur, temos também a fatoração de Cholesky. A ideia é que, dado uma matriz $A$ simétrica e definida positiva, podemos escrever:
+
+$
+  A = L herm(L)
+$ <equation_cholesky>
+
+onde $L$ é triangular inferior com diagonal positiva.
+
 #pagebreak()
 
 #align(center + horizon)[
@@ -1331,7 +1348,7 @@ $
 
 Beleza, vimos antes a importância da redução de Hessenberg, mas como ela funciona?
 
-== Uma ideia de Girico\
+== Uma ideia de Girico
 A gente pode começar pensando "Macho, essa fatoração é mamão com açúcar, só eu multiplicar pelo refletor de Householder que eu vou ter 0 abaixo da diagonal que eu quiser". Só que isso tem um problema, a gente precisa que o refletor multiplique de ambos os lados, ou seja:
 $
   Q_1^* A Q_1
