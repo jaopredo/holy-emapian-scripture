@@ -1181,7 +1181,7 @@ Não cabe aqui a prova desse teorema, porém um resumo de Álebra Linear do 2º 
 
 
 == Forma de Schur
-Essa forma é *muito útil* em análise numérica tendo em vista que *toda matriz* pode ser fatorada assim
+Essa forma é *muito útil* em análise numérica tendo em vista que *toda matriz quadrada* pode ser fatorada assim
 
 #definition("Fatoração de Schur")[
   Dada uma matriz $A in CC^(m times m)$, sua fatoração de schur é tal que:
