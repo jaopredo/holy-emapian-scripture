@@ -1100,7 +1100,7 @@ Isso mostra que *toda matriz* possui *pelo menos* 1 autovalor
 
 Dizemos que duas matrizes $A$ e $B$ são *similares* se existe uma matriz inversível $X$ que relacione as transformações similares entre $A$ e $B$, i.e:
 $
-  X^(-1) A X = X^(-1) B X
+  A = X^(-1) B X
 $
 
 #theorem[
