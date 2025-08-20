@@ -58,7 +58,7 @@
 
 #align(horizon + center)[
   #text(17pt)[
-    Banco de Dados
+    Modelagem Informacional
   ]
   
   #text(14pt)[
