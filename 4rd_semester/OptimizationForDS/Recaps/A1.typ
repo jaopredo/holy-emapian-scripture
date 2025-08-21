@@ -79,5 +79,26 @@
 
 #pagebreak()
 
+#align(center + horizon)[
+  = Otimização Irrestrita
+]
+
+#pagebreak()
+
+
+#pagebreak()
+
+#align(center + horizon)[
+  = Otimização Convexa
+]
+
+#pagebreak()
+
+
+#pagebreak()
+
+#align(center + horizon)[
+  = Otimização com restrições lineares
+]
 
 #pagebreak()

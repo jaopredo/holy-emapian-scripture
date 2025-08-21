@@ -125,7 +125,11 @@ Há também uma discussão sobre se os parâmetros que estamos procurando serem 
 
 #pagebreak()
 
-Nesse primeiro momento, iremos fazer experimentos assumindo que, ao fazer experimentos e obter resultados $X_j$ eles estão saindo de uma distribuição com parâmetro (ou vetor paramétrico) $theta$, e esse $theta$ é uma variável aleatória da qual desconhecemos. Quando fazemos um experimento em que $theta$ é uma V.A., é interessante chutar uma distribuição para ele antes de observar qualquer dado.
+== Introdução
+Nesse primeiro momento, iremos fazer experimentos assumindo que, ao fazer experimentos e obter resultados $X_j$ eles estão saindo de uma distribuição com parâmetro (ou vetor paramétrico) $theta$, e esse $theta$ é uma variável aleatória da qual desconhecemos.
+
+== Distribuições Priori e Posteriori
+Quando fazemos um experimento em que $theta$ é uma V.A., é interessante chutar uma distribuição para ele antes de observar qualquer dado.
 
 #definition("Distribuição a priori")[
   Dado um modelo estatístico com parâmetro $theta$, se $theta$ for uma variável aleatória, a distribuição de $theta$ antes de qualquer dado é chamada de distribuição a priori (Podemos denotar $xi(theta)$ ou $f_(theta)(theta)$).
@@ -138,9 +142,9 @@ Assim como especificamos uma distribuição para θ antes de qualquer dado ser o
 #definition("Função de verossimilhança")[
   A função de verossimilhança $LL(theta)$ é definida por
   $
-    LL(theta)=f_(X|theta) (X_1,...,X_k∣theta)
+    LL(theta)=f_(X|theta) (x_1,...,x_k∣theta)
   $
-  De forma que $f_(X|theta)(underline(X)|theta)$ é a f.d.p de $X_1,...,X_k$
+  De forma que $f_(X|theta)(underline(x)|theta)$ é a f.d.p de $X_1,...,X_k$
 ]
 
 #definition("Distribuição a posteriori")[
@@ -150,17 +154,17 @@ Assim como especificamos uma distribuição para θ antes de qualquer dado ser o
 E agora, com o teorema de bayes, podemos relacionar essas nossas definições
 
 #theorem("Bayes")[
-  Suponha que $X_1,...,X_k$ são amostras de uma população com distribuição conhecida de parâmetro $theta$ tal que sua f.d.p é $f_(X|theta)(X_1,...,X_k|theta)$. Suponha também que $theta$ é desconhecido e a distribuição a priori de $theta$ é tal que sua f.d.p é $f_theta (theta)$, então a posteriori de $theta$ é tal que:
+  Suponha que $X_1,...,x_k$ são amostras de uma população com distribuição conhecida de parâmetro $theta$ tal que sua f.d.p é $f_(X|theta)(x_1,...,x_k|theta)$. Suponha também que $theta$ é desconhecido e a distribuição a priori de $theta$ é tal que sua f.d.p é $f_theta (theta)$, então a posteriori de $theta$ é tal que:
   $
-    f_theta (theta|X_1,...,X_k) = ( f_X (X_1,...,X_k|theta) f_(theta) (theta) ) / (f_X (X_1,...,X_k))
+    f_theta (theta|x_1,...,x_k) = ( f_X (x_1,...,x_k|theta) f_(theta) (theta) ) / (f_X (x_1,...,x_k))
   $
   ou
   $
-    f_theta (theta|X_1,...,X_k) = (LL(theta) xi(theta)) / (integral LL(theta) xi(theta) d theta)
+    f_theta (theta|x_1,...,x_k) = (LL(theta) xi(theta)) / (integral LL(theta) xi(theta) d theta)
   $
   Perceba porém, que o termo do denominador não depende de $theta$, ou seja, podemos reescrever isso tudo como:
   $
-    f_theta (theta|X_1,...,X_k) prop LL(theta) xi(theta)
+    f_theta (theta|x_1,...,x_k) prop LL(theta) xi(theta)
   $
 ]
 #proof[
@@ -170,9 +174,10 @@ E agora, com o teorema de bayes, podemos relacionar essas nossas definições
 Por conta do teorema acima, todos os termos constantes que encontramos em nossa distribuição nós podemos pegar e jogar fora e, ao final, encontramos um termo constante geral, já que para descobrir essa constante $C$ basta fazer:
 $
   1/C = integral_(|Theta|) LL(theta)xi(theta) d theta
-$
+$<finding-the-constant>
 
-Porém, perceba que eu estou vendo o caso em que eu tenho todas as amostras de uma vez, porém, por exemplo, se eu quero descobrir se uma vacina é eficas, isso é inviável, faz muito mas sentido eu ir atualizando minha distribuição conforme recebo mais informações, mas será que isso vai dar a mesma coisa?
+== Observações sequenciais e predições
+Porém, perceba que, até agora, eu vi o caso em que eu tenho todas as amostras de uma vez, porém se, por exemplo, eu quero descobrir se uma vacina é eficaz, isso é inviável, faz muito mas sentido eu ir atualizando minha distribuição conforme recebo mais informações, mas será que isso vai dar a mesma coisa?
 
 Vamos fazer com duas observações condicionalmente independentes, para generalizar se faz analogamente. Como vimos, a posteriori de $theta$ após eu observar o dado $x_1$ se dá como:
 $
@@ -194,3 +199,18 @@ $
 $
 
 Ou seja, independentemente se eu estou recebendo dado após o outro ou se eu tenho todos de uma vez para trabalhar, o resultado final deve ser o mesmo.
+
+Porém, se voltarmos na equação @finding-the-constant, podemos perceber algo interessante. Lembra da *Lei da Probabilidade Total*?
+$
+  PP(A) = sum_(i=1)^n PP(B_i)PP(A|B_i)
+$
+Com $B_i$ sendo disjuntos. Porém, temos também a versão contínua do teorema:
+$
+  f_X (x) = integral_(Omega) f_(X|Y)(x|y) f_Y (y) d y
+$
+Porém, se fizermos algumas substituições, nós obtemos:
+$
+  f(x_(k)|x_1,...,x_(k-1)) = integral_(|Theta|) f (x_k|theta) xi (theta|x_1,...,x_(k-1)) d theta
+$
+
+Ou seja, podemos utilizar essa equação caso tenhamos $n$ observações e estamos interessados em prever o resultado da próxima observação.
