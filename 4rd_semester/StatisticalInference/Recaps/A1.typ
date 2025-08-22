@@ -31,8 +31,27 @@
 #let proof = thmproof("proof", "Demonstração")
 
 #set text(
+  font: "Atkinson Hyperlegible",
   size: 12pt,
 )
+
+#show heading: it => {
+  if it.level == 1 {
+    [
+      #block(
+        width: 100%,
+        height: 1cm,
+        text(
+          size: 1.5em,
+          weight: "bold",
+          it.body
+        )
+      )
+    ]
+  } else {
+    it
+  }
+}
 
 #set math.equation(
   numbering: "(1)",

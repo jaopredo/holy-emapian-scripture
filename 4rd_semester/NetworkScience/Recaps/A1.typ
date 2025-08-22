@@ -30,10 +30,6 @@
 #let example = thmplain("example", "Exemplo").with(numbering: none)
 #let proof = thmproof("proof", "Demonstração")
 
-#set text(
-  size: 12pt,
-)
-
 #set math.equation(
   numbering: "(1)",
   supplement: none,
@@ -43,6 +39,29 @@
   if it.element != none and it.element.func() == math.equation {
     // optional: wrap inside link, so whole label is linked
     link(it.target)[(#it)]
+  } else {
+    it
+  }
+}
+
+#set text(
+  font: "Atkinson Hyperlegible",
+  size: 12pt,
+)
+
+#show heading: it => {
+  if it.level == 1 {
+    [
+      #block(
+        width: 100%,
+        height: 1cm,
+        text(
+          size: 1.5em,
+          weight: "bold",
+          it.body
+        )
+      )
+    ]
   } else {
     it
   }

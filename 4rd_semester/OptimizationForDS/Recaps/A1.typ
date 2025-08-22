@@ -1066,8 +1066,6 @@ Esse teorema nos da motivação para uma definição
 ]
 
 
-
-
 #pagebreak()
 
 #align(center + horizon)[
@@ -1075,3 +1073,33 @@ Esse teorema nos da motivação para uma definição
 ]
 
 #pagebreak()
+
+Agora queremos minimizar problemas do tipo:
+$
+  min_x f(x) \
+  x "sujeito a restrições do tipo" a_i^T x <= b_i, space i = 1,...,m
+$
+
+onde $f$ é continuamente diferenciável em $RR^n, space {a_i}_(i=1)^m subset RR^n, {b_i}_(i=1)^m subset RR$. Ou seja, o conjunto viável $C$ é o poliédro:
+$
+  C = inter_(i=1)^m { x in RR^n \/ a_i^T x <= b_i }
+$
+
+Há um exemplo nas anotaçẽos sobre convexidade do Phillip que mostram que $C$ é convexo.
+
+== Condições KKT
+
+#theorem("Condições KKT para restrições lineares: condições necessárias de otimalidade")[
+  Considere o problema de minimização
+  $
+    min_x f (x)   \
+    "sujeito à" a_i^T x <= b_i , i = 1, ... , m
+  $
+  onde $f$ é uma função continuamente diferenciável em $RR^n$ ${a_i}^m_(i=1) subset RR and {b_i}_(i=1)^m subset R$. Então, se $x^*$ é um ponto de mínimo local do problema, existem $lambda_1 , . . . , lambda_m >= 0$ tais que
+  $
+    nabla f (x^*) + sum_(i=1)^m lambda_i a_i = 0, \
+    
+    lambda_i (a_i^T x^* - b_i) = 0, wide i = 1,...,m  \
+    a_i^T x^* - b_i <= 0, wide i = 1,...,m
+  $
+]
