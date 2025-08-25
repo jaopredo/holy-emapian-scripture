@@ -355,13 +355,38 @@ void destroyCircularQueue(CircularQueue *cq) {
     delete cq;
 }```
 
-=== Obs.1:
-Até agora, todas as estruturas de dados que aprendemos têm em geral, um problema: Todas elas são baseadas num array de tamanho fixo, passado na inicialização do TAD. Isso é um problema por dois dois motivos:
+#pagebreak()
+
+== 2.4 - Comparação entre TADs
+
+Para cada propósito ao qual cada TAD é designado, quase todas as principais operações são $O(1)$. Veja: 
+
+#set table(
+  stroke: none,
+  gutter: 0.2em,
+  fill: (x, y) =>
+    if x == 0 or y == 0 { gray },
+  inset: (right: 1.5em),
+)
+
+#align(
+    center,
+    table(
+  columns: 4,
+  [Operação], [Pilha], [Fila com array], [Fila com array circular],
+
+  [inserir], [$O(1)$], [$O(1)$], [$O(1)$],
+  [Remover], [$O(1)$], [$O(n)$], [$O(1)$],
+  [Buscar],  [$O(1)$], [$O(1)$], [$O(1)$],
+)
+)
+
+Mas, até agora, todas as estruturas de dados que aprendemos têm em geral, um problema: Todas elas são baseadas num array de tamanho fixo, passado na inicialização do TAD. Isso é um problema por dois dois motivos:
 + Excesso de espaço dependendo do caso;
 + Falta de espaço dependendo do caso.
 Como solucionar esse problema?
 
-== 2.4 Lista encadeada
+== 2.5 Lista (simplesmente) encadeada
 
 Uma lista encadeada é uma lista que usa ponteiros que indicam o próximo elemento da lista, sem depender uma estrutura de dados pronta que define o tamanho da lista na inicialização.
 
@@ -442,7 +467,7 @@ void popFrontSLList(SingleLinkedList* list) {
     list->size--;
 }
 
-void popMiddleSLList(SingleLinkedList* list, int value) {
+void popEndSLList(SingleLinkedList* list, int value) {
     if (list->head == nullptr) {
         return;
     }
@@ -460,6 +485,8 @@ void popMiddleSLList(SingleLinkedList* list, int value) {
 }
 ```
 
+Note que aqui temos o popEnd seria análago ao popMiddle, já que, de qualquer forma, teríamos que percorrer a lista inteira para encontrar o elemento, dado que provavelmente não sabemos onde ele está.
+
 - Busca de um elemento - Percorre toda a lista usando um ponteiro auxiliar até achar o valor, retornando true. Caso não achar, retorna false.
 ```cpp
 bool searchSLList(SingleLinkedList* list, int value) {
@@ -474,7 +501,7 @@ bool searchSLList(SingleLinkedList* list, int value) {
 }
 ```
 
-- Destruição da lista - Em geral isso não é muito útil, já que precisamos passar elemento a elemento para deletar, já que essa lista não usa uma estrutura pronta como array.
+- Destruição da lista - Em geral isso não é muito útil, já que precisamos passar elemento a elemento para deletar, e que essa lista não usa uma estrutura pronta como array.
 
 ```cpp
 void deleteSLList(SingleLinkedList* list) {
@@ -488,14 +515,14 @@ void deleteSLList(SingleLinkedList* list) {
 }
 ```
 
-== 2.5 Lista encadeada circular
+== 2.6 Lista encadeada circular
 
 Nesse caso, basta colocar um ponteiro tail na struct SingleLinkedList apontando para a cauda (tail), e atualizar nas funções mostradas anteriormente. Como a lista não tem um tamanho pré-fixado, também não é necessário tratar casos com o módulo da lista, etc. Fica a cargo do leitor.
 
-=== Obs.2:
+=== Obs.1:
 Uma limitação da lista encadeada simples é que ela só vê o próximo elemento, o que é problemático em situações como remoção de um nó ou verificação do elemento anterior numa lista. Para solucionar esse problema, basta adicionarmos um ponteiro tail em cada um dos nós da lista! 
 
-== 2.6 Lista duplamente encadeada
+== 2.7 Lista duplamente encadeada
 
 Sabendo que você provavelmente já entendeu o conceito, vamos às aplicações:
 
@@ -568,12 +595,13 @@ void pushEndDLList(DoubleLinkedList* list, int value) {
     list->size++;
 }```
 
-Note que a 
 - Remoção de um elemento:
- - 
+ - Front - Após verificarmos se a lista não esta vazia, criamos um ponteiro temporário que salvará o ponteiro a ser deletado, logo após atualizamos o head da lista, e com ela atualizada, verificamos se o head atual não é nulo, pois caso ele não seja, devemos atualizar também o prev da nova head. Caso ele seja nulo, então o tail também deve ser atualizado como nulo. Deletamos o ponteiro antigo e decrementamos o size.
+ - End - Fazemos literalmente a mesma coisa, só que olhando para o tail. Note como a estrutura é parecida
+
 
 ```cpp
-void removeFront(DoubleLinkedList* list) {
+void popFrontDLList(DoubleLinkedList* list) {
     if (list->head == nullptr) {
         return;
     }
@@ -588,30 +616,7 @@ void removeFront(DoubleLinkedList* list) {
     list->size--;
 }
 
-void removeMiddle(DoubleLinkedList* list, int value) {
-    if (list->head == nullptr) {
-        return;
-    }
-
-    Node* current = list->head;
-    while (current != nullptr && current->value != value) {
-        current = current->next;
-    }
-
-    if (current == nullptr) {
-        return;
-    }
-
-    current->prev->next = current->next;
-    if (current->next != nullptr) {
-        current->next->prev = current->prev;
-    }
-
-    delete current;
-    list->size--;
-}
-
-void removeEnd(DoubleLinkedList* list) {
+void popEndDLList(DoubleLinkedList* list) {
     if (list->tail == nullptr) {
         return;
     }
@@ -627,3 +632,72 @@ void removeEnd(DoubleLinkedList* list) {
     list->size--;
 }
 ```
+
+Note que não colocamos as funções de push e pop no meio da lista, já que isso quebraria a ideia dessas operações serem $O(1)$, pois teríamos que percorrer toda a lista até encontrar o elemento do meio, se fosse o caso.
+Além disso, um push no meio não faz sentido, seria algo como furar fila, enquanto o pop no meio de uma fila pode realmente acontecer, como uma desistência. Aqui vai o código do pop no meio da lista:
+
+```cpp
+void popMiddleDLList(DoubleLinkedList* list, int value) {
+    if (list->head == nullptr) {
+        return;
+    }
+    Node* current = list->head;
+    while (current != nullptr && current->value != value) {
+        current = current->next;
+    }
+    if (current == nullptr) {
+        return;
+    }
+    current->prev->next = current->next;
+    if (current->next != nullptr) {
+        current->next->prev = current->prev;
+    }
+    delete current;
+    list->size--;
+}
+```
+- Busca de um elemento - Análogo a lista simplesmente encadeada.
+```cpp
+bool searchDLList(DoubleLinkedList* list, int value) {
+    Node* current = list->head;
+    while (current != nullptr) {
+        if (current->value == value) {
+            return true;
+        }
+        current = current->next;
+    }
+    return false;
+}
+```
+
+- Destruição da lista - Análogo a lista simplesmente encadeada.
+
+```cpp
+void deleteDLList(DoubleLinkedList* list) {
+    Node* current = list->head;
+    while (current != nullptr) {
+        Node* temp = current;
+        current = current->next;
+        delete temp;
+    }
+    delete list;
+}
+```
+
+== 2.8 - Comparação entre arrays e listas encadeadas
+
+Após todo esse código, podemos fazer uma breve comparação entre listas encadeadas e arrays:
+
+ - Arrays são uma boa escolha quando há uma estimativa da quantidade de elementos a serem inseridos e permitem acesso rápido a qualquer elemento via índice, mas inserções e remoções no meio são custosas, pois exigem deslocamento de elementos .
+- Listas encadeadas são boa escolha quando a quantidade de elementos pode variar significativamente e inserções e remoções são eficientes, pois não exigem deslocamento de elementos, porém, acesso a elementos individuais é mais lento, pois requerem percorrer a lista.
+
+Além disso, embora listas encadeadas sejam flexíveis e eficientes para inserção e remoção, elas possuem algumas desvantagens:
+
++ Maior uso de memória por elemento (devido aos ponteiros adicionais);
++ Não é possivel acessar uma posição aleatória da lista de forma eficiente;
+
+Uma ideia que possibilita o acesso a uma posição aleatória de forma eficiente e melhora a busca linear é ordenar a lista. Mas como fazer isso?
+
+#pagebreak()
+
+= 3. Ordenação
