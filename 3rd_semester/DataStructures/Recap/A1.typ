@@ -570,14 +570,13 @@ void pushEndDLList(DoubleLinkedList* list, int value) {
 
 Note que a 
 - Remoção de um elemento:
- -
+ - 
 
 ```cpp
 void removeFront(DoubleLinkedList* list) {
     if (list->head == nullptr) {
         return;
     }
-
     Node* temp = list->head;
     list->head = list->head->next;
     if (list->head != nullptr) {
