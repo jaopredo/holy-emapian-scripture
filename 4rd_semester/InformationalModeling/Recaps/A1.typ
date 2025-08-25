@@ -372,6 +372,7 @@ E para finalizar, temos os objetivos organizacionais
 
 #pagebreak()
 
+== O que é?
 Antes de adentrar no conceito de um Data Warehouse, vamos ter algumas definições antes
 
 #definition("Dado Operacional")[
@@ -445,4 +446,94 @@ Como vimos, um data warehouse tem informações sobre *toda* uma empresa, podend
   Os Data Marts Seguem os mesmos princípios de um DW ,mas possuem um escopo mais limitado, geralmente ligado a um uso mais departamental, e não de forma abrangente à empresa conforme um DW.
   - *Data Mart independente*: Lobo solitário, criado como se fosse um DW. Um DM independente tem os próprios sistemas de origem e infraestrutura de ETL
   - *Data Mart dependente*: Não possui os próprios sistemas de origem. Os dados são lidos de um DW
+]
+
+== Como um Data Warehouse é estruturado?
+
+#figure(
+  caption: [Passo-a-passo da montagem de um Data Warehouse],
+  image("images/data-warehouse-structure.png")
+)
+
+=== DWH Requirements
+Elicitação de requisitos, definições e visualização – deve especificar as capacidades e funcionalidades desejadas do futuro DW
+- Os requisitos são embasados nas necessidades analíticas que podem ser supridas pelos dados dos sistemas de origem disponíveis, tanto internos quanto externos
+- A coleta de requisitos é feita através de entrevistas com vários stakeholders
+- Além das entrevistas, métodos adicionais para elicitação de requisitos podem ser usados, tais como grupos focais, surveys, observações de processos existentes, etc
+- A coleta de requisitos deve ser definida e escrita claramente em um documento, e então visualizada como um modelo de dados conceitual.
+
+=== DWH Modeling
+Modelagem do data warehouse (modelagem lógica do DW) – criação do modelo de dados do DW que é implementável em um
+SGBD
+- Logo após a etapa de coleta de requisitos inicia-se a modelagem do DW, de onde serão criados modelos implementáveis no SGBD escolhido.
+- O Modelo de dados lógico ou modelo de dados de implementação leva em conta a lógica particular do software de gerenciamento de banco de dados escolhido.
+
+=== Creating DWH
+Criação do DW – usar um SGBD para implementar o modelo de
+dados do DW
+- Tipicamente, os data warehouses são implementados usando os mesmos SGBDs dos bancos operacionais, tais como MS SQL, Oracle,
+- No entanto, existem SGBDs especializados em processar grandes volumes de dados, tais como Teradara e Vertica
+
+=== ETL Infraestructure
+- Criar procedimentos e códigos para:
+  - Extração automática de dados relevantes das fontes de dados operacionais
+  - Transformação dos dados extraídos, de forma que a qualidade seja assegurada e a estrutura seja aderente ao modelo de DW implementado
+  - A carga contínua dos dados transformados para dentro do data warehouse
+- Devido à quantidade de detalhes que devem ser considerados, a criação da infraestrutura ETL costuma ser a parte que mais consome tempo e recursos do processo de desenvolvimento do data warehouse.
+
+=== Developing Front-End Applications
+Desenvolvimento de aplicações front-end (BI) - projetar e criar aplicativos para uso indireto pelos usuários finais
+- Os aplicativos front-end estão incluídos na maioria dos DW e são frequentemente chamados de aplicativos de inteligência de negócios (BI)
+- Os aplicativos front-end contêm interfaces (como formulários e relatórios) acessíveis por meio de um mecanismo de navegação (como um menu)
+
+=== DWH Deployment
+Liberar o DW e seus aplicativos front-end (BI) para uso dos usuários finais
+
+=== DWH Use
+Uso do data warehouse - a leitura dos dados no data warehouse
+- Uso indireto
+  - Via front-end (BI) applications
+- Uso direto
+  - Via SGBD
+  - Via OLAP (BI) tool
+
+=== SWH Administration and Maintenance
+Administração e manutenção do data warehouse - realizar atividades que dão suporte ao usuário final do DW, incluindo o tratamento de questões técnicas, tais como:
+- Fornecer segurança para as informações contidas no data warehouse
+- Garantir espaço suficiente no disco rígido para o conteúdo do data warehouse
+- Implementar os procedimentos de backup e recuperação
+
+== Modelo Dimensional
+Vimos na disciplina de banco de dados sobre *modelos relacionais*, porém, estudiosos, posteriormente, perceberam que esse modelo é ineficiente para *análise de dados*, então foram criados modelos diferentes para a criação desses bancos. Então como podemos fazer?
+- *Kimbal*: Star Schema (Mais utilizado)
+- *Inmon*: Floco de neve
+
+O método do *Kimbal* é o mais utilizado na prática, pois ele é uma versão não-normalizada do *Inmon*, já que, em um Data Warehouse, a normalização aparenta ser desnecessária, já que todas as entradas são apenas de leitura
+
+Antes nós montávamos como *entidade* e *relacionamentos*, agora, nossos elementos são:
+- *Dimensões*
+- *Fatos*
+
+#example[
+  Dentro da nossa loja, queremos criar um dashboard para gerenciar e entender as devoluções dos produtos feitos. De um modo bem simples, vamos ter o fato *Devolução*, ela ocorreu e pronto, mas o que ela engloba que não está necessariamente dentro do fato da devolução? Temos o produto, temos o calendário (Quando a devolução foi feita) e tem o motivo da devolução (Tem mais coisas, mas vamos simplificar por aqui). A primeira vista, essas coisas estão dentro da devolução, correto? Mas se pararmos para pensar, vários produtos podem ser devolvidos de maneiras independentes, assim como nem toda devolução tem um motivo diferente
+]
+
+#definition("Tabela de Dimensões")[
+  Contém descrições de negócios, organização, ou empresas no qual o sujeito da análise pertence. As colunas na tabela dimensional costumam ter informações descritivas, como textos (e.g, `product_color`, `product_description`, `client_name`). Essas informações providenciam uma base para a análise do sujeito
+]
+
+#definition("Tabelas de Fatos")[
+  Contém medidas relacionadas ao sujeito da análise e chaves-estrangeiras que ligam os fatos às tabelas de dimensões. As medidas na tabela de fatos costumam ser numéricas com intenção de análises computacionais e matemáticas
+]
+
+== Star Schema
+#figure(
+  caption: [Exemplo de estruturação em *Esquema Estrela*],
+  image("images/star-schema-structure.png")
+)
+
+Os *Fact Measures* são informações dentro do fato que *não se aplicam em nenhuma dimensão*
+
+#example[
+  Queremos criar o fato *venda*, ele engloba as dimensões de *produto*, *cliente*, *loja*, *calendário* e *vendedor*. Porém, não faz sentido, por exemplo, colocar a quantidade de produtos comprados em *nenhuma dimensão*, ou o *valor total da compra*, de forma que essas informações são localizadas única e exclusivamente no fato
 ]
