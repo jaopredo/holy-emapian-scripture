@@ -354,6 +354,7 @@ Esse método pode ser simplificado para uma categoria específica de funções
 
 #pagebreak()
 
+
 Vamos apresentar algoritmos de busca e suas complexidades
 
 == Busca em um vetor ordenado
@@ -632,5 +633,255 @@ Node * binaryTreeSearchIterative(Node * node, int key) {
     }
   }
   return node;
+}
+```
+
+
+#pagebreak()
+
+#align(center + horizon)[
+  = Tabela Hash
+]
+
+#pagebreak()
+
+
+Famosos dicionários do python, nós a utilizamos para armazenar e pesquisar tuplas _\<chave, valor\>_.
+
+#figure(
+  caption: [Desenho de tabela hash],
+  image("images/hash-table.png")
+)
+
+Nós queremos criar funções $Theta(1)$ para executar funções de *inserção, busca* e *remoção*. Todas as chaves contidas na tabela são *únicas*, já que elas identificam os valores unicamente.
+
+#figure(
+  caption: [Estruturação da Hash Table],
+  image("images/hash-table-structure.png", width: 70%)
+)
+
+- *Universo de Chaves ($U$)*: Conjunto de chaves possíveis
+- *Chaves em Uso($K$)*: Conjunto de chaves utilizadas
+
+Vamos idealizar um problema para motivar os nossos objetivos.
+
+== Um problema
+*Problema*: Considere um programa que recebe eventos emitidos por veículos ao entrar em uma determinada região Cada evento é composto por um inteiro representando o ID do veículo. O programa deve contar o número de vezes que cada veículo entrou na região. Ocasionalmente o programa recebe uma requisição para exibir o número de ocorrências de um dado veículo. *Mandatório*: a contagem deve ser incremental, sem qualquer estratégia de cache. Uma requisição para exibir o resultado parcial da contagem deverá contemplar todos os eventos recebidos até o momento.
+
+=== Primeira abordagem: Endereçamento Direto
+```cpp
+int table[U];
+for (int i = 0; i < U; i++) {
+  table[i] = 0;
+}
+
+// Função de incrementação em cada elemento
+void add(int key) {
+  table[key]++;
+}
+
+// Função de busca
+int search(int key) {
+  return table[key]
+}
+```
+- `add` $= Theta(1)$
+- `search` $= Theta(1)$
+
+=== Segunda abordagem: Lista Encadeada
+```cpp
+typedef struct LLNode CountNode;
+struct LLNode {
+  int id;
+  int count;
+  CountNode * next;
+};
+
+void add(int key) {
+  CountNode * node = m_firstNode;
+  while (node != nullptr && node->id != key) {
+    node = node->next;
+  }
+  if (node != nullptr) {
+    node->count += 1;
+  } else {
+    CountNode * newNode = new CountNode;
+    newNode->id = key;
+    newNode->count = 1;
+    newNode->next = m_firstNode;
+    m_firstNode = newNode;
+  }
+}
+int search(int key) {
+  CountNode * node = m_firstNode;
+  while (node != nullptr && node->id != key) {
+    node = node->next;
+  }
+  return node != nullptr ? node->count : 0;
+}
+```
+Infelizmente nessa abordagem nós não atingimos o objetivo principal de realizar as operações em $Theta(1)$, já que a função de busca é $Theta(n)$
+
+== Definição
+Agora que entendemos toda a ideia da hash table, podemos fazer uma definição melhor para ela
+
+#definition("Hash Table")[
+  A *tabela hash* é uma estrutura de dados baseada em um vetor de $M$ posições acessado através de endereçamento direto 
+]
+#definition("Função de Espalhamento/Hashing")[
+  É uma função que mapeia uma chave em um índice $[0, M-1]$ do vetor. O resultado dessa função é comumente chamado de *hash*. O objetivo da função de espalhamento é reduzir o intervalo de índices de forma que M seja muito menor que o tamanho do universo U.
+]
+#example[
+  ```
+    hash(key) = key % M
+  ```
+]
+
+#definition("Colisão")[
+  É quando a função de espalhamento gera os mesmos hashes para chaves diferentes. Existem várias abordagens para resolver esse problema
+]
+
+Uma função de hash é considerada *boa* quando minimiza as colisões (Mas elas são inevitáveis)
+
+== Soluções para colisão
+Vamos ver algumas abordagens para resolver o problema de colisão
+
+=== Tabela hash com encadeamento
+O problema de colisão é solucionado armazenando os elementos com o mesmo hash em uma lista encadeada
+
+#figure(
+  caption: [Tabela hash com encadeamento],
+  image("images/linked-hash-table.png", width: 32%)
+)
+
+#codly(
+  header: [*EXEMPLO DE IMPLEMENTAÇÃO*]
+)
+```cpp
+typedef struct HashTableNode HTNode;
+struct HashTableNode {
+  unsigned key;
+  int value;
+  HTNode * next;
+  HTNode * previous;
+};
+
+class HashTable {
+  public:
+  HashTable(int size)
+    : m_table(nullptr)
+    , m_size(size) {
+    m_table = new HTNode*[size];
+      for (int i=0; i < m_size; i++) { m_table[i] = nullptr; }
+    }
+  ~HashTable() {
+    for (int i=0; i < m_size; i++) {
+      HTNode * node = m_table[i];
+      while (node != nullptr) {
+        HTNode * nextNode = node->next;
+        delete node;
+        node = nextNode;
+      }
+    }
+    delete[] m_table;
+  }
+  ...
+  private:
+    unsigned hash(unsigned key) const { return key % m_size; }
+    HTNode ** m_table;
+    int m_size;
+};
+
+
+void insert_or_update(unsigned key, int value) {
+  unsigned h = hash(key);
+  HTNode * node = m_table[h];
+  while (node != nullptr && node->key != key) {
+    node = node->next;
+  }
+  if (node == nullptr) {
+    node = new HTNode;
+    node->key = key;
+    node->next = m_table[h];
+    node->previous = nullptr;
+    HTNode * firstNode = m_table[h];
+    if (firstNode != nullptr) {
+      firstNode->previous = node;
+    }
+    m_table[h] = node;
+  }
+  node->value = value;
+}
+
+
+HTNode * search(unsigned key) {
+  unsigned h = hash(key);
+  HTNode * node = m_table[h];
+  while (node != nullptr && node->key != key) {
+    node = node->next;
+  }
+  return node;
+}
+
+
+bool remove(unsigned key) {
+  unsigned h = hash(key);
+  HTNode * node = m_table[h];
+  while (node != nullptr && node->key != key) {
+    node = node->next;
+  }
+  if (node == nullptr) {
+    return false;
+  }
+  HTNode * nextNode = node->next;
+  if (nextNode != nullptr) {
+    nextNode->previous = node->previous;
+  }
+  HTNode * previousNode = node->previous;
+  if (previousNode != nullptr) {
+    node->previous->next = node->next;
+  } else {
+    m_table[h] = node->next;
+  }
+  delete node;
+  return true;
+}
+```
+
+O pior caso dessa implementação é quando todas as chaves são mapeadas em uma única posição
+- *Inserção/Atualização*: $Theta(n)$
+- *Busca*: $Theta(n)$
+- *Remoção*: $Theta(n)$
+
+=== Hash uniforme simples
+Cada chave possui a mesma probabilidade de ser mapeada em qualquer índice $[0, M)$. Essa é uma propriedade desejada para uma função de espalhamento a ser utilizada em uma tabela hash. Infelizmente esse resultado depende dos elementos a serem inseridos. Não sabemos à priori a distribuição das chaves ou mesmo a ordem em que serão inseridas. Heurísticas podem ser utilizadas para determinar uma função de espalhamento com bom desempenho
+
+Alguns métodos mais comuns:
+- *Simples*
+  - Se a chave for um número real entre [0, 1)
+  - `hash(key)` $= floor("key" dot M)$
+- *Método da divisão*
+  - Se a chave for um número inteiro
+  - `hash(key)` $= "key"% M$
+  - Costuma-se definir M como um número primo.
+- *Método da multiplicação*
+  - *hash(key)* $= floor( "key" dot A % 1 M )$
+  - A é uma constante no intervalo $0 < A < 1$.
+
+Observe que a chave pode assumir qualquer tipo suportado pela linguagem
+#example[```py countries["BR"]```]
+
+A função de espalhamento é responsável por gerar um índice numérico com base no tipo de entrada
+
+#codly(
+  header: [*EXEMPLO DE HASH PARA STRINGS*]
+)
+```cpp
+int hashStr(const char * value, int size) {
+  unsigned hash = 0;
+  for (int i=0; value[i] != '\0'; i++) {
+    hash = (hash * 256 + value[i]) % size;
+  }
+  return hash;
 }
 ```

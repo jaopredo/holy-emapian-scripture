@@ -7,6 +7,8 @@
 #show: codly-init.with()
 #codly(languages: codly-languages, stroke: 1pt + luma(100))
 
+#import "@preview/tablex:0.0.9": tablex, rowspanx, colspanx, cellx
+
 #set page(width: 21cm, height: 30cm, margin: 1.5cm)
 
 #set par(
@@ -42,7 +44,28 @@
   }
 }
 
-#show link: underline
+#set text(
+  font: "Atkinson Hyperlegible",
+  size: 12pt,
+)
+
+#show heading: it => {
+  if it.level == 1 {
+    [
+      #block(
+        width: 100%,
+        height: 1cm,
+        text(
+          size: 1.5em,
+          weight: "bold",
+          it.body
+        )
+      )
+    ]
+  } else {
+    it
+  }
+}
 // ATALHOS:
 #let herm(term) = $term^*$
 #let inv(term) = $term^(-1)$
@@ -93,15 +116,10 @@
 
 Esse é um resumo feito por João Pedro Jerônimo (Ciência de Dados) e Arthur Rabello (Matemática Aplicada) com objetivo de traduzir os hieróglifos contidos no livro de #underline[#link("https://www.stat.uchicago.edu/~lekheng/courses/309/books/Trefethen-Bau.pdf")[Álgebra Linear Numérica do Trefthen e do Bau]]
 
-#align(center + horizon)[
-  #text(30pt)[\u{1F44D}]
-]
-
 #pagebreak()
 
 #align(center + horizon)[
-  = Lecture 16 - Estabilidade da Triangularização de Householder
-  <section_householder_stability>
+  = Estabilidade da Triangularização de Householder
 ]
 
 #pagebreak()
@@ -343,8 +361,7 @@ Esse algoritmo é *backwards stable*, e é bem passo-a-passo já que cada passo 
 #pagebreak()
 
 #align(center + horizon)[
-= Lecture 17 - Estabilidade da Back Substitution
-<section_householder_stability_back_substitution>
+= Estabilidade da Back Substitution
 ]
 
 #pagebreak()
@@ -541,7 +558,7 @@ Voltando ao algoritmo de *back substitution*, temos o seguinte teorema:
 #pagebreak()
 
 #align(center + horizon)[
-  = Lecture 18 - Condicionando Problemas de Mínimos Quadrados
+  = Condicionando Problemas de Mínimos Quadrados
 ]
 
 #pagebreak()
@@ -721,7 +738,7 @@ $
 #pagebreak()
 
 #align(center + horizon)[
-  = Lecture 19 - Estabilidade de Algoritmos de Mínimos Quadrados
+  = Estabilidade de Algoritmos de Mínimos Quadrados
 ]
 
 #pagebreak()
@@ -981,7 +998,7 @@ A gente viu a aplicação de algoritmos em problemas de mínimos quadrados utili
 #pagebreak()
 
 #align(center + horizon)[
-  = Lecture 24 - Problemas de Autovalores
+  = Problemas de Autovalores
 ]
 
 #pagebreak()
@@ -1232,7 +1249,7 @@ onde $L$ é triangular inferior com diagonal positiva.
 #pagebreak()
 
 #align(center + horizon)[
-= Lecture 25 - Algoritmos de Autovalores
+= Algoritmos de Autovalores
 ]
 
 #pagebreak()
@@ -1341,7 +1358,7 @@ $
 #pagebreak()
 
 #align(center + horizon)[
-  = Lecture 26 - Redução à forma de Hessenberg
+  = Redução à forma de Hessenberg
 ]
 
 #pagebreak()
@@ -1423,7 +1440,7 @@ Assim como o algoritmo de Householder, para a fatoração QR, esse algoritmo é 
 #pagebreak()
 
 #align(center + horizon)[
-  = Lecture 27 - Quociente de Rayleigh e Iteração Inversa
+  = Quociente de Rayleigh e Iteração Inversa
 ]
 
 #pagebreak()
@@ -1623,7 +1640,7 @@ Não há necessidade de uma demonstração formal, apenas a ideia de que há uma
 #pagebreak()
 
 #align(center + horizon)[
-  = Lecture 28 - Algoritmo QR sem Shift
+  = Algoritmo QR sem Shift
 ]
 
 #pagebreak()
@@ -1848,7 +1865,7 @@ Show, agora a gente pode entender melhor como que esse algoritmo acha os autoval
 #pagebreak()
 
 #align(center + horizon)[
-  = Lecture 29 - Algoritmo QR com Shifts
+  = Algoritmo QR com Shifts
 ]
 
 #pagebreak()
@@ -2042,7 +2059,7 @@ Isso significa que os autovalores da minha matriz $A$ estão em *algum lugar* de
 #pagebreak()
 
 #align(center + horizon)[
-  = Lecture 30 - Outros algoritmos de Autovalores
+  = Outros algoritmos de Autovalores
 ]
 
 #pagebreak()
@@ -2275,7 +2292,7 @@ já que ela é similar a $T$ ($mat(Q_1^T;,Q_2^T)mat(Q_1;,Q_2)=I$). Mas como que 
 #pagebreak()
 
 #align(center + horizon)[
-  = Lecture 31 - Calculando a SVD
+  = Calculando a SVD
 ]
 
 #pagebreak()

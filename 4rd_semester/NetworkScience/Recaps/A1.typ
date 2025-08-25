@@ -326,3 +326,55 @@ $
     r = lim_(t -> infinity) GG^t p_0
   $
 ]
+
+
+#pagebreak()
+
+#align(center + horizon)[
+  = Redes Aleatórias
+]
+
+#pagebreak()
+
+São tipos de redes que vão se montando aleatoriamente. Por exemplo, imagine que você está em uma festa e o anfitrião está fornecendo um vinho da melhor qualidade, mas ele não avisou ninguém. Um convidado curioso, por acidente, provou desse vinho e *adorou*, então ele vai contar para as pessoas da festa. A pergunta é, para quem ele vai falar? Ele vai falar para todos? Vai sobrar vinho para você?
+
+Em cima disso conseguimos montar as redes aleatórias, onde cada par de nós (Aresta) é formado de acordo com uma *probabilidade*
+
+#definition("Rede Aleatória")[
+  Uma rede aleatória é um grafo $G(V,E)$ de $|V| = N$ nós onde cada par de nós é conectado por uma probabilidade *$p$*
+]
+
+Como cada aresta tem uma probabilidade $p$ de aparecer, podemos interpretar ela como ela aparecer ou não sendo uma variável indicadora, de forma que o número total de arestas segue uma distribuição binomial. Ou seja, a probabilidade a quantidade de arestas ser $L=l$ é:
+$
+  PP(L=l) =  mat(mat(N;2);l) p^l (1-p)^(N(N-1)/2 l)
+$
+Podemos aplicar a mesma ideia para o grau de um vértice também:
+$
+  PP(delta(v) = k) = mat(N-1;k) p^k (1-p)^(N-1-k)
+$
+Já que meu vértice pode se ligar a $N-1$ vértices com probabilidade $k$, então isso vira a soma das variáveis indicadores que são $1$ quando o meu vértice se liga com outro vértice, de forma que eu tenho a soma de $N-1$ variáveis de bernoulli
+
+Com isso, nós temos:
+$
+  delta_"med" (G) = (N-1)p
+$
+
+E podemos obter também a variância dos graus
+$
+  VV(delta(v)) = (N-1)p(1-p)
+$
+
+Então, apenas para resumir, temo que:
+$
+  "Número de arestas" L ~ "Bin"(mat(N;2), p)    \
+  "Grau do vértice" delta(v) ~ "Bin"(N-1, p)
+$
+
+Porém, em redes reais, elas são *esparsas*, ou seja, eu tenho *muitos* nós e graus pequenos. E lembra qual é a distribuição que é a binomial com $n$ muito grande? Exato, a *Poisson*! Essas redes aleatórias também são chamadas de *redes de poisson*
+$
+  PP(delta(v)=k) = e^(-delta_"med" (G)) ( delta_"med" (G)^k )/k!
+$
+Ou seja, para $N$ muito grande e $k$ pequeno com relação a $N$, podemos estimar de forma que:
+$
+  "Grau do vértice" delta(v) ~ "Poisson"(delta_"med" (G))
+$

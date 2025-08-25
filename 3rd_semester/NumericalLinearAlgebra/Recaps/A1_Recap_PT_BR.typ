@@ -2,8 +2,22 @@
 #import "@preview/lovelace:0.3.0": *
 #show: thmrules.with(qed-symbol: $square$)
 
-#set page(width: 21cm, height: 29.7cm, margin: 1.5cm)
-#set heading(numbering: "1.1.")
+#import "@preview/codly:1.3.0": *
+#import "@preview/codly-languages:0.1.1": *
+#show: codly-init.with()
+#codly(languages: codly-languages, stroke: 1pt + luma(100))
+
+#import "@preview/tablex:0.0.9": tablex, rowspanx, colspanx, cellx
+
+#set page(width: 21cm, height: 30cm, margin: 1.5cm)
+
+#set par(
+  justify: true
+)
+
+#set figure(supplement: "Figura")
+
+#set heading(numbering: "1.1.1")
 
 #let theorem = thmbox("theorem", "Teorema")
 #let corollary = thmplain(
@@ -14,7 +28,44 @@
 )
 #let definition = thmbox("definition", "Definição", inset: (x: 1.2em, top: 1em))
 #let example = thmplain("example", "Exemplo").with(numbering: none)
-#let proof = thmproof("proof", "Prova")
+#let proof = thmproof("proof", "Demonstração")
+
+#set math.equation(
+  numbering: "(1)",
+  supplement: none,
+)
+#show ref: it => {
+  // provide custom reference for equations
+  if it.element != none and it.element.func() == math.equation {
+    // optional: wrap inside link, so whole label is linked
+    link(it.target)[(#it)]
+  } else {
+    it
+  }
+}
+
+#set text(
+  font: "Atkinson Hyperlegible",
+  size: 12pt,
+)
+
+#show heading: it => {
+  if it.level == 1 {
+    [
+      #block(
+        width: 100%,
+        height: 1cm,
+        text(
+          size: 1.5em,
+          weight: "bold",
+          it.body
+        )
+      )
+    ]
+  } else {
+    it
+  }
+}
 
 #align(center + top)[
   FGV EMAp
@@ -44,9 +95,12 @@
 
 #pagebreak()
 
-As aulas abaixo referem-se ao livro de Trefethen sobre álgebra linear numérica
+#align(center + horizon)[
+  = Normas
+]
 
-= Lecture 3 - Normas
+#pagebreak()
+
 *Aviso*: O capítulo sobre normas tem conceitos bastante abstratos, alguns deles não são muito *intuitivos*, então tente abstrair e aceitar que eles existem por enquanto, mais tarde mostraremos que são muito úteis.
 
 == Normas de vetores
@@ -156,7 +210,14 @@ A mais importante é a *Norma de Frobenius*, definida como:
   $||A B||_F = (sum_(i=1)^m sum_(j=1)^n |c_(i j)|^2)^(1/2) <= (sum_(i=1)^m sum_(j=1)^n (||a_i||_2||b_j||_2)^2)^(1/2) = (sum_(i=1)^m ||a_i||^2_2 sum_(j=1)^n ||b_j||^2_2)^(1/2) = ||A||_F||B||_F$
 ]
 
-= Lectures 4 e 5 - A SVD
+#pagebreak()
+
+#align(center + horizon)[
+  = SVD
+]
+
+#pagebreak()
+
 *Aviso rápido:* Quando começarmos a falar sobre a fatoração em si, vamos falar sobre matrizes em $CC^(m times n)$ com $m >= n$, porque é o mais comum quando falamos de problemas reais, raramente são situações com mais variáveis do que equações.
 
 Aaaaaah, a SVD, por que ela existe? O que significa? Lembre-se que, em Álgebra Linear, quando temos uma base de um Espaço Vetorial e uma Transformação Linear, sabemos como a Transformação Linear afeta *cada* vetor naquele Espaço Vetorial? Não? Deixe-me refrescar sua memória:
@@ -454,7 +515,13 @@ Para as próximas propriedades, seja $A in CC^(m times n)$ e $r <= min(m, n)$ o 
   $|det(A)| = |det(U Sigma V^*)| = |det(U) det(Sigma) det(V)| = |det(Sigma)|$
 ]
 
-= Lecture 6 - Projetores
+#pagebreak()
+
+#align(center + horizon)[
+  = Projetores
+]
+
+#pagebreak()
 
 $P in CC^(m times n)$ é dito um #text(weight: "bold")[Projetor] se
 
@@ -621,7 +688,14 @@ $
 => P = A(A^*A)^(-1)A^*
 $
 
-= Lecture 7 - Fatoração QR
+#pagebreak()
+
+#align(center + horizon)[
+  = Fatoração QR
+]
+
+#pagebreak()
+
 A assustadora, a parte em que ninguém sabe de nada! Vamos nos acalmar e ver tudo com paciência.
 
 Como funciona essa fatoração? Queremos expressar $A$ como:
@@ -748,7 +822,13 @@ Escrevendo na forma de um algoritmo:
   Sabemos que, se $A$ é de posto completo $=> r_(j j) != 0$ e, portanto, em cada passo sucessivo $j$, as fórmulas mostradas anteriormente determinam $r_(i j)$ e $q_j$ completamente, o único problema é o sinal de $r_(j j)$, uma vez que dizemos $r_(j j) > 0$, esse problema é resolvido
 ]
 
-= Lecture 8 - Ortonormalização de Gram-Schmidt
+#pagebreak()
+
+#align(center + horizon)[
+  = Ortonormalização de Gram-Schmidt
+]
+
+#pagebreak()
 Podemos descrever o algoritmo de Gram-Schmidt usando projetores, mas por que quereríamos isso? Na verdade, isso é uma introdução para outro algoritmo que veremos mais tarde. Quando falamos de algoritmos, queremos que eles sejam estáveis, no sentido de que, se inserirmos uma entrada no computador, ele nos retornará uma resposta próxima da correta (computadores não resolvem problemas contínuos exatamente), e o processo de Gram-Schmidt não é estável (falaremos sobre isso nas próximas aulas).
 
 Lembre-se que eu disse que, se você tem um vetor $v$ e o decompõe como
@@ -874,7 +954,13 @@ $
 R_1R_2...R_n = R^(-1)
 $
 
-= Lecture 10 - Triangularização de Householder
+#pagebreak()
+
+#align(center + horizon)[
+  = Triangularização de Householder
+]
+
+#pagebreak()
 NÃOOOO, HOUSEHOLDER NÃOOOOO! Espere, espere, espere, vamos entrar nisso passo a passo! Vimos no último capítulo que o algoritmo de Gram-Schmidt pode ser escrito como uma série de multiplicações por matrizes triangulares superiores, certo? Bem, o algoritmo de triangularização de Householder é muito semelhante, mas, como o nome sugere, em vez de obtermos uma matriz ortogonal no final, terminamos com uma matriz triangular superior
 $
 Q_1Q_2...Q_n A = R
@@ -1000,7 +1086,13 @@ Fazemos isso porque construir $Q$ requer trabalho extra, então trabalhamos dire
 
 Observe que fizemos o mesmo processo que fizemos com $A$, só não explicitei as partes onde defini $v_k$ e o normalizei.
 
-= Lecture 11 - Problemas de Mínimos Quadrados
+#pagebreak()
+
+#align(center + horizon)[
+  = Problemas de Mínimos Quadrados
+]
+
+#pagebreak()
 Qual é o problema que estamos tentando analisar aqui? Bem, temos um conjunto de $m$ equações com $n$ variáveis, e temos mais equações do que variáveis $(m >= n)$, e queremos encontrar uma solução para esse sistema! Mas você concorda comigo, se fizermos a fatoração $Q R$ de $A$, a maioria dessas equações não terá solução, certo? Porque as entradas abaixo da $n$-ésima linha de $R$ serão iguais a $0$, então, para o vetor $Q^*b$ ter todas as entradas iguais a zero abaixo da $n$-ésima linha, apenas algumas escolhas específicas de $b$ satisfarão isso!
 $
 A = Q R => A x = b <=> R x = Q^* b
@@ -1088,7 +1180,14 @@ Observe que podemos obter uma nova fórmula para $A^+$, que é $A^+ = V accent(S
 4. Definir $x = V w$
 
 
-= Lecture 12 - Condicionamento e Números de Condição
+#pagebreak()
+
+#align(center + horizon)[
+  = Condicionamento e Números de Condição
+]
+
+#pagebreak()
+
 Esta é a parte em que as coisas começam a ficar confusas, então precisaremos passar por isso com muita calma!
 
 == Condicionamento de um Problema
@@ -1136,7 +1235,10 @@ NOSSA, observe como uma ligeira perturbação em $x$ mudou a solução MUITO? Is
 Estamos falando de problemas em espaços *normados*, portanto, em sua essência, poderíamos dizer que os problemas são funções de subespaços de $CC^m$ para $CC^n$, o que significa que, se um problema $f$ é _diferenciável_ (é uma função, então pode ou não ser diferenciável), ele tem uma _Jacobiana_. Há uma afirmação que diz, _"Se $f: X -> Y$ é diferenciável, então $f(x + Delta x) approx f(x) + J(x)Delta x$ quando $Delta x -> 0$"_, bem, estamos trabalhando com $Delta x -> 0$, então o que acontece se substituirmos $f(x + Delta x)$ por $f(x) + J(x)Delta x$:
 
 $
-  accent(kappa, \u{0302}) = lim_(Delta -> 0)sup_(||Delta x|| < Delta)((||Delta f||)/(||Delta x||)) = lim_(Delta -> 0)sup_(||Delta x|| < Delta)((||f(x + Delta x) - f(x)||)/(||Delta x||)) = lim_(Delta -> 0)sup_(||Delta x|| < Delta)((||f(x) + J(x) Delta x - f(x)||)/(||Delta x||))
+  accent(kappa, \u{0302}) = lim_(Delta -> 0)sup_(||Delta x|| < Delta)((||Delta f||)/(||Delta x||)) = lim_(Delta -> 0)sup_(||Delta x|| < Delta)((||f(x + Delta x) - f(x)||)/(||Delta x||))
+$
+$
+  = lim_(Delta -> 0)sup_(||Delta x|| < Delta)((||f(x) + J(x) Delta x - f(x)||)/(||Delta x||))
 $
 $
 lim_(Delta -> 0)sup_(||Delta x|| < Delta)((||J(x) Delta x||)/(||Delta x||)) <= lim_(Delta -> 0)sup_(||Delta x|| < Delta)((||J(x)|| ||Delta x||)/(||Delta x||)) = ||J(x)||
@@ -1283,8 +1385,14 @@ O quê? Por que podemos dar um número de condição a uma matriz? Porque elas s
   $
 ]
 
+#pagebreak()
 
-= Lecture 13 - Aritmética de Ponto Flutuante
+#align(center + horizon)[
+  = Aritmética de Ponto Flutuante
+]
+
+#pagebreak()
+
 Quando estamos analisando algoritmos e computadores, temos um problema *realmente* grande. Computadores são máquinas discretas, o que significa que, quando falamos de números reais, eles não podem representar *todos* eles, há uma quantidade finita de números que podem representar, dependendo de como esses computadores são construídos. A maioria dos computadores usa um sistema binário para representar números reais, mas eles poderiam usar outros sistemas. Existem dois grandes problemas na representação de números reais:
 1. *Underflow & Overflow*: Como eu disse, um computador pode representar um número finito de números reais, isso significa que há um máximo e um mínimo nesse conjunto. Se eu tentar representar um número maior que esse máximo, terei um erro de *overflow*, portanto, tentar representar um número menor, terei um erro de *underflow*. Hoje em dia, isso não é um grande problema, a maioria dos computadores é capaz de armazenar números muito grandes e muito pequenos, suficientes para os problemas com os quais vamos trabalhar
 2. *Gap*: Quando tentamos representar números reais, há um problema, porque entre dois números reais, existem infinitos outros números reais, o que nos leva ao problema do *gap*, porque, se o conjunto de números que o computador pode representar é finito, podemos contá-los, e se podemos contá-los, podemos obter uma infinidade de outros números reais entre eles. O problema do *gap* não é realmente um *PROBLEMA*, mas quando estamos criando algoritmos, queremos que eles sejam o mais precisos possível, porque um algoritmo instável pode nos levar a grandes erros de arredondamento
@@ -1492,8 +1600,14 @@ Agora podemos redefinir $epsilon_"machine"$! Mas por quê? Bem, queremos torná-
 
 Isso implica que, para alguns computadores, $epsilon_"machine"$ pode ser ainda menor que $1/2 beta^(1-t)$, o que é uma coisa *muito* boa!
 
+#pagebreak()
 
-= Lecture 14 e 15 - Estabilidade
+#align(center + horizon)[
+  = Estabilidade
+]
+
+#pagebreak()
+
 Quando falamos de *estabilidade*, estamos tentando verificar se um algoritmo tem fidelidade no computador! Isso significa, se os arredondamentos que o computador faz nas entradas e saídas não mudarão o resultado para algo muito diferente do original. Mas primeiro, precisamos definir matematicamente o que é um algoritmo!
 
 #definition[
