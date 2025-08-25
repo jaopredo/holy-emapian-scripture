@@ -233,3 +233,143 @@ $
 $
 
 Ou seja, podemos utilizar essa equação caso tenhamos $n$ observações e estamos interessados em prever o resultado da próxima observação.
+
+== Distribuições à Priori Conjugadas
+São famílias de distribuições de tal forma que, quando selecionamos elas como distribuições para um modelo estatístico, a posteriori também será daquela distribuição
+
+#definition("Famílias/Hiperparâmetros Conjugados")[
+  Seja $X_1,X_2,...|theta$ serem *i.i.d* com mesma f.d.p ou f.m.p $f(x|theta)$. Seja $Psi$ uma família de distribuições no espaço paramétrico $Theta$. Suponha que, não importa qual seja a distribuição à priori $xi$ que eu escolher de $Psi$, não importa quantas observações $underline(X) = (X_1,...,X_n)$ nós registramos e não importa seus valores observados $underline(x) = (x_1,...,x_n)$, a distribuição à posteriori $xi(theta|underline(x))$ está em $Psi$. Então $Psi$ é chamada de uma *família de distribuições à priori conjugadas* para amostras de com distribuições $f(x|theta)$. Finalmente, se as distribuições em $Psi$ possuem parâmetros associados, estes são chamados de *hiperparâmetros à priori* e os associados à distribuição posteriori são *hiperparâmetros à posteriori*
+]
+
+Vamos ver as principais famílias de distribuições conjugadas
+
+#theorem[
+  Suponha que $X_1,...,X_n|theta$ são uma amostra aleatória de variáveis de Bernoulli com parâmetro $theta$ (Desconhecido). Suponha também que a distribuição a priori de $theta$ é uma *beta* com parâmetros $alpha > 0$ e $beta > 0$. Então a distribuição a posteriori de $theta|x_1,...,x_n$ é a distribuição beta com parâmetros $alpha + sum_(i=1)^n x_i$ e $beta + n - sum_(i=1)^n x_i$
+]
+#proof[
+  $
+    f(theta|x_1,...,x_n) prop xi(theta) f(x_1,...,x_n|theta)
+  $
+  $
+    <=> f(theta|x_1,...,x_n) prop theta^(alpha-1)(1-theta)^(beta-1) product_(i=1)^n theta^(x_i) (1-theta)^(1-x_i)
+  $
+  $
+    <=> f(theta|x_1,...,x_n) prop theta^(alpha - 1 + sum_(i=1)^n x_i) (1 - theta)^(beta - 1 + n - sum_(i=1)^n x_i)
+  $
+  Ou seja, $theta|x_1,...,x_n ~ "Beta"(alpha + sum_(i=1)^n x_i, space beta + n - sum_(i=1)^n x_i)$
+]
+
+
+#theorem[
+  Suponha que $X_1,...,X_n|theta$ são uma amostra aleatória de variáveis com distribuição Poisson com parâmetro $theta$ (Desconhecido). Suponha também que a distribuição a priori de $theta$ é uma *Gamma* com parâmetros $alpha > 0$ e $beta > 0$. Então a distribuição a posteriori de $theta|x_1,...,x_n$ é a distribuição Gamma com parâmetros $alpha + sum_(i=1)^n x_i$ e $beta + n$
+]
+#proof[
+  Seja $y = sum^n_(i=1) x_i$, então a função de verossimilhança de $LL(theta)$ satisfaz:
+  $
+    PP(underline(x)|theta) prop e^(-n theta) theta^(y)
+  $
+  A priori $xi(theta)$ se estrutura assim:
+  $
+    xi(theta) prop theta^(alpha-1)e^(-beta theta) "para" theta > 0
+  $
+  Temos então que:
+  $
+    f(theta|underline(x)) prop e^(-n theta) theta^(y) theta^(alpha - 1) e^(-beta theta)   \
+
+    <=> f(theta|underline(x)) prop theta^(alpha + y - 1) e^(-(n + beta)theta)
+  $
+  Ou seja, $theta|underline(x) ~ "Gamma"(alpha+y, n+beta)$
+]
+
+#theorem[
+  Suponha que $X_1,...,X_n|theta$ são uma amostra aleatória de variáveis com distribuição Normal com média $theta$ (Desconhecido) e variância $sigma^2 > 0$ conhecido. Suponha também que a distribuição a priori de $theta$ é uma *Normal* com média $mu_0$ e variância $v_0^2$. Então a distribuição a posteriori de $theta|x_1,...,x_n$ é a distribuição normal com média $mu_1$ e variância $v_1^2$ onde:
+  $
+    mu_1 = (sigma^2 mu_0 + n v_0^2 accent(x, ~ )_n) / (sigma^2 + n v_0^2)
+  $<normal-posterior-mu1>
+  e
+  $
+    v_1^2 = (sigma^2 v_0^2) / ( sigma^2 + n v_0^2 )
+  $<normal-posterior-v0-squared>
+]
+#proof[
+  Temos que:
+  $
+    LL(theta) prop exp( -1/(2 sigma^2) sum^n_(i=1)(x_i - theta)^2 )
+  $
+  Temos que:
+  $
+    sum^n_(i=1)(x_i - theta)^2 = sum^n_(i=1)x_i^2 - 2x_i theta + theta^2
+  $
+  Definimos então $accent(x, ~)_n := 1/n sum^n_(i=1) x_i$ e assim temos que:
+  $
+    sum^n_(i=1)x_i^2 - 2x_i theta + theta^2 = n theta^2 - 2 n accent(x, ~)_n theta + sum^n_(i=1)x_i^2   \
+
+    = n(theta^2 - 2 theta accent(x, ~)_n) + sum^n_(i=1)x_i^2
+
+    = n(theta^2 - 2 theta accent(x, ~)_n + accent(x, ~)_n^2) - n accent(x, ~)_n + sum^n_(i=1)x_i^2    \
+
+    = n(theta - accent(x, ~)_n)^2 + sum^n_(i=1)(x_i - accent(x, ~)_n)^2
+  $
+
+  Temos então:
+  $
+    LL(theta) prop exp( -1/(2 sigma^2) sum^n_(i=1)(x_i - theta)^2 )   \
+
+    <=> LL(theta) prop exp(-1/(2 sigma^2) (n(theta-accent(x, ~)_n)^2 + sum^n_(i=1)(x_i - accent(x, ~)_n)^2))
+  $
+  Temos que $sum^n_(i=1)(x_i - accent(x, ~)_n)^2$ não depende de $theta$ então pode ir para a constante de proporcionalidade. De forma que
+  $
+    LL(theta) prop exp(-n/(2 sigma^2) (theta-accent(x, ~)_n)^2)
+  $
+  Sabemos que a priori de $theta$ segue a forma:
+  $
+    xi(theta) prop exp( -1/(2 v_0^2) (theta - mu_0)^2 )
+  $
+  Então temos que
+  $
+    f(theta|underline(x)) prop exp{-1/2 [ n/sigma^2 (theta - accent(x, ~)_n)^2 + 1/v_0^2 (theta - mu_0)^2 ]}
+  $
+  Se abrirmos os termos em quadrado, retirar as constantes, e completar os quadrados, chegamos nos resultados das equações @normal-posterior-mu1 e @normal-posterior-v0-squared, de forma que:
+  $
+    f(theta|underline(x)) prop exp[-1/(2 v_1^2) (theta - mu_1)^2]
+  $
+  Ou seja, $f(theta|underline(x)) ~ N(mu_1, v_1^2)$
+]
+
+Conseguimos dividir $mu_1$ da seguinte forma:
+$
+  mu_1 = sigma^2 / (sigma^2 + n v_0^2) mu_0 + (n v_0^2) / (sigma^2 + n v_0^2) accent(x, ~)_n
+$
+Isso nos mostra que, conforme nossa amostra vai aumentando, o termo da direita referente à média amostral vai dominando. Mas o que isso quer dizer? Quer dizer que, independente do quanto você acredita que $mu_0$ seja a média verdadeira de $theta$, mais a média após a observação dos dados vai se aproximando de $accent(x, ~)_n$, de forma que acabamos mudando de ideia aos poucos
+
+#theorem[
+  Suponha que $X_1,...,X_n|theta$ são uma amostra aleatória de variáveis com distribuição Exponencial com parâmetro $theta > 0$ (Desconhecido). Suponha também que a distribuição a priori de $theta$ é uma *Gamma* com parâmetros $alpha > 0$ e $beta > 0$. Então a distribuição a posteriori de $theta|x_1,...,x_n$ é a distribuição Gamma com parâmetros $alpha + n$ e $beta + sum_(i=1)^n x_i$
+]
+#proof[
+  Novamente vamos chamar $y := sum_(i=1)^n x_i$. Então temos que a função de verossimilhança é:
+  $
+    LL(theta) = theta^(n)e^(-theta y)
+  $
+  E a priori tem a forma:
+  $
+    xi(theta) prop theta^(alpha - 1)e^(-beta theta) "para" theta > 1
+  $
+  Então temos que:
+  $
+    f(theta|underline(x)) prop theta^(alpha - 1)e^(-beta theta) theta^(n)e^(-theta y)   \
+
+    <=> f(theta|underline(x)) prop theta^(n + alpha - 1) e^(-(beta + y)theta)
+  $
+  Ou seja, $f(theta|underline(x)) ~ "Gamma"(n+alpha, space beta+y)$
+]
+
+== Distribuições Impróprias
+#definition("Distribuição Imprópria")[
+  Seja $xi: C -> RR$ uma função não-negativa cujo domínio inclui o espaço paramétrico ($Omega subset C$) de um modelo estatístico. Suponha também que:
+  $
+    integral_(C) xi(theta) dif theta = infinity
+  $
+  Se nós imaginarmos que $xi$ é a f.d.p à priori de $theta$, então $xi$ é uma *distribuição imprória* de $theta$
+]
+
+Um bom exemplo é utilizar a distribuição *beta* assumindo que $alpha = beta = 0$. Mesmo que isso viole a condição da distribuição beta, o resultado da posteriori ainda sim é uma distribuição beta. Porém, existem diversos métodos para se escolher uma distribuição imprópria para $theta$. O mais comum é se utilizar de uma família de conjugados para o modelo estatístico, e forma a adaptarmos seus parâmetros para obter uma distribuição imprópria.
