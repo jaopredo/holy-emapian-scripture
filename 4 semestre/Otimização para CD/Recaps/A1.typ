@@ -30,10 +30,6 @@
 #let example = thmplain("example", "Exemplo").with(numbering: none)
 #let proof = thmproof("proof", "Demonstração")
 
-#set text(
-  size: 12pt,
-)
-
 #set math.equation(
   numbering: "(1)",
   supplement: none,
@@ -47,6 +43,11 @@
     it
   }
 }
+
+#set text(
+  font: "Atkinson Hyperlegible",
+  size: 12pt,
+)
 
 #show heading: it => {
   if it.level == 1 {
@@ -1101,5 +1102,137 @@ Há um exemplo nas anotaçẽos sobre convexidade do Phillip que mostram que $C$
     
     lambda_i (a_i^T x^* - b_i) = 0, wide i = 1,...,m  \
     a_i^T x^* - b_i <= 0, wide i = 1,...,m
+  $
+]<kkt-conditions>
+
+Os números $lambda_j$ são chamados de *multiplicadores de lagrange*
+
+== Condições KKT: Problema convexo
+#theorem("Condições KKT para restrições lineares: condições necessárias de otimalidade com função convexa")[
+  Considere o problema de minimização
+  $
+    min_x f (x)   \
+    "sujeito à" a_i^T x <= b_i , i = 1, ... , m
+  $
+  onde $f$ é uma função continuamente diferenciável *convexa* em $RR^n$ ${a_i}^m_(i=1) subset RR and {b_i}_(i=1)^m subset R$. Então, se $x^*$ é um ponto de mínimo local do problema $<=> exists lambda_1 , . . . , lambda_m >= 0$ tais que
+  $
+    nabla f (x^*) + sum_(i=1)^m lambda_i a_i = 0, \
+    
+    lambda_i (a_i^T x^* - b_i) = 0, wide i = 1,...,m  \
+    a_i^T x^* - b_i <= 0, wide i = 1,...,m
+  $
+]<kkt-convex-conditions>
+#proof[
+  $(==>)$ Segue do @kkt-conditions
+
+  $(<==)$ Definamos a função:
+  $
+    h(x) := f(x) + sum_(i=1)^m lambda_i (a_i^T x - b_i)
+  $
+  Temos que:
+  $
+    nabla h(x^*) = nabla f(x^*) + sum^m_(i=1) lambda_i a_i
+  $
+  Como $h$ é convexa (Soma de funções convexas), segue que $x^*$ é ponto mínimo de $h$ em $RR^n$. Em particular, dado qualquer $x in RR^n$ tal que:
+  $
+    a_i^T x <= b_i, space i=1,...,m
+  $
+  Tem-se que:
+  $
+    f(x^*) = f(x^*) + sum_(i=1)^m lambda_i (a_i^T x - b_i)    \
+
+    <= f(x^*) + sum_(i=1)^m lambda_i (a_i^T x - b_i)    \
+
+    <= f(x)
+  $
+  Na primeira equação utilizamos a segunda condição e na segunda desigualdade usamos o fato que $lambda_i >= 0$. Concluímos então que $x^*$ é solução do sistema
+]
+
+== Condições KKT com restrições linearres de igualdade
+Porém, em alguns casos, é possível que tenhamos restrições de desigualdade:
+$
+  min_x f(x) \
+
+  x "sujeito a restrições do tipo" a_i^T x <= b_i, space i = 1,...,m   \
+  "e" space c_j^T x = d_j, space j = 1,...,p
+$
+
+onde $f$ é continuamente diferenciável em $RR^n, space {a_i}_(i=1)^m subset RR^n, {b_i}_(i=1)^m subset RR, {c_j}_(j=1)^p subset RR^n$
+
+Disso, segue um teorema muito parecido:
+
+#theorem[
+  Considere o problema:
+  $
+    min_x f(x) \
+
+    x "sujeito a restrições do tipo" a_i^T x <= b_i, space i = 1,...,m   \
+    "e" space c_j^T x = d_j, space j = 1,...,p
+  $
+
+  onde $f$ é continuamente diferenciável em $RR^n, space {a_i}_(i=1)^m subset RR^n, {b_i}_(i=1)^m subset RR, {c_j}_(j=1)^p subset RR^n$. Então:
+
+  a) Se $x^*$ é um ponto de mínimo local do problema, então existem $lambda_1,...,lambda_m >= 0$ e $mu_1,...,mu_p in RR$ tais que
+  $
+    gradient f(x^*) + sum^m_(i=1) lambda_i a_i + sum^p_(j=1) mu_j c_j = 0   \
+    
+    lambda_i (a_i^T x^* - b_i) = 0, space i = 1,...,m   \
+
+    a_i^T x^* - b_i <= 0, space i = 1,...,m   \
+
+    mu_j (c_j^T x^* - d_j) = 0, space j=1,...,p
+  $
+
+  b) Suponha adicionalmente que $f$ é convexa, então $x^*$ é um mínimo global do problema $<=>$ existem $lambda_1,...,lambda_m >= 0$ e $mu_1,...,mu_p in RR$ tians que as condições anteriormente mencionadas valem
+]
+#proof[
+  Primeiro demonstraremos o (a). Demonstrar essa parte é equivalente a resolver o problema:
+  $
+    min_x f(x) \
+
+    x "sujeito a restrições do tipo" a_i^T x <= b_i, space i = 1,...,m   \
+    space c_j^T x <= d_j and -c_j^T x <= -d_j, space j = 1,...,p
+  $
+  onde $f$ é continuamente diferenciável em $RR^n, space {a_i}_(i=1)^m subset RR^n, {b_i}_(i=1)^m subset RR, {c_j}_(j=1)^p subset RR^n$
+
+  Sendo $x^*$ uma solução do problema descrito anteriormente, pelo @kkt-conditions, temos:
+  $
+    nabla f(x^*) + sum^m_(i=1) lambda_i a_i + sum_(j=1)^p mu^+_j c_j - sum_(j=1)^p mu^-_j c_j = 0   \
+
+    lambda_i (a_i^T x^* - b_i) = 0    \
+    mu^+_j (c_j^T x^* - d_j) = 0    \
+    mu^-_j (-c_j^T x^* + d_j) = 0
+  $<kkt-equality-gradient-equivalent>
+
+  Como $x^*$ é viável, então as segundas e terceiras condições mencionadas na reformulação anterior são satisfeitas. Definindo então $mu_j = mu^+_j - mu^-_j$, então temos:
+  $
+    sum^p_(j=1) mu^+_j c_j - sum^p_(j=1) mu^-_j c_j = sum^p_(j=1) mu_j c_j
+  $
+  Então segue que as condições estabelecidas originalmente no teorema são satisfeitas
+
+  Para a demonstração de (b), Suponha que $x^*$ viável e existem $lambda_1 , ... , lambda_m >= 0$ e $mu_1 , ... , mu_p in RR$ tais que as condições do teorema sejam satisfeitas. Defina
+  $
+    mu^+_j := (mu_j)_+ = max{mu_j , 0}, wide mu^-_j := (mu_j)_- = max{-μ_j , 0}
+  $
+  Como $mu_j = mu_j^+ - mu_j^-$ e $c_j^T x^* - d_j = 0$ para $j in [p]$, segue em particular que @kkt-equality-gradient-equivalent é satisfeito. Sendo $f$ convexa, segue do @kkt-convex-conditions que $x^*$ é solução do problema reformulado e, em particular, do problema original do teorema
+]
+
+== Lagrangeano
+Vimos minimizações para condições lineares e convexas, mas nem sempre isso acontece. Muitas vezes temos problemas com conjuntos completamente genéricos, então temos o problema:
+$
+  min_(x) f(x)    \
+
+  "tal que" g_i (x) <= 0, space forall i = 1,...,m    \
+  h_j (x) = 0, space forall j = 1,...,p
+$
+
+#definition("Lagrangeano")[
+  O *Lagrangeano* associado à função $f$ é a função $L: RR^n times RR^m times RR^p -> RR$ tal que:
+  $
+    L(x, lambda, mu) = f(x) + lambda^T g(x) + mu^T h(x)
+  $
+  Onde:
+  $
+    lambda = mat(lambda_1;dots.v;lambda_m), space mu = mat(mu_1;dots.v;mu_p), space g(x) = mat(g_1 (x);dots.v; g_m (x)), space h(x) = mat(h_1 (x);dots.v;h_p (x))
   $
 ]
