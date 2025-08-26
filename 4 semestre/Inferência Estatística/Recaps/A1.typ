@@ -139,7 +139,7 @@ Há também uma discussão sobre se os parâmetros que estamos procurando serem 
 #pagebreak()
 
 #align(center + horizon)[
-  = $theta$ como uma Variável Aleatória
+  = Estatística Bayesiana
 ]
 
 #pagebreak()
@@ -412,3 +412,94 @@ $
 #definition("Estimador de Bayes")[
   Seja $L(theta, a)$ uma função de perca. Para cada valor possível $underline(x)$ de $underline(X)$, deixe que $delta^*(underline(x))$ ser o valor de $a$ que minimiza $EE[L(theta,a)]$ é minimizado. Então $delta^*$ é chamado de *Estimador de Bayes* de $theta$. Uma vez que $underline(X) = underline(x)$ é observado, chamamos $delta^*(underline(x))$ de *estimativa bayesiana* de $theta$
 ]
+
+Podemos também descrever como, para todos os valores possíveis de $underline(x)$, queremos:
+$
+  EE(L(theta, delta^*(underline(x))|underline(x))) = min_("Todos" a) EE(L(theta, a)|underline(x))
+$
+
+Algumas percas de função muito comum são:
+$
+  L(theta, a) = (theta-a)^2
+$<min-squared-error>
+$
+  L(theta, a) = |theta-a|
+$<median-error>
+
+#theorem[
+  Seja $L(theta, a) = (theta - a)^2$, então $delta^*(underline(x)) = EE(theta|underline(x))$
+]
+#proof[
+  Queremos provar que
+  $
+    EE[(X-mu)^2] <= EE[(X-d)^2] wide forall d in RR
+  $
+  E a igualdade só vale quando $mu = d$. Ou seja:
+  $
+    mu = "argmin"_(d in RR) EE[(X-d)^2]
+  $
+  Então:
+  $
+    EE[(X-d)^2] = EE[X^2 - 2X d + d^2]  \
+    
+    EE[X^2] - 2d EE[X] + d^2 = EE[X^2] - 2 d mu + d^2
+  $
+  Como queremos minimizar isso, com relação a $d$, vamos derivar:
+  $
+    diff / (diff d) (EE[X^2] - 2 d mu + d^2) = -2mu + 2d
+  $
+  E isso é igual a $0$ quando $d = mu$
+]
+
+#theorem[
+  Seja $L(theta, a) = |theta - a|$, então $delta^*(underline(x))$ é a mediana de $theta|underline(x)$
+]
+#proof[
+  $
+    EE|X-a| >= EE|X-m| wide forall a in RR
+  $
+  Então queremos provar que
+  $
+    EE|X-a| - EE|X-m| >= 0
+  $
+  Vamos assumir que $m < a$ ($m > a$ é análogo)
+
+  Se $X<=m$, então: $|X-a|-|X-m|=a-X-(m-X) = a - m$
+  
+  Se $X>m$, então: $|X-a|-|X-m|=X-a-X+m = m-a$
+
+  Defina então $Y = |X-a|-|X-m|$. Defina também:
+  $
+    II_X = cases(
+      1 "se" X <= m,
+      0 "se" X > m
+    )
+  $
+  Então teremos que:
+  $
+    EE(Y) = EE(Y dot II_X) + EE(Y dot (1 - II_X)) >= (a-m)EE(II_X) + (m-a)EE(1-II_X)    \
+
+    = (a - m)PP(X <= m) + (m - a)PP(X>m)    \
+
+    = (a - m)PP(X <= m) - (a - m)(1 - PP(X<=m))   \
+
+    = (a-m)(2 PP(X<=m) - 1) >= 0
+  $
+  Porém essa equação final é satisfeita pela definição de mediana!
+]
+
+Quando estamos tentando tentando estimar um parâmetro $theta$, queremos que, quanto mais amostras tivermos, ou seja, quando $n->infinity$, o nosso estimador vai convergindo para $theta$
+
+#definition("Consistência")[
+  Quando uma sequência $(delta_n)_(n>=1)$ converge para o valor verdadeiro do parâmetro $theta$, dizemos que $(delta_n)_(n>=1)$ é consistente para $theta$
+]
+
+#pagebreak()
+
+#align(center + horizon)[
+  = Estatística Frequentista
+]
+
+#pagebreak()
+
+
