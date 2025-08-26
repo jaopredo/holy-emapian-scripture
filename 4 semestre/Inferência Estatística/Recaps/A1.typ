@@ -373,3 +373,42 @@ Isso nos mostra que, conforme nossa amostra vai aumentando, o termo da direita r
 ]
 
 Um bom exemplo é utilizar a distribuição *beta* assumindo que $alpha = beta = 0$. Mesmo que isso viole a condição da distribuição beta, o resultado da posteriori ainda sim é uma distribuição beta. Porém, existem diversos métodos para se escolher uma distribuição imprópria para $theta$. O mais comum é se utilizar de uma família de conjugados para o modelo estatístico, e forma a adaptarmos seus parâmetros para obter uma distribuição imprópria.
+
+#pagebreak()
+
+#align(center + horizon)[
+  = Estimadores de Bayes
+]
+
+#pagebreak()
+
+== Estimador e Estimativa
+Com estimadores, queremos, a partir, puramente, de nossas observações dos dados gerar uma função que, ao longo prazo, converge para uma medida de nosso interesse (Um parâmetro de distribuição, por exemplo)
+
+#definition("Estimador/Estimativa")[
+  Seja $X_1,...,X_n$ os dados observados que a distribuição conjunta é indexada por um parâmetro $theta$ e assume valores em um conjunto $Omega$ na reta real (Cada observação $X_i$). Um estimador do parâmetro $theta$ é uma função $delta: Omega^n -> RR$ ($delta(X_1,...,X_n)$). Se $X_1=x_1,...,X_n=x_n$ são observados, então $delta(x_1,...,x_n)$ é uma estimativa de $theta$
+]
+
+Vale ressaltar a diferença entre *estimador* e *estimativa*. O *estimador* é uma função das variáveis aleatórias, ou seja, ele também é uma variável aleatória e pode ter sua distribuição derivada da distribuição conjunta de $X_1,...,X_n$. Já uma *estimativa* é o resultado de $delta(underline(X))$ após serem observado os valores $x_1,...,x_n$
+
+== Função de Perda
+Muito comumente, criamos um estimador $delta$ com o objetivo de aproximar um parâmetro $theta$, ou seja, um bom estimador é aquele que $delta(underline(x)) - theta approx 0$
+
+#definition("Função de perca")[
+  A função de perca é uma função real de duas variáveis $L(theta, a)$, onde $theta in Omega$ e $a in RR$. A interpretação é que $L(theta, a)$ decai conforme $a -> theta$
+]
+
+Queremos estimar $theta$ apenas com nossos valores observados, porém, vamos supor que não vimos nenhum ainda, então se escolhermos $a$ como uma estimativa, vamos ter:
+$
+  EE[L(theta, a)] = integral_Omega L(theta,a) xi(theta) dif theta wide "(LOTUS)"
+$
+
+== Estimador de Bayes
+Supondo agora que nós temos acesso as observações $underline(x)$. Então também temos acesso à distribuição posteriori $xi(theta|x_1,...,x_n)$, então podemos escolher uma estimativa $a$ tal que ela minimize:
+$
+  EE[L(theta, a)|underline(x)] = integral_Omega L(theta,a)xi(theta|underline(x)) dif theta
+$
+
+#definition("Estimador de Bayes")[
+  Seja $L(theta, a)$ uma função de perca. Para cada valor possível $underline(x)$ de $underline(X)$, deixe que $delta^*(underline(x))$ ser o valor de $a$ que minimiza $EE[L(theta,a)]$ é minimizado. Então $delta^*$ é chamado de *Estimador de Bayes* de $theta$. Uma vez que $underline(X) = underline(x)$ é observado, chamamos $delta^*(underline(x))$ de *estimativa bayesiana* de $theta$
+]
