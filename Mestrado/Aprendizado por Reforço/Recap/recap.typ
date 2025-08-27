@@ -160,7 +160,7 @@
   
   = 2 - Bandidos de muitos braços (Multi-armed bandits)
   
-  A característica mais importante do Aprendizado por Reforço que a difere de outros tipos de aprendizados é que ela utiliza informações de treino que avalia as ações já tomadas, ou seja, enquanto o Aprendizado Supervisionado dá um feedback instrutivo, isto é, o feedback não depende da ação tomada, enquanto no Aprendizado por Reforço, o feedback é instrutivo, ou seja, o feedback depende interiramente da ação tomada.
+  A característica mais importante do Aprendizado por Reforço que a difere de outros tipos de aprendizados é que ela utiliza informações de treino que avalia as ações já tomadas, ou seja, enquanto o Aprendizado Supervisionado dá um feedback instrutivo, isto é, o feedback não depende da ação tomada, no Aprendizado por Reforço, o feedback é instrutivo, ou seja, o feedback depende inteiramente da ação tomada.
   
   Nesse capítulo vamos ver o aspecto do feedback avaliativo simplificado, que não envolve aprender a agir em mais de uma situação, ou seja, teremos sempre apenas um estado, e depois generalizaremos.
   
@@ -184,9 +184,9 @@
   q_*(a) dot(eq) EE[R_t | A_t = a]
   $
   
-  Se soubermos o valor de cada ação, então seria trivial para resolver o problema do bandido k-armado: basta selecionar a ação com maior recompensa. Porém, em geral, não sabemos o valor exato da ação, embora podemos ter estimadores. Denotamos o valor estimado do valor de uma ação $a$ no tempo $t$ como $Q_t (a)$. Nós claramente gostaríamos que $Q_t (a)$ fosse próximo de $q_*(a)$.
+  Se soubermos o valor de cada ação, então seria trivial para resolver o problema do bandido k-armado: basta selecionar a ação com maior recompensa. Porém, em geral, não sabemos o valor exato da ação, embora possamos ter estimadores. Denotamos o valor estimado do valor de uma ação $a$ no tempo $t$ como $Q_t (a)$. Nós claramente gostaríamos que $Q_t (a)$ fosse próximo de $q_*(a)$.
   
-  Se mantivermos estimativas dos valores das ações, então, em qualquer tempo $t$, existe pelo menos uma ação cujo valor estimado é o maior. Por isso, chamamos essas de ações gananciosas (greedy actions). Quando selecionamos uma dessas ações, dizemos que está explorando(exploiting) o conhecimento atual dos valores das ações.
+  Se mantivermos estimativas dos valores das ações, então, em qualquer tempo $t$, existe pelo menos uma ação cujo valor estimado é o maior. Por isso, chamamos essas de ações gananciosas (greedy actions). Quando selecionamos uma dessas ações, dizemos que estamos explorando(exploiting) o conhecimento atual dos valores das ações.
   
   Se, em vez disso, selecionarmos uma das ações não gananciosas, então dizemos que estamos explorando(exploring), porque permite melhorar sua estimativa do valor dessa ação não gananciosa. A exploração (exploitation) é a escolha correta para maximizar a recompensa esperada em um único passo, mas a exploração (exploration) pode gerar uma recompensa total maior a longo prazo.
   
@@ -197,4 +197,118 @@
   O livro enfatiza que esse problema de balanceamento entre exploitation e exploration é recorrente, já que não podemos escolher duas ações diferentes ao mesmo tempo. Em geral, existem métodos especificos para rebalancear isso, mas normalmente são necessários fortes afirmações sobre conhecimentos do modelo que são impossíveis de verificar em aplicações completas de Aprendizado por Reforço.
   
   == 2.2 -  Métodos baseados em valores de ações
-  
+
+  Qual seria uma forma natural de estimar o valor de uma ação selecionada $Q_t (a)$? Intuitivamente, uma boa resposta seria a média das recompensas de quando a ação $a$ foi escolhida, ou seja:
+
+  $
+    Q_t (a) dot(eq) "soma das recompensas quando a é tomada antes de t"/"número de vezes que a foi tomada antes de t" = (sum_(i=1)^(t-1) R_i dot bb(1)_(A_i = a))
+  / (sum_(i=1)^(t-1) bb(1)_(A_i = a))
+  $
+
+onde $bb(1)_"acão"$ denota a variável aleatória que é 1 se $"ação"$ é verdadeiro e 0 caso contrário. Se o denominador for zero, então definimos $Q_t (a)$ como quisermos, normalmente 0. Se o denominador tender à infinito, pela Lei dos Grandes Números, $Q_t(a)$ converge a $q_* (a)$. É claro que essa não é a única abordagem para estimar o valor de uma ação, e muito menos a melhor métrica.
+
+A ação mais simples normalmente é apenas selecionar a ação de maior valor, e em caso de empate, sortear, ou ainda selecionar alguma arbitráriamente. Nós escrevemos essa seleção de ação ganansiosa como:
+
+$
+  A_t dot(eq) op("argmax", limits: #true)_(a) Q_t(a)
+$
+
+onde $"argmax"_a$ denota a ação $a$ para a qual a expressão acima é maximizada. Ok, mas como explicado na seção anterior, normalmente escolher apenas a melhor ação sempre não é a melhor ideia. 
+
+Uma alternativa simples para escolher é se comportar de maneira gananciosa na maior parte do tempo, mas de vez em quando, com uma pequena probabilidade $epsilon$, selecionarmos aleatoriamente entre todas as ações com probabilidade igual, independentemente das estimativas de valor das ações. Nós chamamos métodos que usam essa regra de seleção quase-greedy de métodos $epsilon$-greedy.
+
+Uma vantagem desses métodos é que, no limite, à medida que o número de passos aumenta, toda ação será amostrada um número infinito de vezes, garantindo assim que todas as estimativas  convirjam para o valor verdadeiro. Isso implica que a probabilidade de selecionar a ação ótima convirja para maior que $1-epsilon$ ou seja, para quase certeza.(como?)
+
+== 2.3 - O banco de teste de 10 braços
+
+Para avaliar o efeito de um método totalmente ganancioso de um método $epsilon$-ganancioso, nós os compararemos numericamente em um conjunto de problemas. Esse foi um conjunto de 2000 problemas do bandido $k$-armado com $k=10$. Para cada valor da ação, $q_* (a) ~NN(0,1)$, $a = 1, ...,10$(lembre que como $k = 10$, temos 10 ações possíveis). Então, quando um método de aprendizado era aplicado e selecionava a ação $A_t$ no instante $t$, a recompensa real $R_t ~ NN(q_* (a), 1)$, ou seja, uma distribuição normal centrada em $q_* (a)$ e variância 1.
+
+#show figure.caption: set align(left)
+#figure(
+    image("../Img/actions10karmed.png", width:85%),
+    caption: [Um exemplo do problema do bandido $10$-armado. O valor real $q_* (a)$ de
+cada uma das dez ações foi selecionado de acordo com uma distribuição normal com média zero e variância unitária e as recompensas reais foram selecionadas de acordo com uma distribuição normal de média $q_* (a)$ e variância unitária, conforme sugerido por essas distribuições em cinza.
+]
+)
+
+Para qualquer método de aprendizado, nós podemos mensurar a performance e o comportamento realizando 1000 ações para cada bandido $10$-armado. Isso é uma execução, faremos 2000 delas, pois temos 2000 bandidos $10$-armados diferentes e tiraremos a média como estimativa.
+
+A Figura 4 compara um método totalmente ganancioso com outros dois métodos $epsilon$-ganancioso($epsilon = 0.01$ e $epsilon = 0.1$).Todos os métodos performaram usando a média amostral. o gráfico de cima mostra o crescimento dá recompensa média com a experiência dos passos e o de baixo a porcentagem de ações ótimas.
+
+#show figure.caption: set align(left)
+#figure(
+    image("../Img/comparation10karmed.png", width:90%),
+    caption: [
+]
+)
+
+Note como acontece basicamente tudo o que falamos até agora, ou seja, no extremo começo, a ação completamente gananciosa ganha, porém, depois, perde para todos os dois métodos $epsilon$-greedy. Além, note que a recompensa média do método completamente ganancioso se estagna em 1, enquanto o método menos ganancioso tem um valor médio de $1,5$, muito próximo do valor máximo da figura 3. Ainda, perceba como a porcentagem de ações ótimas do método ganancioso fica completamente estagnada, enquanto a do $0,1$-greedy chega em valores maiores que 80%.
+
+O autor termina dizendo que em casos determinísticos, ou seja, quando a variância é 0, significa que o valor de todas as ações tem o mesmo valor, logo, o método completamente ganancioso funciona melhor. No caso contrário(não determinístico), temos uma variância(considere uma maior que 1) então usar um método $epsilon$-greedy será melhor para otimizar o valor das ações.
+
+Ainda, em casos não estacionários, ou seja, quando o valor das ações pode mudar, significa que o $epsilon$-greedy é ainda mais importante, já que fixar-se numa ação que muda de valor é pior, sabendo que ela pode decair ainda mais, e o agente nunca saberá qual é a maior recompensa.
+
+== 2.4 - Implementação incremental
+
+Como computar de maneira eficiente todos esse valores de ações com menos cálculo e memória constante?
+
+Vamos nos concentrar em somente uma ação. Considere que $R_i$ denota a recompensa recebida após a $i$ésima seleção dessa ação, e chame de $Q_n$ a estimativa do valor da ação depois de ela ser selecionada $n-1$ vezes. Logo 
+$
+  Q_n dot(eq)( R_1 + R_2 + ... R_(n-1))/(n-1).
+$<mediaamostral>
+
+Parando para pensar, isso não resolveria o problema, já que mesmo assim, ao escolher a ação, teríamos que somar tudo novamente, guardar o valor novamente, etc... Mas, não precisamos disso, já que
+
+
+
+$
+   Q_(n+1) & = 1/n sum_(i=1)^n R_i\
+           &= 1/n ( R_n + sum_(i=1)^(n-1) R_i )\ 
+           &= 1/n ( R_n + (n - 1) dot 1/(n - 1) sum_(i=1)^(n-1) R_i ) \
+           &= 1/n ( R_n + (n - 1) Q_n ) \
+           &= 1/n ( R_n + n Q_n - Q_n ) \
+           &= Q_n + 1/n [ R_n - Q_n ] \
+$<umsobreeni>
+
+Legal! Conseguimos chegar em uma equação pequena que depende apenas das estimativa da ação passada e da recompensa passada.
+
+Generalizando ainda mais, nós chegamos em uma fórmula interessante:
+
+$"NovaEstimativa" <- "EstimativaAntiga" + "PequenoPasso" [ "Alvo" - "EstimativaAntiga" ].$
+
+Que se parece bastante com a fórmula que vimos no Tic-Tac-Toe, mas agora entendemos de onde vêm.
+
+- Colocar aqui o pseudocódigo talvez?
+== 2.5 - Monitorando um problema não estacionário
+
+Os métodos discutidos anteriormente foram para problemas de bandidos estacionários, ou seja, problemas em que as recompensas não mudam de acordo com o tempo. No caso não estacionário, talvez seja melhor dar um peso maior às recompensas mais recentes. Uma sugestão para fazer isso é mudando o PequenoPasso(step-size) da atualização da estimativa da recompensa, ou seja:
+
+$
+  Q_(n+1) = Q_n + alpha[R_n - Q_n]
+$
+
+onde $alpha in (0,1]$ e é constante. Note que essa equação é uma média ponderada das recompensas passadas e da estimativa inicial $Q_1$:
+
+$ 
+Q_(n+1) &= Q_n + alpha [R_n - Q_n] \
+        &= alpha R_n + (1 - alpha) Q_n \
+        &= alpha R_n + (1 - alpha) [alpha R_(n-1) + (1 - alpha) Q_(n-1)] \
+        &= alpha R_n + (1 - alpha) alpha R_(n-1) + (1 - alpha)^2 Q_(n-1) \
+        &= alpha R_n + (1 - alpha) alpha R_(n-1) + (1 - alpha)^2 alpha R_(n-2) + dots.c \
+        &quad + (1 - alpha)^(n-1) alpha R_1 + (1 - alpha)^n Q_1 \
+        &= (1 - alpha)^n Q_1 + sum_(i=1)^n alpha (1 - alpha)^(n - i) R_i
+$<alpha>
+
+Às vezes vale a pena variar o step-size de ação para ação. Considere que $alpha_n (a)$ o parâmetro step-size na $n$-ésina seleção da ação a. Um resultado conhecido na aproximação estocástica nos dá as condições requeridas para garantir convergência para o valor real da ação com probabilidade 1.
+
+$
+  sum_(n=1)^infinity alpha_n (a) = infinity "  e  " sum_(n=1)^infinity alpha_n (a)^2 < infinity 
+$
+
+A primeira condição garante que os passos sejam grandes o suficiente para eventualmente superar qualquer condição inicial ou flutuações aleatórias. A segunda condição garante que eventualmente os passos sejam pequenos o suficiente para garantir convergência. Geralmente essas condições são pouco usadas na prática pois podem demorar demais.
+
+== 2.6 - Valores Iniciais Ótimos
+
+Todos os métodos discutidos até agora tem uma forte dependência nas estimativas iniciais de recompensa $Q_1 (a)$. Na linguagem estatística, esses métodos são $"enviesados"$ por suas estimativas iniciais de recompensa. Para métodos que calculam a estimativa pela @mediaamostral usando $alpha_n (a) =  1/n$, chegamos na fórmula @umsobreeni, ou seja, após a primeira estimativa, nosso $Q_n (a)$ não depende mais diretamente de $Q_1$, ou seja, ele não é mais enviesado. Já com outro alpha, no caso, chegamos na fórmula @alpha, que é diretamente enviesado por $Q_1$.
+
+Um enviesamento pode ser bom ou ruim. Suponha que em vez de iniciar a estimativa inicial $Q_1 (a) = 0$, como fazemos anteriormente, considere que colocaremos todos como $+5$(lembre que estávamos usando $q*(a)~NN(0,1)$, ou seja, uma estimativa desse tamanho é bem otimista). 
