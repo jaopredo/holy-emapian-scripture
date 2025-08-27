@@ -537,3 +537,12 @@ Os *Fact Measures* são informações dentro do fato que *não se aplicam em nen
 #example[
   Queremos criar o fato *venda*, ele engloba as dimensões de *produto*, *cliente*, *loja*, *calendário* e *vendedor*. Porém, não faz sentido, por exemplo, colocar a quantidade de produtos comprados em *nenhuma dimensão*, ou o *valor total da compra*, de forma que essas informações são localizadas única e exclusivamente no fato
 ]
+
+Vale ressaltar que, dado a dimensão $i$, a sua chave-primária *não é a mesma chave-primária do modelo relacional*, pois a repetição dos registros pode ocorrer sem problema nenhum. Como aplicar chaves-primária nas dimensões e nos fatos será visto posteriormente
+
+== Como um fato se organiza?
+Uma tabela de fatos tem:
+- Chaves-estrangeiras conectando a tabela de fato para as tabelas de dimensões
+- As medidas relacionadas ao sujeito da análise
+
+
