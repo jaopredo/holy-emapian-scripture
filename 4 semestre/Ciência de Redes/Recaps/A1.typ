@@ -2,6 +2,7 @@
 #import "@preview/lovelace:0.3.0": *
 #show: thmrules.with(qed-symbol: $square$)
 
+#import "@preview/wrap-it:0.1.1"
 #import "@preview/codly:1.3.0": *
 #import "@preview/codly-languages:0.1.1": *
 #show: codly-init.with()
@@ -336,7 +337,8 @@ $
 
 #pagebreak()
 
-São tipos de redes que vão se montando aleatoriamente. Por exemplo, imagine que você está em uma festa e o anfitrião está fornecendo um vinho da melhor qualidade, mas ele não avisou ninguém. Um convidado curioso, por acidente, provou desse vinho e *adorou*, então ele vai contar para as pessoas da festa. A pergunta é, para quem ele vai falar? Ele vai falar para todos? Vai sobrar vinho para você?
+== Ideia Inicial
+Também chamadas de *Redes Erdös-Renyi* ou *Redes de Poisson*, são tipos de redes que vão se montando aleatoriamente. Por exemplo, imagine que você está em uma festa e o anfitrião está fornecendo um vinho da melhor qualidade, mas ele não avisou ninguém. Um convidado curioso, por acidente, provou desse vinho e *adorou*, então ele vai contar para as pessoas da festa. A pergunta é, para quem ele vai falar? Ele vai falar para todos? Vai sobrar vinho para você?
 
 Em cima disso conseguimos montar as redes aleatórias, onde cada par de nós (Aresta) é formado de acordo com uma *probabilidade*
 
@@ -378,3 +380,83 @@ Ou seja, para $N$ muito grande e $k$ pequeno com relação a $N$, podemos estima
 $
   "Grau do vértice" delta(v) ~ "Poisson"(delta_"med" (G))
 $
+
+== Evolução das Redes Aleatórias
+Conforme iniciamos um grafo com um grau médio $0$ e vamos aumentando ele aos poucos, nós percebemos que a partir de um ponto chave, os nós começam a se agrupar em algo que chamamos de *componente gigante*, que seria a maior componente conexa da rede.
+
+#figure(
+  caption: [Gráfico que mostra a fração de nós dentro de uma grande componente conexa em função do grau médio],
+  image("images/mean-degree-and-big-component-fraction.png")
+)
+
+Quanto $delta_"med" (G) < 1$, então a quantidade de nós na componente gigante é desprezível em relação à quantidade de nós na rede, porém, a partir de $delta_"med" (G) = 1$, isso indica que temos, pelo menos, $n/2$ componentes conexas, o que já começa a fazer uma diferença no gráfico.
+
+Dado uma rede $G(V,E)$, vamos definir a fração de nós que *não está* na componente gigante como:
+$
+  u = 1 - N_G / (|V|)
+$
+
+De forma que $N_G$ é a quantidade de nós dentro dessa componente gigante, vamos definir essa componente como $Psi subset.eq V$. Se um nó $v_i in Psi$, então ele deve estar interligado com outro nó $v_j$, que também deve satisfazer $v_j in Psi$. Por isso, se $v_i in.not Psi$, então isso pode ocorrer por duas razões:
+
+- ${v_i, v_j} in.not E$. A probabilidade de isso acontecer é $1-p$
+- ${v_i, v_j} in E$, porém $v_j in.not Psi$. A probabilidade de isso acontecer é $p u$
+
+Então temos:
+$
+  PP(v_i in.not Psi) = 1 - p + p u
+$
+
+Então a probabilidade de que $v_i$ não esteja linkado a $Psi$ por qualquer nó é de $(1 - p + p u)^(|V| - 1)$, já que temos outros $|V|-1$ nós que poderiam fazer com que $v_i$ se interligasse a componente gigante.
+
+Sabemos que $u$ é a fração de nós que não está em $Psi$, para qualquer $p$ e $|V|$, a solução da equação
+$
+$
+$
+  u = (1 - p + p u)^(|V| - 1)
+$
+
+nos dá o tamanho da componente gigante por meio de $N_G = |V|(1-u)$. Usando $p = (delta_"med" (G)) / (|V|-1)$ e tirando $log$ de ambos os lados, para $delta_"med" (G) << |V|$ (Grau médio *muito* menor que $|V|$), obtemos:
+$
+  ln(u) approx (|V|-1) ln[ 1 - (delta_"med" (G)) / (|V|-1) (1 - u) ]    \
+
+  "Tiramos exponencial e obtemos:"    \
+
+  u approx exp { - ( delta_"med" (G) ) / (1-u) }
+$
+
+Se denotarmos $S = N_G / |V|$, obtemos que:
+$
+  S = 1 - e^(-delta_"med" (G) dot S)
+$
+
+== Distribuição de tamanhos de Cluster
+Queremos também ter uma noção da probabilidade de um nó $v_i$ qualquer estar em um cluster (Grupo de nós na rede) de tamanho $s$. No livro do Newman, ele nos mostra que essa probabilidade é:
+$
+  PP(v_i in Psi_(|Psi|=s)) = e^( - delta_"med" (G) dot s ) (delta_"med" (G) dot s)^(s-1) / s!
+$
+
+== Mundos pequenos
+Mundos pequenos (Small worlds) são grafos em que, independente da quantidade de vértices, a distância entre dois nós aleatórios costuma ser muito pequeno. Um exemplo é um modelo que cada nó representa todas as pessoas do mundo e as arestas indicam se elas já interagiram e se conhecem ou não (Impressionantemente), tanto que existe a teoria dos 6 graus de distância entre as pessoas
+
+#link("https://youtu.be/TcxZSmzPw8k?si=jXPDJE_SWwNys4YM")[_Vídeo sobre o assunto (Clique aqui)_]
+
+E se quisermos ter uma noção de o quão *não-relacionadas* duas pessoas são em uma rede social? Podemos calcular sua distância, obviamente, mas alguns algoritmos ficam computacionalmente inviáveis. Podemos então estimar uma distância média entre dois nós selecionados aleatoriamente no grafo
+
+#wrap-it.wrap-content(
+  figure(
+    caption: [Grafo Árvore],
+    image("images/tree-shaped-graph.png", width: 60%)
+  ),
+  [
+    Redes aleatórias costumam ter uma topologia de árvore com praticamente um número constante de graus. Perceba então que eu posso escrever a quantidade de nós $|V|$ como:
+    $
+      |V| &= 1 + delta_"med" (G) +... + delta_"med" (G)^(d_"max")   \
+
+      &= (delta_"med" (G)^(d_"max") - 1) / ( delta_"med" (G) - 1 ) 
+    $
+    Então vamos ter que:
+    $
+      d_"max" approx (log |V|) / (log (delta_"med" (G)))
+    $
+  ]
+)

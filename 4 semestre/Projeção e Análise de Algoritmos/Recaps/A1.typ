@@ -1,6 +1,7 @@
 #import "@preview/ctheorems:1.1.3": *
 #import "@preview/lovelace:0.3.0": *
 #show: thmrules.with(qed-symbol: $square$)
+#import "@preview/wrap-it:0.1.1"
 
 #import "@preview/codly:1.3.0": *
 #import "@preview/codly-languages:0.1.1": *
@@ -885,3 +886,175 @@ int hashStr(const char * value, int size) {
   return hash;
 }
 ```
+
+A complexidade da função de espalhamento é constante: $Theta(1)$. Em uma busca mal sucedida, temos que a complexidade é $T(n,m) = n/m$, então nosso objetivo é sempre que $n$ seja bem menor que $m$, de forma que isso seja muito próximo de $Theta(1)$
+$
+  T(n) = 1/n sum^n_i (1 + sum^n_(j=i+1) 1/M) = Theta(1+n/M)
+$
+
+Considerando a hipótese de hash uniforme simples podemos assumir que cada lista terá aproximadamente o mesmo tamanho.
+
+Conforme você insere elementos na tabela o desempenho vai se degradando, calculando $alpha = n\/M$ a cada inserção conseguimos calcular se a tabela está em um estado ineficiente.
+
+A operação de redimensionamento aumenta o tamanho do vetor de $M$ para $M'$, porém, isso invalida o mapeamento das chaves anteriores, já que a minha métrica era feita especificamente para o tamanho que eu tinha. Para contornar isso, podemos reinserir todos os elementos. Porém, isso é $Theta(n)$. Se a operação de resize & rehash tem complexidade $Theta(n)$ , como manter $Theta(1)$ para as demais operações?
+
+Então temos a *análise amortizada*, que avalia a complexidade com base em uma sequência de operações.
+
+A sequência de operações na tabela de dispersão consiste em:
+- $n$ operações de inserção com custo individual $Theta(1)$
+- $k$ operações para redimensionamento com custo total $sum^(log(n))_(i=1) 2^i = Theta(n)$
+  - Considerando que $M' = 2M$
+$
+  ( n dot Theta(1) + Theta(n) )/n = Theta(1)
+$
+
+=== Tabela hash com endereçamento aberto
+#wrap-it.wrap-content(
+  figure(
+    image("images/hash-table-with-open-address.png", width: 50%)
+  ),
+  [
+    O problema de colisão é solucionado armazenando os elementos na primeira posição vazia a partir do índice definido pelo hash.
+    
+    Estrutura de um nó da lista:
+    ```cpp
+    typedef struct DirectAddressHashTableNode DANode;
+    struct DirectAddressHashTableNode {
+      int key;
+      int value;
+    };
+    ```
+
+    Ao buscar (ou sondar) um elemento com a chave `key`, nós checamos: Se a posição `table[hash(key)]` estiver *vazia*, nós garantimos que a chave não está presente na tabela, mas se estiver *ocupada*, precisamos verificar se `table[hash(key)].key = key`.
+  ]
+)
+
+Exemplo de implementação:
+```cpp
+class DirectAddressHashTable {
+  public:
+    DirectAddressHashTable(int size)
+        : m_table(nullptr)
+        , m_size(size) {
+      m_table = new DANode[size];
+      for (int i=0; i < m_size; i++) {
+        m_table[i].key = -1;
+        m_table[i].value = 0;
+      }
+    }
+    ~DirectAddressHashTable() { delete[] m_table; }
+  
+  private:
+    unsigned hash(int key) const { return key % m_size; }
+
+    DANode * m_table;
+    int m_size;
+};
+
+
+bool insert_or_update(int key, int value) {
+  unsigned h = hash(key);
+  DANode * node = nullptr;
+  int count = 0;
+  for (; count < m_size; count++) {
+    node = &m_table[h];
+    if (node->key == -1 || node->key == key) {
+      break;
+    }
+    h = (h + 1) % m_size;
+  }
+  if (count >= m_size) {
+    return false; // Table is full
+  }
+  if (node->key == -1) {
+    node->key = key;
+  }
+  node->value = value;
+  return true;
+}
+
+
+DANode * search(int key) {
+  unsigned h = hash(key);
+  DANode * node = nullptr;
+  int count = 0;
+  for (; count < m_size; count++) {
+    node = &m_table[h];
+    if (node->key == -1 || node->key == key) {
+      break;
+    }
+    h = (h + 1) % m_size;
+  }
+  return count >= m_size || node->key == -1 ? nullptr : node;
+}
+
+
+bool remove(int key) {
+  DANode * node = search(key);
+  if (node == nullptr) {
+    return false;
+  }
+  node->key = -1;
+  node->value = 0;
+  return true;
+}
+```
+
+A remoção em uma tabela hash com endereçamento aberto apresenta um problema:
+- Ao remover uma chave key de uma posição $h$, partindo de uma posição $h_0$, tornamos impossível encontrar qualquer chave presente em uma posição $h'$ > $h$.
+
+#figure(
+  caption: [Exemplo de tabela com problema na remoção],
+  image("images/remove-problem-table-example.png")
+)
+
+Uma possível solução consiste em marcar o nó removido de forma que a busca não o considere vazio.
+
+- Podemos criar uma flag para representar que o nó será reciclado.
+```cpp
+typedef struct DirectAddressHashTableNode DANode;
+struct DirectAddressHashTableNode {
+  int key;
+  int value;
+  bool recycled;
+};
+```
+- E inicializá-la com o valor false no construtor:
+```cpp
+m_table[i].recycled = false;
+```
+
+Então vamos adaptar as funções de busca e remoção
+```cpp
+DANode * search(int key) {
+  unsigned h = hash(key);
+  DANode * node = nullptr;
+  int count = 0;
+  for (; count < m_size; count++) {
+    node = &m_table[h];
+    if ((node->key == -1 && !node->recycled) || node->key == key) {
+      break;
+    }
+    h = (h + 1) % m_size;
+  }
+  return count >= m_size || node->key == -1 ? nullptr : node;
+}
+
+
+bool remove(int key) {
+  DANode * node = search(key);
+  if (node == nullptr) {
+    return false;
+  }
+  node->key = -1;
+  node->value = 0;
+  node->recycled = true;
+  return true;
+}
+```
+
+O fator de carga da abordagem de endereçamento aberto é definido da mesma forma: $alpha = n\/M$
+- No entanto observe que nesse caso teremos sempre $alpha <= 1$ visto que $M$ é o número máximo de elementos no vetor.
+- A busca por uma determinada chave depende da sequência de sondagem `hash(key, i)` fornecida pela função de espalhamento
+- Observe que existem M! permutações possíveis para a sequência de sondagem.
+- A sondagem linear é o método mais simples de gerar a sequência de espalhamento `hash(key, i) = (hash’(key) + i) % M`
