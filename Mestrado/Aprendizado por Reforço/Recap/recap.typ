@@ -309,6 +309,18 @@ A primeira condição garante que os passos sejam grandes o suficiente para even
 
 == 2.6 - Valores Iniciais Ótimos
 
-Todos os métodos discutidos até agora tem uma forte dependência nas estimativas iniciais de recompensa $Q_1 (a)$. Na linguagem estatística, esses métodos são $"enviesados"$ por suas estimativas iniciais de recompensa. Para métodos que calculam a estimativa pela @mediaamostral usando $alpha_n (a) =  1/n$, chegamos na fórmula @umsobreeni, ou seja, após a primeira estimativa, nosso $Q_n (a)$ não depende mais diretamente de $Q_1$, ou seja, ele não é mais enviesado. Já com outro alpha, no caso, chegamos na fórmula @alpha, que é diretamente enviesado por $Q_1$.
+Todos os métodos discutidos até agora tem uma forte dependência nas estimativas iniciais de recompensa $Q_1 (a)$. Na linguagem estatística, esses métodos são chamados de $"enviesados"$ por suas estimativas iniciais de recompensa. Para métodos que calculam a estimativa pela @mediaamostral usando $alpha_n (a) =  1/n$, chegamos na fórmula @umsobreeni, e, após a primeira estimativa, nosso $Q_n (a)$ não depende mais diretamente de $Q_1$, ou seja, ele não é mais enviesado. Já com outro $alpha$, no caso, chegamos na fórmula @alpha, que é diretamente enviesado por $Q_1$.
 
-Um enviesamento pode ser bom ou ruim. Suponha que em vez de iniciar a estimativa inicial $Q_1 (a) = 0$, como fazemos anteriormente, considere que colocaremos todos como $+5$(lembre que estávamos usando $q*(a)~NN(0,1)$, ou seja, uma estimativa desse tamanho é bem otimista). 
+Um enviesamento pode ser bom ou ruim. Suponha que em vez de iniciar a estimativa inicial $Q_1 (a) = 0$, como fazemos anteriormente, considere que colocaremos todos como $+5$(lembre que estávamos usando $q*(a)~NN(0,1)$, ou seja, uma estimativa desse tamanho é bem otimista). Esse otimismo encoraja o agente a explorar, já que de início, todas as estimativas são mais altas do que qualquer valor real da ação. Então, ao escolher certa ação, o agente recebe uma recompensa menor do que o esperado, ficando desapontado e diminuindo o valor da recompensa esperada. Ao escolher a próxima ação, todas as outras têm uma estimativa maior do que a primeira selecionada. Assim, o sistema fará explorará todas as ações, mesmo se sempre selecionarmos a mais gananciosa sempre.
+
+Nós chamamos essa estratégia de Valores Iniciais Ótimos. Vamos comparar esse método com o método $epsilon$-greedy explicados anteriormente:
+
+#show figure.caption: set align(left)
+#figure(
+    image("../Img/acaootimista.png", width:90%),
+    caption: [ Efeito da inicialização otimista do valor da ação no banco de teste de 10 braços. Ambos usaram o step-size $alpha = 0.1$]
+)
+
+Note como o método otimista começa pior, pois o agente fica inicialmente apenas explorando várias ações, mas eventualmente performa melhor porque acaba parando de explorar. Essa estratégia pode ser boa às vezes, mas não é a mais adequada em casos não estacionários(valor das ações muda) pois a exploração de outras ações é temporário. 
+
+
