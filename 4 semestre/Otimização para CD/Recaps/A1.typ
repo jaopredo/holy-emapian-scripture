@@ -1236,3 +1236,10 @@ $
     lambda = mat(lambda_1;dots.v;lambda_m), space mu = mat(mu_1;dots.v;mu_p), space g(x) = mat(g_1 (x);dots.v; g_m (x)), space h(x) = mat(h_1 (x);dots.v;h_p (x))
   $
 ]
+
+#theorem("Gradiente Lagrangeano")[
+  Dado o Lagrangeano de uma função $f$, temos que o gradiente do lagrangeano *somente em relação a $x$* se da por:
+  $
+    nabla_x L(x, lambda, mu) = nabla f(x) + sum_(i=1)^m lambda_i nabla g(x) + sum^p_(j=1) mu_j nabla h(x)
+  $
+]
