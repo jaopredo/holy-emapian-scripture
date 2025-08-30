@@ -1069,7 +1069,35 @@ bool remove(int key) {
 ```
 
 O fator de carga da abordagem de endereçamento aberto é definido da mesma forma: $alpha = n\/M$
-- No entanto observe que nesse caso teremos sempre $alpha <= 1$ visto que $M$ é o número máximo de elementos no vetor.
+- No entanto observe que nesse caso teremos sempre $alpha <= 1$ visto que $M$ é o número máximo de elementos no vetor (Antes eu podia ter mais chaves do que espaços no meu vetor).
 - A busca por uma determinada chave depende da sequência de sondagem `hash(key, i)` fornecida pela função de espalhamento
 - Observe que existem M! permutações possíveis para a sequência de sondagem.
 - A sondagem linear é o método mais simples de gerar a sequência de espalhamento `hash(key, i) = (hash’(key) + i) % M`
+
+Porém, a abordagem linear rapidamente se torna ineficaz, já que em determinado momento o problema se transforma basciamente em inserir elementos em uma lista, então surge a alternativa da abordagem quadrática
+
+#figure(
+  caption: [Exemplificação de sondagem quadrática],
+  image("images/quadratic-probing.png")
+)
+
+Agora temos que a função de hash segue o seguinte padrão:
+`hash(key, i) = ( hash'(key) + b*i + a*i**2 ) % m`
+
+Porém isso gera agrupamentos secundários, ou seja, se duas chaves caem no mesmo local inicial `hash'(key)`, então elas seguirão a mesma sequência e tentarão ocupar os mesmos slots (Aí podemos inserir outras abordagens)
+
+Para melhorar ainda mais nossas abordagens, podemos introduzir o *hash duplo*, que eu vou ter *duas* funções de hash diferentes $"hash"_1$ e $"hash"_2$ de forma que o novo hash de uma chave vai ser dado por: `hash(key, i) = (hash1(key) + i * hash2(key)) % m` de forma que, mesmo que uma mesma chave
+
+#figure(
+  caption: [Exemplificação de hash duplo],
+  image("images/double-hash.png")
+)
+
+Porém, vale ressaltar que minha segunda função de hash deve satisfazer:
+- Ser completamente diferente da primeira
+- Não retornar $0$
+
+O número de sondagens para inserir uma chave em uma tabela hash de endereçamento aberto (No caso médio) é:
+$
+  T(n) = sum^(infinity)_(i=0) alpha^i = 1/(1-alpha) = O(1)
+$
