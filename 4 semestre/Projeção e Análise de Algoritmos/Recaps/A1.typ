@@ -647,7 +647,9 @@ Node * binaryTreeSearchIterative(Node * node, int key) {
 #pagebreak()
 
 
-Famosos dicionários do python, nós a utilizamos para armazenar e pesquisar tuplas _\<chave, valor\>_.
+Nós a utilizamos para armazenar e pesquisar tuplas _\<chave, valor\>_. São comumente chamadas de *dicionários*, porém, podemos classificar assim:
+- *Dicionários*: Maneira genérica de mapear _chaves_ e _valores_
+- *Hash Tables*: Implementação de um dicionário por meio de uma função de *hash*
 
 #figure(
   caption: [Desenho de tabela hash],
@@ -671,17 +673,18 @@ Vamos idealizar um problema para motivar os nossos objetivos.
 
 === Primeira abordagem: Endereçamento Direto
 ```cpp
+// Aloca-se um vetor com o tamanho do universo U:
 int table[U];
 for (int i = 0; i < U; i++) {
   table[i] = 0;
 }
 
-// Função de incrementação em cada elemento
+// Ao processar cada evento incrementa-se a posição no vetor
 void add(int key) {
   table[key]++;
 }
 
-// Função de busca
+// Lê-se a contagem acessando a posição do vetor diretamente
 int search(int key) {
   return table[key]
 }
@@ -721,7 +724,7 @@ int search(int key) {
   return node != nullptr ? node->count : 0;
 }
 ```
-Infelizmente nessa abordagem nós não atingimos o objetivo principal de realizar as operações em $Theta(1)$, já que a função de busca é $Theta(n)$
+Infelizmente nessa abordagem nós não atingimos o objetivo principal de realizar as operações em $Theta(1)$, já que a função de busca é $Theta(n)$ no pior caso
 
 == Definição
 Agora que entendemos toda a ideia da hash table, podemos fazer uma definição melhor para ela
@@ -742,13 +745,13 @@ Agora que entendemos toda a ideia da hash table, podemos fazer uma definição m
   É quando a função de espalhamento gera os mesmos hashes para chaves diferentes. Existem várias abordagens para resolver esse problema
 ]
 
-Uma função de hash é considerada *boa* quando minimiza as colisões (Mas elas são inevitáveis)
+Uma função de hash é considerada *boa* quando minimiza as colisões (Mas, pelo princípio da casa dos pombos, elas são inevitáveis)
 
 == Soluções para colisão
 Vamos ver algumas abordagens para resolver o problema de colisão
 
 === Tabela hash com encadeamento
-O problema de colisão é solucionado armazenando os elementos com o mesmo hash em uma lista encadeada
+O problema de colisão é solucionado armazenando os elementos com o mesmo hash em uma lista encadeada.
 
 #figure(
   caption: [Tabela hash com encadeamento],
@@ -854,7 +857,9 @@ O pior caso dessa implementação é quando todas as chaves são mapeadas em uma
 - *Busca*: $Theta(n)$
 - *Remoção*: $Theta(n)$
 
-=== Hash uniforme simples
+Nas operações estamos considerando o pior caso.
+
+=== Hash uniforme simples (A solução ideal)
 Cada chave possui a mesma probabilidade de ser mapeada em qualquer índice $[0, M)$. Essa é uma propriedade desejada para uma função de espalhamento a ser utilizada em uma tabela hash. Infelizmente esse resultado depende dos elementos a serem inseridos. Não sabemos à priori a distribuição das chaves ou mesmo a ordem em que serão inseridas. Heurísticas podem ser utilizadas para determinar uma função de espalhamento com bom desempenho
 
 Alguns métodos mais comuns:
@@ -887,16 +892,20 @@ int hashStr(const char * value, int size) {
 }
 ```
 
-A complexidade da função de espalhamento é constante: $Theta(1)$. Em uma busca mal sucedida, temos que a complexidade é $T(n,m) = n/m$, então nosso objetivo é sempre que $n$ seja bem menor que $m$, de forma que isso seja muito próximo de $Theta(1)$
+A complexidade da função de espalhamento é constante: $Theta(1)$. Em uma busca mal sucedida, temos que a complexidade é $T(n,m) = n/m$, isso se dá pois temos $m$ entradas no array da tabela hash e temos $n$ entradas utilizadas no todo, então a *complexidade média* do tempo de busca fica $n/m$. Então nosso objetivo é sempre que $n$ seja bem menor que $m$, de forma que isso seja muito próximo de $Theta(1)$.
+
+Então podemos calcular a complexidade das operações de *remoção*, *inserção* e *busca* como:
 $
-  T(n) = 1/n sum^n_i (1 + sum^n_(j=i+1) 1/M) = Theta(1+n/M)
+  T(n) = 1/n sum^n_i (1 + sum^n_(j=i+1) 1/m) = Theta(1+n/m)
 $
+
+Esse $1/n sum^n_i$ representa uma média aritmética em todos os nós do valor que vem dentro da soma. Esse $1$ dentro representa a operação de _hash_ para descobrir o "slot" chave que você irá procurar. Depois que você procurar o slot e achá-lo (Slot em que a chave que você está buscando estará), você vai percorrer um *número esperado* de $sum^n_(j=i+1)1/m$ chaves ($1/m$ = Probabilidade (Considerando o hash uniforme simples) de uma chave $i$ colidir com uma chave $j$)
 
 Considerando a hipótese de hash uniforme simples podemos assumir que cada lista terá aproximadamente o mesmo tamanho.
 
-Conforme você insere elementos na tabela o desempenho vai se degradando, calculando $alpha = n\/M$ a cada inserção conseguimos calcular se a tabela está em um estado ineficiente.
+Conforme você insere elementos na tabela o desempenho vai se degradando, calculando $alpha = n\/m$ a cada inserção conseguimos calcular se a tabela está em um estado ineficiente.
 
-A operação de redimensionamento aumenta o tamanho do vetor de $M$ para $M'$, porém, isso invalida o mapeamento das chaves anteriores, já que a minha métrica era feita especificamente para o tamanho que eu tinha. Para contornar isso, podemos reinserir todos os elementos. Porém, isso é $Theta(n)$. Se a operação de resize & rehash tem complexidade $Theta(n)$ , como manter $Theta(1)$ para as demais operações?
+A operação de redimensionamento aumenta o tamanho do vetor de $m$ para $M'$, porém, isso invalida o mapeamento das chaves anteriores, já que a minha métrica era feita especificamente para o tamanho que eu tinha. Para contornar isso, podemos reinserir todos os elementos. Porém, isso é $Theta(n)$. Se a operação de `resize` & `rehash` tem complexidade $Theta(n)$ , como manter $Theta(1)$ para as demais operações?
 
 Então temos a *análise amortizada*, que avalia a complexidade com base em uma sequência de operações.
 
@@ -911,23 +920,29 @@ $
 === Tabela hash com endereçamento aberto
 #wrap-it.wrap-content(
   figure(
-    image("images/hash-table-with-open-address.png", width: 50%)
+    image("images/hash-table-with-open-address.png", width: 45%)
   ),
   [
-    O problema de colisão é solucionado armazenando os elementos na primeira posição vazia a partir do índice definido pelo hash.
-    
-    Estrutura de um nó da lista:
-    ```cpp
-    typedef struct DirectAddressHashTableNode DANode;
-    struct DirectAddressHashTableNode {
-      int key;
-      int value;
-    };
-    ```
+    O problema de colisão é solucionado armazenando os elementos na primeira posição vazia a partir do índice definido pelo hash. Ou seja, quando eu vou inserir um elemento $y$ na tabela, mas ele tem o mesmo hash do meu elemento $x$ (Que já está inserido na tabela), eu simplesmente armazeno no próximo slot vazio
 
-    Ao buscar (ou sondar) um elemento com a chave `key`, nós checamos: Se a posição `table[hash(key)]` estiver *vazia*, nós garantimos que a chave não está presente na tabela, mas se estiver *ocupada*, precisamos verificar se `table[hash(key)].key = key`.
+    #link(
+      "https://www.youtube.com/watch?v=yA8bDfWj0UU",
+      [_Vídeo muito bom com desenhos sobre endereçamento aberto (Clique aqui)_]
+    )
   ]
 )
+
+Estrutura de um nó da lista:
+    
+```cpp
+typedef struct DirectAddressHashTableNode DANode;
+struct DirectAddressHashTableNode {
+  int key;
+  int value;
+};
+```
+
+Ao buscar (ou sondar) um elemento com a chave `key`, nós checamos: Se a posição `table[hash(key)]` estiver *vazia*, nós garantimos que a chave não está presente na tabela, mas se estiver *ocupada*, precisamos verificar se `table[hash(key)].key = key`, já que eu posso ter inserido uma outra chave lá.
 
 Exemplo de implementação:
 ```cpp
@@ -1001,7 +1016,7 @@ bool remove(int key) {
 ```
 
 A remoção em uma tabela hash com endereçamento aberto apresenta um problema:
-- Ao remover uma chave key de uma posição $h$, partindo de uma posição $h_0$, tornamos impossível encontrar qualquer chave presente em uma posição $h'$ > $h$.
+- Ao remover uma chave key de uma posição $h$, partindo de uma posição $h_0$, tornamos impossível encontrar qualquer chave presente em uma posição $h'$ > $h$, pois, quando eu procuro partindo de $h_0$, eu vou interpretar que, como $h$ está vazio, eu não preciso mais ir para frente, porém a chave que estou procurando pode estar depois.
 
 #figure(
   caption: [Exemplo de tabela com problema na remoção],
