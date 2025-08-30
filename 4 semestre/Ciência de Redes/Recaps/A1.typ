@@ -269,11 +269,11 @@ $
 Perceba que eu quero que $A - 1/alpha I$ seja invertível, e isso acontece quando $1/alpha != lambda_j$ onde $lambda_j$ são os autovalores de $A$. Ou seja, o meu $alpha$ não é completamente arbitrário, eu vou ter que analisar o contexto da minha aplicação. Porém, muito comumente, se é utilizado $alpha = 1/lambda_1$ com $lambda_1$ sendo o maior autovalor
 
 #definition("Centralidade de Katz")[
-  Dado uma rede $G(V,E)$ e duas contantes $alpha, beta > 0$, a centralidade de katz do nó $v_i$ é:
+  Dado uma rede $G(V,E)$ e duas contantes $alpha, beta > 0$, o vetor de centralidades de katz de todos os nós em $V$ é:
   $
-    K(v_i) = alpha sum_j A_(i j) v_j + beta
+    K(V) = beta (I - alpha A)^(-1) bb(1)
   $
-  Onde $A$ é a matriz de adjacência de $G$
+  Onde $A$ é a matriz de adjacência de $G$. ($K(V) in RR^(|V|)$)
 ]
 
 Um outro tipo de medida surge quando queremos responder a questão: "Se eu estou navegando entre meus nós, ao longo prazo, qual é o nó que eu mais vou percorrer/parar nele?". Um exemplo são páginas na internet que referenciam entre si, daí surge o nome da medida: *PageRank*. O que fazemos essencialmente é transformar a rede em uma cadeia de markov. Por exemplo:
