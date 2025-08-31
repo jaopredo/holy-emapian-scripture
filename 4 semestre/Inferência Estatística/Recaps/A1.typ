@@ -477,13 +477,15 @@ $<median-error>
   $
   Então teremos que:
   $
-    EE(Y) = EE(Y dot II_X) + EE(Y dot (1 - II_X)) >= (a-m)EE(II_X) + (m-a)EE(1-II_X)    \
+    EE(Y) &= EE(Y dot II_X) + EE(Y dot (1 - II_X)) \
+    
+    &>= (a-m)EE(II_X) + (m-a)EE(1-II_X)    \
 
-    = (a - m)PP(X <= m) + (m - a)PP(X>m)    \
+    &= (a - m)PP(X <= m) + (m - a)PP(X>m)    \
 
-    = (a - m)PP(X <= m) - (a - m)(1 - PP(X<=m))   \
+    &= (a - m)PP(X <= m) - (a - m)(1 - PP(X<=m))   \
 
-    = (a-m)(2 PP(X<=m) - 1) >= 0
+    &= (a-m)(2 PP(X<=m) - 1) >= 0
   $
   Porém essa equação final é satisfeita pela definição de mediana!
 ]
