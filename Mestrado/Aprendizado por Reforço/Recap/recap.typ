@@ -321,6 +321,7 @@ Nós chamamos essa estratégia de Valores Iniciais Ótimos. Vamos comparar esse 
     caption: [ Efeito da inicialização otimista do valor da ação no banco de teste de 10 braços. Ambos usaram o step-size $alpha = 0.1$]
 )
 
-Note como o método otimista começa pior, pois o agente fica inicialmente apenas explorando várias ações, mas eventualmente performa melhor porque acaba parando de explorar. Essa estratégia pode ser boa às vezes, mas não é a mais adequada em casos não estacionários(valor das ações muda) pois a exploração de outras ações é temporário. 
+Note como o método otimista começa pior, pois o agente fica inicialmente apenas explorando várias ações, mas eventualmente performa melhor porque acaba parando de explorar. Essa estratégia pode ser boa às vezes, mas não é a mais adequada em casos não estacionários(valor das ações muda) pois a exploração de outras ações é temporário. Em geral, qualquer método que depende fortemente de condições iniciais não são muito bons para métodos não estacionários.
 
+== 2.7 - Seleção de Agente por Nível Superior de Confiança
 

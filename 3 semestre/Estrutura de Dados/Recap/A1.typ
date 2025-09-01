@@ -47,6 +47,33 @@
   }
 }
 
+#align(center + top)[
+  FGV EMAp
+
+  Thalis Ambrosim Falqueto
+]
+
+#align(horizon + center)[
+  #text(17pt)[
+    Estrutura de Dados
+  ]
+  
+  #text(14pt)[
+    Resumo
+  ]
+]
+
+#align(bottom + center)[
+  Rio de Janeiro
+
+  2025
+]
+
+#pagebreak()
+
+#outline(title: "Sumário")
+
+#pagebreak()
 
 = Introdução
 
@@ -115,7 +142,7 @@ A importância de estudarmos essas Estrutura de Dados é que, basicamente, cada 
 
 Basicamente, temos 3 operações principais: inserir, remover e buscar. Vamos ver alguns TADs e seus desempenhos em cada uma dessas.  
 
-== 1 Pilhas
+== 2.1 Pilhas
 
 Uma pilha é uma Estrutura de Dados que segue a política LIFO(Last in, First Out), ou seja, o último elemento adicionado da pilha é o primeiro a ser removido. 
 
@@ -357,7 +384,7 @@ void destroyCircularQueue(CircularQueue *cq) {
 
 #pagebreak()
 
-== 2.4 - Comparação entre TADs
+== 2.4 Comparação entre TADs
 
 Para cada propósito ao qual cada TAD é designado, quase todas as principais operações são $O(1)$. Veja: 
 
@@ -519,7 +546,8 @@ void deleteSLList(SingleLinkedList* list) {
 
 Nesse caso, basta colocar um ponteiro tail na struct SingleLinkedList apontando para a cauda (tail), e atualizar nas funções mostradas anteriormente. Como a lista não tem um tamanho pré-fixado, também não é necessário tratar casos com o módulo da lista, etc. Fica a cargo do leitor.
 
-=== Obs.1:
+- *Obs.1:*
+
 Uma limitação da lista encadeada simples é que ela só vê o próximo elemento, o que é problemático em situações como remoção de um nó ou verificação do elemento anterior numa lista. Para solucionar esse problema, basta adicionarmos um ponteiro tail em cada um dos nós da lista! 
 
 == 2.7 Lista duplamente encadeada
@@ -684,7 +712,7 @@ void deleteDLList(DoubleLinkedList* list) {
 }
 ```
 
-== 2.8 - Comparação entre arrays e listas encadeadas
+== 2.8 Comparação entre arrays e listas encadeadas
 
 Após todo esse código, podemos fazer uma breve comparação entre listas encadeadas e arrays:
 
@@ -701,3 +729,57 @@ Uma ideia que possibilita o acesso a uma posição aleatória de forma eficiente
 #pagebreak()
 
 = 3. Ordenação
+
+Como introduzido, por vezes gostaríamos que nossa Estrutura de Dados estivesse ordenada,
+pois a ordem dos elementos pode ser mais importante que a inserção ou remoção. Por exemplo, num
+sistema de e-commerce, onde os produtos são identificados por preço, ou até num hospital, onde gostaríamos de ordenar por prioridade.
+
+Ordenar os dados é essencial, pois:
+
++ permite buscas mais eficientes;
++ define uma ordem de prioridade;
++ facilita a análise estatística(Ex: mediana);
+
+== 3.1 - Características relevantes:
+
+A utilidade dos algoritmos de ordenação que vamos ver podem ser medidos através de:
+
+- Complexidade de tempo de execução;
+- Complexidade de espaço utilizado:  quantidade de espaço adicional de memória necessária (além do array de entrada);
+- Estabilidade: se mantém a ordem relativa dos elementos iguais na entrada;
+    - Exemplo: No caso do exemplo do hospital, se cada elemento(pessoa) tem uma prioridade, é esperado que pessoas de mesma prioridade continuem na mesma ordem que chegaram. Portanto, ao ordenar pela prioridade, o algoritmo é estável se cada elemento de mesma prioridade se mantém na mesma ordem antes de ordenar.
+- In-place vs Out-of-place:
+    - In-place: Não requer memória extra significativa.
+    - Out-of-place: Requer uma estrutura auxiliar para armazenar os elementos ordenados;
+- Performance em diferentes tamanhos de entrada: Alguns algoritmos podem ser melhores que outros para quantidades pequenas ou grandes de dados.
+
+Existem outros tipos de características relevantes, como adaptabilidade e paralelização, mas não serão abordados aqui. Legal, vamos para os algoritmos!
+
+== 3.2 - Selections Sort
+
+- *Ideia*
+ - Percorre a lista até encontrar o menor elemento;
+ - Troca esse elemento com o primeiro da lista;
+ - Repete a ideia para os próximos elementos.
+
+== img
+
+Note que precisamos de dois inteiros, um para salvar o índice do menor elemento, e outro para fazer a troca de elementos. O primeiro for passará por toda a lista, e o segundo for comparará os elementos subjacentes ao indíce i, pois antes desse índice os elementos já foram ordenados. Fazemos a comparação do valor do índice i com todos os posteriores, e atualizamos o índice j. Após cada comparação, salvamos o valor do menor elemento, atualizamos o valor do índice do menor elemento como o elemento do índice i, e por fim atualizamos o valor do índice i como o menor elemento.  
+```cpp
+void selectionSort(int arr[], int n) {      // Custo  | Vezes
+    int minIndex, temp;                     // 2      | 1
+    for (int i = 0; i < n - 1; i++) {       // 2      | n-1
+        minIndex = i;                       // 1      | n-1
+        for (int j = i + 1; j < n; j++) {   // 2      | n-i+1 -> n-1, 
+            if (arr[j] < arr[minIndex]) {   // 1      | n-i+1 -> n-1,
+                minIndex = j;               // 1      | n-i+1 -> n-1, 
+            }
+        }
+        temp = arr[minIdx];                 // 1      | n-1
+        arr[minIdx] = arr[i];               // 1      | n-1
+        arr[i] = temp;                      // 1      | n-1
+    }
+} 
+```
+
+
