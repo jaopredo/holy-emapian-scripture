@@ -1101,3 +1101,184 @@ O número de sondagens para inserir uma chave em uma tabela hash de endereçamen
 $
   T(n) = sum^(infinity)_(i=0) alpha^i = 1/(1-alpha) = O(1)
 $
+
+
+#pagebreak()
+
+#align(center+horizon)[
+  = ALGORITMOS DE ORDENAÇÃO
+]
+
+#pagebreak()
+
+Queremos que, dada uma sequência de valores, escreva um algoritmo capaz de retornar a sequência ordenada de valores a partir de uma entrada de vários números não-ordenados.
+
+```cpp
+int v[] = {8, 11, 2, 5, 10, 16, 7, 15, 1, 4};
+```
+- Exceto quando especificado de outra forma, assuma que o tipo dos valores são números inteiros
+- Utilizaremos o vetor como estrutura de dados, no entanto os algoritmos apresentados podem ser implementados utilizando outras estruturas, como listas encadeadas
+
+Um algoritmo de ordenação é considerado *estável* quando, ao final do programa, elementos de mesmo valor aparecem na mesma ordem que antes. Por exemplo:
+
+#figure(
+  caption: [Exemplo com números fracionários],
+  image("images/stable-algorithm-example.png")
+)
+
+Considere um algoritmo que ordena o vetor mostrado acima considerando *apenas a parte inteira*. Nesse algoritmo, $5.5$ e $5.3$ tem o mesmo valor (Já que estamos considerando apenas a parte inteira), e no array antes da ordenação, $5.5$ aparece *antes* do $5.3$. Se o algoritmo for estável, então essa ordem deverá ser mantida e, como podemos ver no array ordenado, ela de fato foi
+
+== Bubble Sort
+O algoritmo bubble sort (ordenação por flutuação) é uma das soluções mais simples para o problema de ordenação.
+A solução consiste em inverter (trocar) valores de posições adjacentes sempre que `v[i + 1] < v[i]`.
+Essa operação é executada para cada posição 0 ≤ i < n − 1 ao percorrer a sequência.
+Observe que ao percorrer a sequência j = n − 1 vezes executando esse procedimento atingimos a sequência ordenada.
+
+#example[
+  Considere o seguinte array:
+
+  #figure(
+    caption: [Bubble Sort array de exemplo],
+    image("images/bubble-sort-example-array.png")
+  )
+
+  E a execução do código decorrerá da forma:
+  #figure(
+    caption: [Bubble Sort exemplo de fluxo de código],
+    image("images/bubble-sort-example-code.png", width: 70%)
+  )
+
+  Então o meu código vai percorrer cada item da minha lista e, sempre que um elemento a esquerda de outro é maior que ele, os dois trocam de posição
+]
+
+#codly(
+  header: [*IMPLEMENTAÇÃO*]
+)
+```cpp
+#define swap(v, i, j) { int temp = v[i]; v[i] = v[j]; v[j] = temp; }
+void bubbleSort(int v[], int n) {
+  for (int j = 0; j < n - 1; j++) {
+    for (int i = 0; i < n - 1; i++) {
+      if (v[i] > v[i + 1]) {
+        swap(v, i, i + 1);
+      }
+    }
+  }
+}
+```
+
+O procedimento é executado $n-1$ vezes e, a cada iteração maior, ele executa $n-1$ subprocessos, logo, no final vamos ter um total de $T(n)=Theta(n^2)$ de complexidade (Tanto melhor quanto pior caso)
+
+Porém, podemos fazer uma otimização no algoritmo:
+
+#codly(
+  header: [*IMPLEMENTAÇÃO ORDENADA*]
+)
+```cpp
+void bubbleSortOptimized(int v[], int n) {
+  for (int j = 0; j < n - 1; j++) {
+    bool swapped = false;
+    for (int i = 0; i < n - 1; i++) {
+      if (v[i] > v[i + 1]) {
+        swap(v[i], v[i + 1]);
+        swapped = true;
+      }
+    }
+    if (!swapped) { break; }
+  }
+}
+```
+Essa otimização checa se, dentro de um loop maior houve alguma troca, se não houve nenhuma, então o algoritmo é encerrado. Ao fazer isso, a complexidade do melhor caso desce para $Theta(n)$
+
+== Selection Sort
+No selection sort, fazemos uma busca em *cada posição* pelo $i$-ésimo valor que *deveria* estar naquela posição
+
+#figure(
+  caption: [Selection Sort exemplificação],
+  image("images/selection-sort-exemplification.png")
+)
+
+Dado uma posição $i$, e assumindo que todas as posições anteriores já estão ordenadas, ele vai procurar dentre as próximas $n - i$ posições um valor menor que o da posição $i$. Se isso acontece, significa que ele deveria estar na posição que $i$ está ocupando, então eu vou trocá-los de posição
+
+#example[
+  Considere o caso:
+  #figure(
+    caption: [Selection Sort Caso de Exemplo],
+    image("images/selection-sort-example-case.png")
+  )
+
+  E assim, o fluxo durante a execução do programa será:
+  #figure(
+    caption: [Selection Sort Fluxo do Programa],
+    image("images/selection-sort-example-code-flow.png")
+  )
+]
+
+#codly(
+  header: [*IMPLEMENTAÇÃO*]
+)
+```cpp
+void selectionSort(int v[], int n) {
+  for (int i = 0; i < n - 1; i++) {
+    int minInx = i;
+    for (int j = i + 1; j < n; j++) {
+      if (v[j] < v[minInx]) {
+        minInx = j;
+      }
+    }
+    swap(v, i, minInx);
+  }
+}
+```
+
+Para avaliar o seu desempenho, podemos montar seu custo total utilizando vendo que, a cada iteração, eu vou avaliar um elemento a menos, de forma que podemos expressar a *função de complexidade* como:
+$
+  T(n) &= (n-1) + (n-2) + ... + 1 + 0   \
+        &= sum_(i=0)^(n-1) i  = n(n-1)/2
+$
+Ou seja, obtemos que $T(n) = Theta(n^2)$, que também é a complexidade no melhor caso
+
+== Insertion Sort
+Muito parecido com o algoritmo de *Selection Sort*, porém, eu vou fixar uma posição $i$ e avaliar o valor naquela posição, e procurar dentre as posições $[0, i-1]$ qual deveria ser a posição que o valor da posição $i$ deveria estar
+
+#figure(
+  caption: [Insertion Sort Exemplificação],
+  image("images/insertion-sort-exemplification.png")
+)
+
+#example[
+  #figure(
+    caption: [Insertion Sort Exemplo],
+    image("images/insertion-sort-example.png")
+  )
+]
+
+#codly(
+  header: [*IMPLEMENTAÇÃO*]
+)
+```cpp
+void insertionSort(int v[], int n) {
+  for (int i = 1; i < n; i++) {
+    int currentValue = v[i];
+    int j;
+    for (j = i - 1; j >= 0 && v[j] > currentValue; j--) {
+      v[j + 1] = v[j];
+    }
+    v[j + 1] = currentValue;
+  }
+}
+```
+
+A complexidade desse algoritmo também é expressa na forma:
+$
+    T(n) = sum_(j=1)^(n-1)j = n(n-1)/2 = Theta(n^2)
+$
+Porém, no melhor caso, temos que $T(n)=Theta(n)$
+
+== Mergesort
+O algoritmo Mergesort consiste em dividir a sequência em duas partes, executar chamadas recursivas para cada sub-sequência, e juntá-las (merge) de forma ordenada. Esse algoritmo depende de um algoritmo auxiliar de intercalação (merge)
+
+#figure(
+  caption: [Mergesort Exemplificação],
+  image("images/mergesort-exemplification.png")
+)
