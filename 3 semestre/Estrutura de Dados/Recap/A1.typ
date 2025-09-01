@@ -755,7 +755,7 @@ A utilidade dos algoritmos de ordenação que vamos ver podem ser medidos atrav�
 
 Existem outros tipos de características relevantes, como adaptabilidade e paralelização, mas não serão abordados aqui. Legal, vamos para os algoritmos!
 
-== 3.2 - Selections Sort
+== 3.2 Selection Sort
 
 - *Ideia*
  - Percorre a lista até encontrar o menor elemento;
@@ -782,4 +782,9 @@ void selectionSort(int arr[], int n) {      // Custo  | Vezes
 } 
 ```
 
+- *Características:*
+    - Complexidade de tempo de execução: $O(n^2)$ para o pior caso, dado dois fors que iteram praticamente até $n$;
+    - Complexidade de espaço: $O(1)$, pois não precisamos criar nada; 
+    - Estabilidade: não é estável, trocas alteram a ordem de elementos iguais.
 
+== 3.3 Insertion Sort
