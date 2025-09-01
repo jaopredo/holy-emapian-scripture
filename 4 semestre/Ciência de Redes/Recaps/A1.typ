@@ -460,3 +460,30 @@ E se quisermos ter uma noção de o quão *não-relacionadas* duas pessoas são 
     $
   ]
 )
+
+== Coeficiente de Clustering
+Indica o quão agrupado um nó está dentro de uma rede
+
+#definition("Coeficiente de Clustering")[
+  Dado uma rede $G(V,E)$, o coeficiente de clustering de um nó $v_i in V$ é definido como:
+  $
+    "Cluster"(v_i) := ( 2 dot LL(v_i) )/(delta(v_i) (delta(v_i) - 1))
+  $
+  Onde $LL(v_i)$ é quantas arestas *entre si* os *vizinhos* de $v_i$ possuem e $(delta(v_i)(delta(v_i)-1))/2$ é a quantidade *máxima* de arestas que poderiam estar interligando os vizinhos de $v_i$ (Quantidade de arestas em um grafo completo $K_(delta(v_i))$)
+]
+
+Em redes aleatórias, como as arestas são independentes e tem a mesma probabilidade $p$ de aparecer, temos:
+$
+  LL(v_i) approx p (delta(v_i) (delta(v_i) - 1))/2   =>   "Cluster"(v_i) = p = ( delta_"med" (G) ) / ( |V| )
+$
+
+Só que sabemos que, em redes aleatórias, para que esse número seja alto, a probabilidade em si das arestas tem que ser alto, porém, se $p$ é alto, então a rede aleatória em si será um grande aglomerado, seria um único cluster enorme. Essa característica é um forte indicativo, por exemplo, de que redes como as *redes sociais* *não são* redes aleatórias
+
+== Conclusão
+Como conclusão, temos que redes aleatórias *não representam bem as redes da vida real*. Não existem redes na natureza que são corretamente descritas como *redes aleatórias*. Então por que estudar elas? Na verdade, veremos posterioremente que, mesmo elas sendo erradas e irrelevantes, elas são *muito úteis*
+
+#pagebreak()
+
+#align(center+horizon)[
+  = Evoluções de Redes
+]
