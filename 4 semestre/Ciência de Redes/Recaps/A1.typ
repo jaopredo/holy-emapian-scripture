@@ -487,3 +487,47 @@ Como conclusão, temos que redes aleatórias *não representam bem as redes da v
 #align(center+horizon)[
   = Evoluções de Redes
 ]
+
+#pagebreak()
+
+Vimos as redes aleatórias onde os graus dos nós tinham distribução de Poisson. Mas e se eu quisesse fazer uma rede com distribuição diferente? Muitos pacotes de grafos e redes utilizam de *configuration models*, que são funções que recebem a quantidade de nós da rede e um *vetor* que representa a *função de distribuição* dos graus dos nós
+
+Voltando ao assunto sobre *evoluções*, eu estou interessado em pensar um jeito intuitivo/natural de como as redes vão evoluir com o passar do tempo.
+
+Então vamos imaginar o seguinte cenário. Eu tenho uma rede inicial $G_0(V_0,E_0)$ e a cada unidade de tempo $t$ eu vou ter uma nova rede $G_t (V_t,E_t)$, de forma que a cada unidade de tempo, eu vou adicionar um novo nó em $V_(t-1)$ e novas arestas em $E_(t-1)$. Qual é a distribuição do grau médio desses nós? O que podemos inferir dessa rede?
+
+Vamos imaginar uma *anexação uniforme*. Nesse caso, cada nó inserido sempre terá um grau de $m$. Ou seja, a *probabilidade* de um link do meu novo nó inserido se interligar ao vértice $v_i$ é igual a $m/i$, ou seja, eu tenho que o *grau esperado* do meu vértice $v_i$ é $m + m/i$, de forma que podemos montar uma formulazinha:
+$
+  delta(v_i, t=i) &= m  \
+
+  delta(v_i, i+1) &= m + m/i    \
+
+  delta(v_i, i+2) &= m + m/i + m/(i+1)    \
+
+  dots.v    \
+
+  delta(v_i, t) &= m (sum^(t-1)_(i=1) 1/i )   \
+$
+$
+  delta(v_i, t) &approx m + m ln((t-1)/(i-1))   \
+
+  delta(v_i, t) / m - 1 &approx ln((t-1)/(i-1))   \
+
+  exp( ( delta(v_i, t)-m ) / m ) &approx (t-1)/(i-1)   \
+
+  exp( -( delta(v_i, t)-m ) / m ) &approx (i-1)/(t-1)   \
+
+  exp(-( delta(v_i, t)-m ) / m ) &approx i/t
+$
+
+No intervalo $[0,1]$, temos a seguinte estruturação:
+#figure(
+  caption: [Intervalo de $i\/t$],
+  image("images/01-interval.png")
+)
+
+Então temos que
+$
+  PP(delta(v_i)<=t) = 1 - e^(-(k-m)/m)
+$
+Ou seja, temos uma distribuição *exponencial*
