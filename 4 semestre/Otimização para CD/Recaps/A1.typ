@@ -1243,3 +1243,96 @@ $
     nabla_x L(x, lambda, mu) = nabla f(x) + sum_(i=1)^m lambda_i nabla g(x) + sum^p_(j=1) mu_j nabla h(x)
   $
 ]
+
+== As generalizações do KKT
+Agora queremos generalizar totalmente o KKT, então vamos aos poucos. Vamos enunciar o problema novamente:
+$
+  min_(x) f(x)    \
+  g_i (x) <= 0 wide i in [m]   \
+  h_j (x) = 0 wide j in [p]
+$
+
+Vamos agora fazer uma definição que tem uma razão matemática, mas acaba por nos ajudar em alguns casos. Essa definição evita condições redundantes no nosso problema, o que pode acabar nos atrapalhando. Faremos um exemplo para mostrar essa ajuda
+
+#definition("Condições de qualificação de independência linear")[
+  Sejam $g_1,...,g_m: RR^n -> RR$ e $h_1,...,h_p: RR^n -> RR$ continuamente diferenciáveis e $x^* in RR^n$, defina:
+  $
+    I(x^*) := {i in [m]: g_i (x^*) = 0}
+  $
+  Dizemos que LICQ (Linear Independent Condition Qualification) é satisfeita em $x^*$ para as funções $g_1,...,g_m$ e $h_1,...,h_p$ se
+  $
+    { nabla g_i (x^*) : i in I(x^*) } union { nabla h_j (x^*) : j in [p] } "é linearmente independente"
+  $
+]<licq>
+
+#theorem("KKT")[
+  Se $x^*$ é um ponto de mínimo local de $f(x)$ (Nas restrições $g_i (x) <= 0$ e $h_j (x) = 0$) e @licq é satisfeita em $x^*$, isso implica que:
+  $
+    exists lambda_1,...,lambda_m >= 0, space exists mu_1,...,mu_p in RR   \
+    
+    nabla f(x^*) + sum^m_(i=1)lambda_i nabla g_i (x^*) + sum^p_(j=1)mu_j nabla h_j (x^*) =0   \
+    
+    lambda_i g_i (x^*) = 0 wide i in [m]    \
+
+    g_i (x^*) <= 0 wide i in [m]    \
+
+    h_j (x^*) = 0 wide j in [p]
+  $
+]
+
+#example("Utilidade da LICQ")[
+  aaaaaaaaaaa preencher aqui aaaaaaaaaaaaa
+]
+
+Porém, como vimos em todos os problemas que envolvem funções convexas, a volta irá valer, de forma que:
+
+#theorem("KKT Convexo")[
+  Se $x^*$ é um ponto de mínimo local de $f(x)$ (Nas restrições $g_i (x) <= 0$ e $h_j (x) = 0$ sendo funções continuamente diferenciáveis e convexas) e @licq é satisfeita em $x^*$, isso vale se, e somente se:
+  $
+    exists lambda_1,...,lambda_m >= 0, space exists mu_1,...,mu_p in RR   \
+    
+    nabla f(x^*) + sum^m_(i=1)lambda_i nabla g_i (x^*) + sum^p_(j=1)mu_j nabla h_j (x^*) =0   \
+    
+    lambda_i g_i (x^*) = 0 wide i in [m]    \
+
+    g_i (x^*) <= 0 wide i in [m]    \
+
+    h_j (x^*) = 0 wide j in [p]
+  $
+]
+
+#definition("Condição de Slater")[
+  Dizemos que a condição de Slater é satisfeita para as funções $g_1,...,g_m$ (convexas) se
+  $
+    exists accent(x, \^) in RR^n space \/ space g_i (accent(x, \^)) < 0, space forall i in [m]
+  $
+]<slater-condition>
+
+#theorem("KKT e Slater")[
+  Se $x^*$ é mínimo local de $f(x)$ (Nas restrições $g_i (x) <= 0$ e $h_j (x) = 0$ sendo funções continuamente diferenciáveis e convexas) e $x^*$ satisfaz @slater-condition, então $x^*$ é ponto KKT (A volta não vale)
+]<kkt-and-slater>
+
+Porém, não faz sentido falarmos de funções convexas de igualdade ($h_j (x) = 0$), isso nos permite reescrever o problema de uma forma interessante:
+$
+  min_(x) f(x)    \
+  g_i (x) <= 0 wide i in [m]   \
+  h_j (x) = 0 wide j in [p]   \
+  s_k (x) = 0 wide k in [q]    \
+
+  "Onde" f, space g_i "são convexas e" h_j, space s_k "são afins"
+$
+
+Então podemos adaptar a condição de slater:
+
+#theorem("Condição de Slater")[
+  Dizemos que a condição de Slater é satisfeita para as funções $g_1,...,g_m$ (convexas) e $h_1,...,h_p$ e $s_1,...,s_q$ (afins) quando:
+  $
+    exists accent(x, \^) in RR^n "tal que"    \
+
+    g_i (accent(x,\^)) < 0, space forall i in [m]    \
+    h_j (accent(x,\^)) <= 0, space forall j in [p]   \
+    s_k (accent(x,\^)) = 0, space forall k in [q]
+  $
+]
+
+De forma que o @kkt-and-slater continua valendo
