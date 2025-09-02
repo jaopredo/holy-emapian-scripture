@@ -1282,3 +1282,145 @@ O algoritmo Mergesort consiste em dividir a sequência em duas partes, executar 
   caption: [Mergesort Exemplificação],
   image("images/mergesort-exemplification.png")
 )
+
+#codly(
+  header: [*EXEMPLIFICAÇÃO DA FUNÇÃO DE INTERCALAÇÃO*]
+)
+```cpp
+void merge(int v[], int startA, int startB, int endB)
+{
+  int r[endB - startA];
+  int aInx = startA;
+  int bInx = startB;
+  int rInx = 0;
+  while (aInx < startB && bInx < endB) {
+    r[rInx++] = v[aInx] <= v[bInx] ? v[aInx++] : v[bInx++];
+  }
+  while (aInx < startB) { r[rInx++] = v[aInx++]; }
+  while (bInx < endB) { r[rInx++] = v[bInx++]; }
+  for (aInx = startA; aInx < endB; ++aInx) {
+    v[aInx] = r[aInx - startA];
+  }
+}
+```
+
+Dado que cada sequência tem $n$ entradas, são executadas $2n$ operações, logo, a complexidade é $Theta(n)$
+
+O algoritmo consiste em dividir a sequência $R$ em duas subsequências $A$ e $B$. Eu recursivamente ordeno essas duas sequências e repito o processo até que $R$ esteja ordenado
+
+#codly(
+  header: [*IMPLEMENTAÇÃO*]
+)
+```cpp
+void mergeSort(int v[], int startInx, int endInx) {
+  if (startInx < endInx - 1) {
+    int midInx = (startInx + endInx) / 2;
+    mergeSort(v, startInx, midInx);
+    mergeSort(v, midInx, endInx);
+    merge(v, startInx, midInx, endInx);
+  }
+}
+```
+
+Podemos então avaliar a função de complexidade:
+$
+  T(n) = 2 T(n/2) + n
+$
+
+E já vimos em capítulos anteriores que isso é $T(n) = Theta(n log(n))$. Perceba que ele não compara todos os pares mesmo no pior caso, porém, ele exige um espaço de memória $O(n)$ *adicional* para a ordenação
+
+== Quicksort
+Um tipo de mergesort, mas contém um algoritmo auxiliar específico, com exceção também que buscamos um algoritmo que não necessite dos $O(n)$ de espaço adicional. O algoritmo escolhe um elemento, o qual chamamos de *pivô*, e separamos em duas partições. Os elementos maiores e menores que o *pivô*
+
+#figure(
+  caption: [Exemplificação Quicksort],
+  image("images/quicksort-exemplification.png")
+)
+
+Então resumimos o problema do particionamento como:
+
+*Dada uma sequência $v$ e um intervalo $[p,...,r]$ transponha elementos desse intervalo de forma que ao retornar um índice $j$ (pivô) tenhamos:*
+$
+  v[p,...,j-1] <= v[j] <= v[j+1,...,r]
+$
+
+Uma solução muito comum segue o seguinte:
+
+#pseudocode-list[
+  + *função* particionamento(_v_ $in RR^r$) {
+    + *var* pivô = v[r]
+    + *var* j = r
+    + *percorrer* sequência avaliando cada posição $i in [p, r-1]$ {
+      + *se* $v[i] <= "pivô"$ {
+        + trocar $v[i]$ e $v[j]$
+        + $j = j + 1$
+      + }
+    + }
+  + }
+]
+
+
+#figure(
+  caption: [Exemplo visual do algoritmo quicksort],
+  image("images/quicksort-visual-example.png")
+)
+
+#codly(
+  header: [*IMPLEMENTAÇÃO*]
+)
+```cpp
+#define swap(v, i, j) { int temp = v[i]; v[i] = v[j]; v[j] = temp; }
+int partition(int v[], int p, int r) {
+  int pivot = v[r];
+  int j = p;
+  for (int i=p; i < r; i++) {
+    if (v[i] <= pivot) {
+      swap(v, i, j);
+      j++;
+    }
+  }
+  swap(v, j, r);
+  return j;
+}
+```
+
+Como a sequência de $n$ elementos é percorrida uma única vez executando operações constantes, temos que $T(n) = Theta(n)$
+
+#figure(
+  caption: [Passo-a-passo do algoritmo],
+  image("images/quick-sort-step-by-step.png")
+)
+
+#codly(
+  header: [*IMPLEMENTAÇÃO*]
+)
+```cpp
+void quicksort(int v[], int p, int r) {
+  if (p < r) {
+    int j = part j + 1, r);
+  }
+}
+quicksort(v, 0, n - 1);
+```
+
+Temos que sua função de complexidade é tal que:
+$
+  T(n) &= T(j) + T(n - j - 1) + n   \
+       &= T(0) + 1 + 2 + 3 + ... + (n-1) + n    \
+       &= n(n+1)/2    \
+       &= Theta(n^2)
+$
+
+O pior caso acontece quando o pivô é o último/primeiro elemento e ele é o maior/menor elemento, já que uma partição fica vazia
+
+Já o melhor caso ocorre quando o algoritmo sempre divide todas as partições ao meio
+$
+  T(n) = 2T(n/2) + n = Theta(n log(n))
+$
+
+Já o caso médio ocorre quando o algoritmo divide em partições de tamanho diferente. Imagine que o algoritmo divide em partições do tipo $0.1n$ e $0.9n$
+$
+  T(n) = T(n/10) + T((9n) / 10) + n
+$
+
+Podemos avaliar como $Theta(n log (n))$, ou seja, é o mesmo caso do melhor caso possível, mas tem uma constante maior
