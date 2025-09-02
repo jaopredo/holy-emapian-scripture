@@ -496,6 +496,15 @@ Quando estamos tentando tentando estimar um parâmetro $theta$, queremos que, qu
   Quando uma sequência $(delta_n)_(n>=1)$ converge para o valor verdadeiro do parâmetro $theta$, dizemos que $(delta_n)_(n>=1)$ é consistente para $theta$
 ]
 
+Ou seja, com grandes quantidades de dados, a probabilidade do estimador $accent(theta, \^)$ estar *muito* próximo de $theta$ é alta
+
+== Estimadores para Parâmetros mais gerais
+Até agora nós vimos estimadores para os parâmetros em si, porém, as vezes podemos estar interessados em outras generalizações. Um exemplo de generalização é para estimar, por exemplo, dois parâmetros de uma só vez, como estimar uma média e uma variância (Saída multivariada) ou uma função do parâmetro em si, por exemplo, se $theta$ é a taxa de falha, então podemos querer estimar $1\/theta$ que é a média de falhas
+
+#definition("Estimador/Estimativa")[
+  Seja $X_1,...,X_n$ serem dados observados em que a distribuição conjunta é dado um parâmetro $theta in Omega subset RR^k$. Defina $h: Omega -> RR^d$. Defina $psi = h(theta)$. Um *estimador* de $psi$ é a função $delta(X_1,...,X_n): RR^n -> RR^d$. Se $X_1=x_1,...,X_n=x_n$ são observados, então $delta(x_1,...,x_n)$ é uma *estimativa* de $psi$
+]
+
 #pagebreak()
 
 #align(center + horizon)[

@@ -545,4 +545,29 @@ Uma tabela de fatos tem:
 - Chaves-estrangeiras conectando a tabela de fato para as tabelas de dimensões
 - As medidas relacionadas ao sujeito da análise
 
+#figure(
+  caption: [Exemplo do Esquema Estrela nas lojas zagi],
+  image("images/zagi-stores-star-schema.png")
+)
 
+Os principais pontos a se destacar é que, no modelo estrela, nós não colocamos o *id* do modelo relacional como a chave-primária da dimensão. Por quê? Por conta que *não há normalização*, por conta disso, podem aparecer chaves-primárias repetidas, algo que *não pode acontecer*. Então criamos as *chaves substitutas* (Surrogate keys), que são chaves que não se repetem na tabela de dimensão (Não são as mesmas chaves do modelo transacional). Porém, o mesmo não acontece na tabela de fatos, ela não possui uma surrogate key, então o que diferencia um fato dos demais?
+
+#figure(
+  caption: [Exemplo correto do modelo dimensional das lojas zagi],
+  image("images/zagi-store-correct-star-schema.png")
+)
+
+Podemos ter algumas abordagens *arbitrárias* para identificar os fatos. Por exemplo, na imagem acima, nós diferenciamos dois fatos pelo *id da transação* e pela *surrogate key* do produto, já que um produto comprado só pode estar associado a *uma única transação*. Eu também poderia identificar um fato utilizando uma *chave composta* das *chaves-estrangeiras* das dimensões (Tem alguns problemas e questionamentos para esse exemplo em específico, mas vamos supor que não precisa de alterações a mais)
+
+== Galáxia de Estrelas
+É um modelo que contém *vários fatos* que compartilham *dimensões* entre si
+
+#figure(
+  caption: [Modelo ZAGI adaptado],
+  image("images/zagi-adapted.png")
+)
+
+#figure(
+  caption: [Galáxia ZAGI],
+  image("images/zagi-galaxy.png")
+)
