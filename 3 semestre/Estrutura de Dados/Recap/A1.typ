@@ -788,3 +788,45 @@ void selectionSort(int arr[], int n) {      // Custo  | Vezes
     - Estabilidade: não é estável, trocas alteram a ordem de elementos iguais.
 
 == 3.3 Insertion Sort
+
+- *ideia*
+    - Considera o primeiro elemento como ordenado;
+    - Insere o próximo elemento na posição correta na parte ordenada;
+    - Repete o processo para o restante dos elementos.
+
+=== img
+
+Pense em uma separação da mesma lista em duas, uma ordenada e a outra não. Olhando para o código
+começamos com a declaração do valor elemento que salvaremos, após isso abrimos um for para passar por toda a lista, salvamos o 
+current como o elemento i e iniciamos o j como o índice do elemento antes de i. Então,
+se antes do elemento i está ordenado, basta achar o lugar certo para o elemento i. 
+
+É isso que fazemos com o while, olhamos enquanto não chegamos no índice j = 0(início da lista) e enquanto o elemento do array
+no índice j é maior que o item a direita dele. 
+Quando ele não for, significa que é a posição ordenada, e atualizamos a posição fora do while.
+
+Note que quando entramos no while mas não saímos, significa que ainda não encontramos o local exato do elemento, e para manter a
+ estrutura da lista, atualizamos o array no indice j+1 como sendo o valor do elemento anterior.
+```cpp
+void insertionSort(int arr[], int n) {          // Custo  | Vezes
+    int current;                                // 3      | 1
+    for (int i = 1; i < n; i++) {               // 2      | n 
+        current = arr[i];                       // 1      | n-1
+        int j = i - 1;                          // 1      | n-1
+        while (j >= 0 && arr[j] > current) {    // 3      | i-1 -> 0 -> n-2
+            arr[j+1] = arr[j];                  // 1      | i-1 -> 0 -> n-2
+            j = j - 1;                          // 1      | i-1 -> 0 -> n-2
+        }
+        arr[j+1] = current;                     // 1      | n-1
+    }
+}
+```
+
+- *Características:*
+    - Complexidade de tempo de execução: $O(n^2)$ para o pior caso, dado o for e o while que iteram em função de n;
+    - Complexidade de espaço: $O(1)$, pois usamos a mesma lista; 
+    - Estabilidade: é estável, trocas não alteram a ordem de elementos iguais já que fazemos a troca apenas quando o elemento é maior(>), e não maior igual(>=).
+
+== 3.4 Bubble Sort
+
+
