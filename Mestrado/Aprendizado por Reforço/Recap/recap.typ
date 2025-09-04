@@ -76,15 +76,15 @@
 
 #pagebreak()
   
-  = RL INSANE
+  = Prefácio
   
   Esse resumo é e será completamente baseado no livro "Reinforcement Learning An Introduction - 2ed" de Richard S. Sutton e Andrew G. Barto e nas aulas e do github do professor Flávio Codeço Coelho.
   
   Se alguém for ler, considere que eu estou aprendendo a matéria, e não a cursei totalmente ainda, provavelmente terão erros.
   
-  = 1 - Introdução
+  = 1. Introdução
   
-  == 1.1 - Reinforcement Learning
+  == 1.1 Reinforcement Learning
   
   Em vez de ser teórico, o livro gostaria de começar ensinando diretamente como simular o aprendizado computacionalmmente, sem ficar dando exemplos da vida real, como o aprendizado de bebês, etc.
   "O agente não terá a certeza de qual ação fazer, mas descobrirá qual a ação trará a maior recompensa por tentá-la. Nos desafios mais interessantes, as ações não irão afetar apenas o momento atual, mas sim todas as ações subsequentes". 
@@ -117,7 +117,7 @@
   
   Todos esses exemplos envolvem interação entre um agente tomador de decisão e seu ambiente, com o agente buscando atingir uma meta mesmo sem saber tudo sobre seu ambiente.
   
-  == 1.3 - Elementos do Aprendizado de Máquina
+  == 1.3 Elementos do Aprendizado de Máquina
   
   Por trás do agente e do ambiente, podemos identificar quatro subelementos de um sistema de Aprendizado por reforço: 
   
@@ -130,13 +130,13 @@
     - Podemos dizer que a recompensa são de senso primário, enquanto valores são secundários. No entanto, são os valores que mais nos preocupam ao tomar e avaliar decisões. As escolhas de ação são feitas com base em julgamentos de valor. Por isso, buscamos ações que gerem estados de maior valor, não de maior recompensa, porque essas ações nos proporcionam a maior recompensa a longo prazo.
   + O elemento final é o *modelo do ambiente*. Isso é algo que imita o comportamento do ambiente ou, de forma mais geral, que permite fazer inferências sobre como o ambiente se comportará. Por exemplo, dado um estado e uma ação, o modelo do ambiente deveria prever o próximo estado e a próxima recompensa. Os métodos para resolver problemas de aprendizagem por reforço que utilizam modelos e planejamento são chamados de métodos baseados em modelos, e são o contrário de métodos mais simples sem modelos que são explicitamente aprendizes de tentativa e erro.
   
-  == 1.4 - Limitações e escopo
+  == 1.4 Limitações e escopo
   
   O estado é um conceito central em aprendizado por reforço, servindo como entrada para a política, a função de valor e o modelo. Informalmente, pode ser entendido como o sinal que descreve “como o ambiente está” em um dado momento. 
   
   Embora muitos métodos de aprendizado por reforço se baseiem em funções de valor, isso não é obrigatório. Métodos evolutivos (como algoritmos genéticos e programação genética) não usam funções de valor: eles testam várias políticas em paralelo, selecionam as mais recompensadas e geram novas políticas a partir delas, de forma análoga à evolução biológica. Esses métodos podem ser eficazes em certos contextos (por exemplo, quando o espaço de políticas é pequeno ou quando há bastante tempo disponível), e podem lidar bem com situações em que o agente não percebe o estado completo do ambiente.
   
-  == 1.5 - Tic-Tac-Toe (jogo da velha)
+  == 1.5 Tic-Tac-Toe (jogo da velha)
   
   Vamos considerar que empates e perdas são igualmente ruins. Como construir um jogador que encontre as falhas nas jogadas de um oponente(considerando um que consiga perder), que aprenda a maximizar as chances de vitória? Basicamente, esse jogo pode ser resolvido de outra forma, mas não de forma satisfatória sem o Aprendizado por Reforço. Enfim, vamos resolver usando um método de função de valor.
   
@@ -173,7 +173,7 @@
   
   Por fim, existem métodos que não precisam de nenhum tipo de modelo de ambiente em geral. O jogo da velha por si próprio é model-free no contexto de jogador, já que não há nenhum tipo de modelo para o oponente do agente. "Como os modelos precisam ser razoavelmente precisos para serem úteis, os métodos sem modelo podem ter vantagens sobre métodos mais complexos quando o verdadeiro gargalo na resolução de um problema é a dificuldade de construir um modelo de ambiente suficientemente preciso."
   
-  == 1.6 - Sumário
+  == 1.6 Sumário
   
   O Aprendizado por reforço é uma abordagem computacional para entender e automatizar o aprendizado e a tomada de decisão orientados a objetivos, diferenciando-se por enfatizar o aprendizado de um agente a partir da interação direta com o ambiente, sem supervisão explícita nem modelos completos. Baseia-se no formalismo de Processos de Decisão de Markov, que descrevem a interação em termos de estados, ações e recompensas, capturando causa e efeito, incerteza e a presença de metas. Um conceito central é a função de valor, fundamental para guiar a busca eficiente no espaço de políticas, sendo justamente o uso dessas funções o que distingue os métodos de aprendizado por reforço dos métodos evolutivos, que avaliam apenas políticas inteiras.
   
@@ -181,19 +181,19 @@
   
   Desculpe, mas eu sei tão pouco sobre isso que resumir seria um pecado, pois não sei nada de história. 
   
-  = Part I - Soluções de métodos tabulares
+  = Parte I - Soluções de métodos tabulares
   
   Nessa parte do livro iremos falar sobre a resolução de problemas que podem ser representados por arrays e tabelas(por isso o nome métodos tabulares). Ou seja, o espaço das ações e os estados são pequenos o suficiente para serem armazenados, cada espaço possível. Nesse caso, os métodos podem achar o valor exato das soluções, ou seja, o valor exato do valor ótimo da função e a política exata.
   
   O primeiro capítulo dessa parte vai falar sobre problemas tabulares onde há apenas um único estado, chamado de bandit problems(ou bandidos de um braço só, ou multi-armed bandits). O segundo capítulo descreve problemas mais gerais onde iremos falar sobre processos de Markov finitos e suas principais ideias, etc.
   
-  = 2 - Bandidos de muitos braços (Multi-armed bandits)
+  = 2. Bandidos de muitos braços (Multi-armed bandits)
   
   A característica mais importante do Aprendizado por Reforço que a difere de outros tipos de aprendizados é que ela utiliza informações de treino que avalia as ações já tomadas, ou seja, enquanto o Aprendizado Supervisionado dá um feedback instrutivo, isto é, o feedback não depende da ação tomada, no Aprendizado por Reforço, o feedback é instrutivo, ou seja, o feedback depende inteiramente da ação tomada.
   
   Nesse capítulo vamos ver o aspecto do feedback avaliativo simplificado, que não envolve aprender a agir em mais de uma situação, ou seja, teremos sempre apenas um estado, e depois generalizaremos.
   
-  == 2.1 - O problema do bandido k-armado
+  == 2.1  O problema do bandido k-armado
   
   Considere o seguinte problema: você seguidamente tem que escolher entre k opções, ou ações, e depois de cada escolha você recebe uma recompensa de uma distribuição de probabilidade estacionária que depende da sua escolha.
   
@@ -225,7 +225,7 @@
   
   O livro enfatiza que esse problema de balanceamento entre exploitation e exploration é recorrente, já que não podemos escolher duas ações diferentes ao mesmo tempo. Em geral, existem métodos especificos para rebalancear isso, mas normalmente são necessários fortes afirmações sobre conhecimentos do modelo que são impossíveis de verificar em aplicações completas de Aprendizado por Reforço.
   
-  == 2.2 -  Métodos baseados em valores de ações
+  == 2.2 Métodos baseados em valores de ações
 
   Qual seria uma forma natural de estimar o valor de uma ação selecionada $Q_t (a)$? Intuitivamente, uma boa resposta seria a média das recompensas de quando a ação $a$ foi escolhida, ou seja:
 
@@ -248,7 +248,7 @@ Uma alternativa simples para escolher é se comportar de maneira gananciosa na m
 
 Uma vantagem desses métodos é que, no limite, à medida que o número de passos aumenta, toda ação será amostrada um número infinito de vezes, garantindo assim que todas as estimativas  convirjam para o valor verdadeiro. Isso implica que a probabilidade de selecionar a ação ótima convirja para maior que $1-epsilon$ ou seja, para quase certeza.(como?)
 
-== 2.3 - O banco de teste de 10 braços
+== 2.3 O banco de teste de 10 braços
 
 Para avaliar o efeito de um método totalmente ganancioso de um método $epsilon$-ganancioso, nós os compararemos numericamente em um conjunto de problemas. Esse foi um conjunto de 2000 problemas do bandido $k$-armado com $k=10$. Para cada valor da ação, $q_* (a) ~NN(0,1)$, $a = 1, ...,10$(lembre que como $k = 10$, temos 10 ações possíveis). Então, quando um método de aprendizado era aplicado e selecionava a ação $A_t$ no instante $t$, a recompensa real $R_t ~ NN(q_* (a), 1)$, ou seja, uma distribuição normal centrada em $q_* (a)$ e variância 1.
 
@@ -277,7 +277,7 @@ O autor termina dizendo que em casos determinísticos, ou seja, quando a variân
 
 Ainda, em casos não estacionários, ou seja, quando o valor das ações pode mudar, significa que o $epsilon$-greedy é ainda mais importante, já que fixar-se numa ação que muda de valor é pior, sabendo que ela pode decair ainda mais, e o agente nunca saberá qual é a maior recompensa.
 
-== 2.4 - Implementação incremental
+== 2.4 Implementação incremental
 
 Como computar de maneira eficiente todos esse valores de ações com menos cálculo e memória constante?
 
@@ -308,7 +308,7 @@ $"NovaEstimativa" <- "EstimativaAntiga" + "PequenoPasso" [ "Alvo" - "EstimativaA
 Que se parece bastante com a fórmula que vimos no Tic-Tac-Toe, mas agora entendemos de onde vêm.
 
 - Colocar aqui o pseudocódigo talvez?
-== 2.5 - Monitorando um problema não estacionário
+== 2.5 Monitorando um problema não estacionário
 
 Os métodos discutidos anteriormente foram para problemas de bandidos estacionários, ou seja, problemas em que as recompensas não mudam de acordo com o tempo. No caso não estacionário, talvez seja melhor dar um peso maior às recompensas mais recentes. Uma sugestão para fazer isso é mudando o PequenoPasso(step-size) da atualização da estimativa da recompensa, ou seja:
 
@@ -336,7 +336,7 @@ $
 
 A primeira condição garante que os passos sejam grandes o suficiente para eventualmente superar qualquer condição inicial ou flutuações aleatórias. A segunda condição garante que eventualmente os passos sejam pequenos o suficiente para garantir convergência. Geralmente essas condições são pouco usadas na prática pois podem demorar demais.
 
-== 2.6 - Valores Iniciais Ótimos
+== 2.6 Valores Iniciais Ótimos
 
 Todos os métodos discutidos até agora tem uma forte dependência nas estimativas iniciais de recompensa $Q_1 (a)$. Na linguagem estatística, esses métodos são chamados de $"enviesados"$ por suas estimativas iniciais de recompensa. Para métodos que calculam a estimativa pela @mediaamostral usando $alpha_n (a) =  1/n$, chegamos na fórmula @umsobreeni, e, após a primeira estimativa, nosso $Q_n (a)$ não depende mais diretamente de $Q_1$, ou seja, ele não é mais enviesado. Já com outro $alpha$, no caso, chegamos na fórmula @alpha, que é diretamente enviesado por $Q_1$.
 
@@ -352,7 +352,7 @@ Nós chamamos essa estratégia de Valores Iniciais Ótimos. Vamos comparar esse 
 
 Note como o método otimista começa pior, pois o agente fica inicialmente apenas explorando várias ações, mas eventualmente performa melhor porque acaba parando de explorar. Essa estratégia pode ser boa às vezes, mas não é a mais adequada em casos não estacionários(valor das ações muda) pois a exploração de outras ações é temporário. Em geral, qualquer método que depende fortemente de condições iniciais não são muito bons para métodos não estacionários.
 
-== 2.7 - Seleção de Ação por Nível Superior de Confiança
+== 2.7 Seleção de Ação por Nível Superior de Confiança
 
 Como dito e reforçado por vezes, exploração é necessário e precisamos que ela aconteça, mas que tal se explorassemos não de forma arbitrária (como no $epsilon$-greedy), mas buscando agora selecionar as ações de acordo com a seu potencial de serem ótimas, levando em conta o quão perto a estimativa está perto de ser máxima e também a incerteza de cada estimativa. Um jeito bom de fazer isso é pela fórmula
 $
@@ -402,7 +402,7 @@ A Figura 7 mostra o resultados do algoritmo do gradiente ascendente em uma varia
 
 === olhar no livro a explicação e explicar dps
 
-== 2.9 - Pesquisa associativa
+== 2.9 Pesquisa associativa
 
 Em uma tarefa geral de aprendizado por reforço há sempre mais de uma situação, e o objetivo é aprender a melhor política, ou seja, o mapeamento de situações para as ações que são melhores nessas situações. Até agora, vimos apenas tarefas não-associativas, ou seja, tarefas onde não precisamos associar ações diferentes para situações diferentes. 
 
@@ -430,3 +430,6 @@ Foi apresentado várias formas de balancear exploration e exploitation, com o $e
 
 = 3. Processos de Decisão de Markov Finitos
 
+Nesse novo capítulo introduziremos Processos de Decisão de Markov Finitos, ou MDPs, que envolve uma clássica formalização de tomada de decisão, onde ações não influenciam somente recompensas imediatas, mas também situações subsequentes, estados e recompensas futuras.
+
+== 3.1 A interface do agente-ambiente
