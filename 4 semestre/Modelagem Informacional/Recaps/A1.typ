@@ -571,3 +571,29 @@ Podemos ter algumas abordagens *arbitrárias* para identificar os fatos. Por exe
   caption: [Galáxia ZAGI],
   image("images/zagi-galaxy.png")
 )
+
+== Detalhamento de Fatos
+Se refere ao quão bem detalhado (O que cada linha representa) no meu fato
+
+- *Line-item detailed fact table*: Cada linha representa uma linha de item de uma transação em particular
+- *Transaction-level detailed fact table*: Cada linha representa uma transação em particular
+
+Um exemplo fica melhor de compreender
+
+#example[
+  Vamos imaginar que temos um negócio de aluguel de carro, e que nós alugamos o carro de forma que o nosso cliente pode escolher alguns acessórios a mais (Por exemplo, ele vai pagar $R\$40,00$ adicionais para colocar uma cadeirinha de bebê). Como cada transação pode ter características diferentes, faz sentido que cada fato de transação tenha uma especificação dizendo os itens específicos que foram juntos, então teríamos uma *line-item detailed fact table*.
+
+  Mas vamos supor que você não da essa opção aos clientes, e eles tenham que escolher baseado em categorias (Por exemplo, a categoria A é mais barata, não tem ar-condicionado, não tem gps, entre outras coisas e eu tenho outras categorias também), então não faz muito sentido adicionar *na tabela fatos* todas as coisas inclusas nas categorias, e sim adicionar isso na *dimensão* do fato, já que não é algo que varia de fato para fato. Nesse caso, teríamos uma *transaction-level detailed fact table*
+]
+
+== Dimensões Lentamente Alteráveis
+Normalmente as dimensões não conseguem mudar, porém, alguns casos elas podem. Por exemplo, o preço de um produto pode variar. O que fazemos nesses casos? Essas dimensões são chamadas de *dimensões lentamente alteráveis*. Então vamos temos 3 abordagens diferentes:
+
+=== Tipo 1
+Eu vou mudar o valor na própria tabela de dimensão, ou seja, o novo valor substitui o novo. Não preserva uma história dessa dimensão
+
+=== Tipo 2
+Cria uma nova entrada na dimensão usando uma nova *surrogate key* toda vez que o valor muda. Usado em casos que eu quero preservar a história do meu sistema. Porém eu preciso de um método para indicar qual entrada está *vigente*, então utilizamos atributos como *timestamps*
+
+=== Tipo 3
+Agora adicionamos uma nova coluna de "anterior" e de "atual" para cada coluna que pode ser alterada. Aplicável quando há uma quantidade limitada de alterações possíveis em uma coluna 

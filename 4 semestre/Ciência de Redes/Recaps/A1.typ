@@ -498,26 +498,25 @@ Então vamos imaginar o seguinte cenário. Eu tenho uma rede inicial $G_0(V_0,E_
 
 Vamos imaginar uma *anexação uniforme*. Nesse caso, cada nó inserido sempre terá um grau de $m$. Ou seja, a *probabilidade* de um link do meu novo nó inserido se interligar ao vértice $v_i$ é igual a $m/i$, ou seja, eu tenho que o *grau esperado* do meu vértice $v_i$ é $m + m/i$, de forma que podemos montar uma formulazinha:
 $
-  delta(v_i, t=i) &= m  \
+  delta(v_i, t=i) = m  \
 
-  delta(v_i, i+1) &= m + m/i    \
+  delta(v_i, i+1) = m + m/i    \
 
-  delta(v_i, i+2) &= m + m/i + m/(i+1)    \
+  delta(v_i, i+2) = m + m/i + m/(i+1)    \
 
   dots.v    \
 
-  delta(v_i, t) &= m (sum^(t-1)_(i=1) 1/i )   \
-$
-$
-  delta(v_i, t) &approx m + m ln((t-1)/(i-1))   \
+  delta(v_i, t) = m (sum^(t-1)_(i=1) 1/i )   \
 
-  delta(v_i, t) / m - 1 &approx ln((t-1)/(i-1))   \
+  delta(v_i, t) approx m + m ln((t-1)/(i-1))   \
 
-  exp( ( delta(v_i, t)-m ) / m ) &approx (t-1)/(i-1)   \
+  delta(v_i, t) / m - 1 approx ln((t-1)/(i-1))   \
 
-  exp( -( delta(v_i, t)-m ) / m ) &approx (i-1)/(t-1)   \
+  exp( ( delta(v_i, t)-m ) / m ) approx (t-1)/(i-1)   \
 
-  exp(-( delta(v_i, t)-m ) / m ) &approx i/t
+  exp( -( delta(v_i, t)-m ) / m ) approx (i-1)/(t-1)   \
+
+  exp(-( delta(v_i, t)-m ) / m ) approx i/t
 $
 
 No intervalo $[0,1]$, temos a seguinte estruturação:
