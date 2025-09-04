@@ -1423,4 +1423,105 @@ $
   T(n) = T(n/10) + T((9n) / 10) + n
 $
 
-Podemos avaliar como $Theta(n log (n))$, ou seja, é o mesmo caso do melhor caso possível, mas tem uma constante maior
+Podemos avaliar como $Theta(n log (n))$, ou seja, é o mesmo caso do melhor caso possível, mas tem uma constante maior. Ou seja, conseguimos perceber que o desempenho do algoritmo depende *da escolha do pivô*. O pior caso é $Theta(n^2)$, porém só ocorre em casos muito extremos
+
+== Heapsort
+O algoritmo Heapsort consiste em organizar os elementos em um heap binário e reinseri-los utilizando uma estratégia semelhante à do algoritmo de ordenação por seleção.
+
+O heap (monte) é uma estrutura de dados capaz de representar um vetor sob a forma de uma árvore binária, que apresenta as seguintes propriedades:
+- É uma árvore quase completa
+- Todos os níveis devem estar preenchidos exceto pelo último.
+- É mínimo ou máximo
+  - Heap mínimo – cada filho será maior ou igual ao seu pai.
+  - Heap máximo – cada filho será menor ou igual ao seu pai.
+
+Por enquanto, vamos considerar os *heaps máximos*. A altura de um *heap* com $n$ nós é dada por $floor(log_2(n))$. Podemos representar um heap utilizando um *array*, de forma que ele segue as seguintes regras:
+- O índice $1$ é a raíz da árvore
+- O pai de qualquer índice $p$ é $p/2$, com exceção do nó raíz
+- O filho esquerdo de um nó $p$ é $2p$
+- O filho esquerdo de um nó $p$ é $2p+1$
+
+#figure(
+  caption: [Exemplo de HEAP],
+  image("images/heap-example.png", width: 60%)
+)<heap-example>
+
+#figure(
+  caption: [Forma da @heap-example como vetor],
+  image("images/heap-array-example.png")
+)
+
+Podeos ordenar uma árvore em um heap caso as propriedades do vetor não sejam satisfeitas. Podemos utilizar do algoritmo *max-heapify*
+
+- Assume-se que as sub-árvores do nó são heaps-máximos.
+- Caso $v[p]$ seja menor que $v[2p]$ ou $v[2p + 1]$ escolhe o maior e executa a troca.
+- Em seguida executa max-heapify recursivamente no nó filho alterado.
+
+#figure(
+  caption: [Visualização do algoritmo *max-heapify*],
+  image("images/heapify-visualization.png")
+)
+
+#codly(
+  header: [*IMPLEMENTAÇÃO*]
+)
+```cpp
+void heapify(int v[], int n, int i) {
+  int inx = i;
+  int leftInx = 2 * i + 1;
+  int rightInx = 2 * i + 2;
+  if ((leftInx < n) && (v[leftInx] > v[inx])) {
+    inx = leftInx;
+  }
+  if ((rightInx < n) && (v[rightInx] > v[inx])) {
+    inx = rightInx;
+  }
+  if (inx != i) {
+    swap(v, i, inx);
+    heapify(v, n, inx);
+  }
+}
+```
+
+A complexidade desse algoritmo é $T(n) = O(log n)$.
+
+Dado o devido contexto sobre os *heaps*, vamos voltar para o algoritmo de *heapsort*. Esse algoritmo tem dois passos principais:
+
++ Organizar o vetor de entradas em um *heap*
++ Ordenar os elementos executando os seguintes passos para $v[n,...,1]$:
+  - Trocar o elemento atual $v[i]$ pela raíz $v[1]$ ($v[1]$ é o maior elemento do heap)
+  - Corrigir o *heap* usando o *heapify* para a raíz
+
+#codly(
+  header: [*IMPLEMENTAÇÃO*]
+)
+```cpp
+void buildHeap(int v[], int n) {
+  for (int i=(n/2-1); i >= 0; i--) {
+    heapify(v, n, i);
+  }
+}
+void heapSort(int v[], int n) {
+  buildHeap(v, n);
+  for (int i=n-1; i > 0; i--) {
+    swap(v, 0, i);
+    heapify(v, i, 0);
+  }
+}
+```
+
+Para analisar o desempenho, podemos fazer o seguinte:
+- *Construção do heap*: Executa um *heapify* em um vetor de $approx n\/2$ posições, logo $O(n log (n))$
+- *Ordenação*: Executa o *heapify* para cada elemento em um vetor de $n-1$ posições, logo, temos um $O(n log(n))$
+
+No final, somando tudo, temos que $T(n) = Theta(n log(n))$. Melhorando um pouco a argumentação sobre a etapa de construção do heap, vamos analisar *aproximadamente*
+
+#figure(
+  caption: [Aproximação de um HEAP],
+  image("images/heap-construction.png")
+)
+
+Cada nível $i$, de baixo para cima, tem aproximadamente $n\/2^i$ nós, ou seja, o custo total vai ser:
+$
+  T(n) = sum^(log(n))_(i=1) i dot n/2^i = O(n)
+$
