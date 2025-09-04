@@ -46,10 +46,39 @@
       it
     }
   }
+
+  
+#align(center + top)[
+  FGV EMAp
+
+  Thalis Ambrosim Falqueto
+]
+
+#align(horizon + center)[
+  #text(17pt)[
+    Aprendizado por Reforço
+  ]
+  
+  #text(14pt)[
+    Resumo
+  ]
+]
+
+#align(bottom + center)[
+  Rio de Janeiro
+
+  2025
+]
+
+#pagebreak()
+
+#outline(title: "Sumário")
+
+#pagebreak()
   
   = RL INSANE
   
-  Esse resumo é e será completamente baseado no livro "Reinforcement Learning An Introduction - 2ed" de Richard S. Sutton e Andrew G. Barto e das aulas e do github do professor Flávio Codeço Coelho.
+  Esse resumo é e será completamente baseado no livro "Reinforcement Learning An Introduction - 2ed" de Richard S. Sutton e Andrew G. Barto e nas aulas e do github do professor Flávio Codeço Coelho.
   
   Se alguém for ler, considere que eu estou aprendendo a matéria, e não a cursei totalmente ainda, provavelmente terão erros.
   
@@ -323,5 +352,81 @@ Nós chamamos essa estratégia de Valores Iniciais Ótimos. Vamos comparar esse 
 
 Note como o método otimista começa pior, pois o agente fica inicialmente apenas explorando várias ações, mas eventualmente performa melhor porque acaba parando de explorar. Essa estratégia pode ser boa às vezes, mas não é a mais adequada em casos não estacionários(valor das ações muda) pois a exploração de outras ações é temporário. Em geral, qualquer método que depende fortemente de condições iniciais não são muito bons para métodos não estacionários.
 
-== 2.7 - Seleção de Agente por Nível Superior de Confiança
+== 2.7 - Seleção de Ação por Nível Superior de Confiança
+
+Como dito e reforçado por vezes, exploração é necessário e precisamos que ela aconteça, mas que tal se explorassemos não de forma arbitrária (como no $epsilon$-greedy), mas buscando agora selecionar as ações de acordo com a seu potencial de serem ótimas, levando em conta o quão perto a estimativa está perto de ser máxima e também a incerteza de cada estimativa. Um jeito bom de fazer isso é pela fórmula
+$
+  A_t dot(eq)  op("argmax", limits: #true)_(a) [Q_t (a) + c sqrt(ln(t)/(N_t (a)))],
+$
+onde $ln(t)$ significa o logarítmo natural de $t$, $N_t (a)$ significa o número de vezes que a ação $a$ foi escolhida antes do tempo $t$, e o número $c>0$ controla o grau de exploração. Se $N_t (a) = 0$, então $a$ é uma ação maximizada.
+
+=== de onde vem isso
+
+A ideia do UCB(Upper Confidence Bound), resumidamente, é que o termo da direita é um termo de incerteza que diminui quanto mais você seleciona a ação, e o mesmo termo aumenta quando você não escolhe a ação, fazendo o agente não se esquecer de nenhuma ação.
+
+#show figure.caption: set align(left)
+#figure(
+    image("../Img/ucbmethod.png", width:90%),
+    caption: [ Performance média do método UCB para o problema do bandido 10-armado.]
+)
+
+O UCB pode performar bem no testes do bandido 10-armado, mas o autor afirma que em problemas reais com grande espaços de estado ou com problemas não estacionários o método pode não performar bem, porque seria inviável guardar e gerenciar os valoroes de $N_t (a)$ e porque simplesmente não faz sentido usar o UCB como confiança da recompensa se as recompensas mudam, respectivamente. 
+
+== 2.8 Algoritmos do Bandido Baseado em gradiente
+
+Nessa seção, vamos considerar aprender uma preferência numérica para cada ação $a$, denotada $H_t (a)$. Quanto maior a preferência, mais a ação será tomada, mas a preferência não tem interpretação em termos de recompensa. Perceba que apenas a preferência relativa de uma ação sobre a outra é importante, e ela é definida de acordo com uma $"distribuição soft-max"$ como se segue:
+$
+  Pr{A_t =  a} dot(eq) e^(H_t (a))/(sum_(b=1)^k e^(H_t (b))) dot(eq) pi_t (a)
+$
+
+onde $ pi_t (a)$ é definido como a probabilidade de tomar a ação $a$ no tempo $t$.
+Inicialmente todas as preferências são as mesmas (ou seja, $H_1(a) = 0 $, para todo $a$). Logo todas as ações tem mesma probabilidade. Existe uma fórmula natural de aprender melhor as preferências, baseando-se na ideia do gradiente estocástico ascendente:
+
+$
+  H_(t+1) (A_t)& dot(eq) H_t (A_t) + alpha (R_t - accent(R, -)_t)(1 - pi_t (A_t)),"     and"\  
+  H_(t+1) (a) &dot(eq) H_t (a) - alpha (R_t - accent(R,-)_t)pi_t (a)"               for all a" != A_t\
+$
+
+onde $alpha > 0$ é um $"step-size"$, e $overline(R_t)$ é a média de todas as recompensas incluindo o tempo $t$.
+O $overline(R_t)$ funciona como referência, ou seja, se a recompensa é maior do que a média de recompensas, então a preferência para ela
+aumenta, e vice-versa. As ações não selecionadas se movem na direção oposta.
+
+A Figura 7 mostra o resultados do algoritmo do gradiente ascendente em uma variante do bandido 10-armado onde as recompensas são escolhidas de uma distribução $NN(4,1)$. Essa mudança não faz com que o algoritmo que usa a referência ($accent(R,-)_t$) sofra algum efeito, mas se a referência for omitida, ou seja, se $ H_(t+1) (A_t)& dot(eq) H_t (A_t) + alpha R_t (1 - pi_t (A_t))$, a performance será significativamente pior, como mostra a figura.
+
+
+#show figure.caption: set align(left)
+#figure(
+    image("../Img/baseline.png", width:90%),
+    caption: [Desempenho médio do algoritmo do bandido 10-armado de gradiente com e sem referência quando $q_*$(a) está perto de 4 e não perto de 0.]
+)
+
+=== olhar no livro a explicação e explicar dps
+
+== 2.9 - Pesquisa associativa
+
+Em uma tarefa geral de aprendizado por reforço há sempre mais de uma situação, e o objetivo é aprender a melhor política, ou seja, o mapeamento de situações para as ações que são melhores nessas situações. Até agora, vimos apenas tarefas não-associativas, ou seja, tarefas onde não precisamos associar ações diferentes para situações diferentes. 
+
+Como exemplo, suponha que haja várias tarefas diferentes de bandidos k-armados, e que a cada passo você escolha uma delas aleatoriamente. Assim, a tarefa do bandido muda aleatoriamente de um passo para o outro. Isso pareceria para o agente como uma única tarefa não estacionária, cujo verdadeiro valore de ação mudam aleatoriamente.
+
+Agora, suponha, no entanto, que quando uma tarefa é selecionada, o agente recebe uma pista sobre sua identidade (mas não sobre os valores de ação. Agora você pode aprender uma política que associa cada tarefa ao sinal recebido - por exemplo, se vermelho, selecionar o braço 1; se verde, selecionar o braço 2. Com a política correta você pode se sair muito melhor do que se não tivesse nenhuma pista distinguindo uma tarefa de outra.
+
+Esse é um tipo de tarefa de pesquisa assoiativa, onde usa tentativa e erro para pesquisar a melhor ação, e associação das ações com as situações em que são melhores. Esse é um problema que intermedia o problema do bandido k-armado e o problema total do aprendizado por reforço.
+
+== 2.10 Sumário
+
+Foi apresentado várias formas de balancear exploration e exploitation, com o $epsilon$-greedy escolhendo uma ação aleatóriamente por uma pequena fração de tempo, enquanto o método UCB escolhe deterministicamente, mas alcançam a exploração enquanto favoreciam as ações que recebiam menos amostras. O gradiente estimava não valores, mas preferências e definem as melhores ações baseando-se na preferência utilizando a soft-max. Até inicializar as estivativas de recompensa otimistamente causa um bom método de exploração inicial.
+
+É natural se questionar qual é o melhor método. Por isso, o autor fez uma plotagem de um treinamento completo em um problema de bandido k-armado, testando a média dos vários valores dos parâmetros de cada método após mil passos. Olhe:
+#show figure.caption: set align(left)
+#figure(
+    image("../Img/comparationbanditmethods.png", width:90%),
+    caption: [Desempenho médio da recompensa de todos os algoritmos do bandido k-armado após mil passos]
+)  
+
+ No geral, neste problema, o UCB parece apresentar o melhor desempenho.
+
+ Todos esses métodos são úteis mas não abrangem a solução de um problema completo de aprendizado por reforço, mas são a base que precisamos aprender. O autor termina a seção falando sobre outra forma de abordar o balanceamento de exploitation e exploration usando um método chamado "Gittins index" que usa distribuições a priori e posteriores, além de priores conjugadas. 
+
+
+= 3. Processos de Decisão de Markov Finitos
 
