@@ -27,7 +27,7 @@
   titlefmt: strong
 )
 #let definition = thmbox("definition", "Definição", inset: (x: 1.2em, top: 1em))
-#let example = thmplain("example", "Exemplo").with(numbering: none)
+#let example = thmplain("example", "Exemplo")
 #let proof = thmproof("proof", "Demonstração")
 
 #set text(
@@ -513,4 +513,73 @@ Até agora nós vimos estimadores para os parâmetros em si, porém, as vezes po
 
 #pagebreak()
 
+Até agora, tratamos o parâmetro $theta$ como uma variável com distribuição, onde ele poderia ter vários valores possíveis. Porém, agora vamos fazer uma abordagem diferente. Vamos imaginar que nosso valor de $theta$ é *fixo*, ele é um número pronto que *simplesmente não conhecemos*, então ele não tem distribuição nem nada do gênero
 
+== Estimadores/Estimações de Máxima Verossimilhança
+Já que estamos trabalhando com um valor fixo, sem distribuições nem nada do gênero, os métodos que vimos para a estimação de parâmetros não vai funcionar. Porém, tem algum método para que eu consiga fazer essa estimação sem ter uma distribuição priori/posteriori? *SIM*. Vamos pensar de uma maneira *intuitiva*, o que vou falar aqui é apenas uma aproximação intuitiva de como funciona o método, mas depois eu vou explicar o porquê de não ser exatamente o que estou dizendo
+
+Quando jogamos uma moeda, e observamos uma proporção de *caras* de $1\/20$, por exemplo, obviamente pensamos: "Essa moeda ta muito viciada". E então pensamos que a probabilidade de cair cara seja de *aproximadamente* $1\/20$. Essa intuição que temos é isso (Não exatamente) o que o método da *Estimação por Máxima Verossimilhança* faz
+
+#definition("Estimadores/Estimação de Máxima Verossimilhança")[
+  Seja $f(underline(X)|theta)$ a p.f ou a p.d.f de $X_1,...,X_n|theta$ e $theta in Omega subset RR^m$, a função $delta(underline(X)) = max_(theta) f(underline(X)|theta)$ é chamada de *Estimador de Máxima Verossimilhança*. Quando os valores $underline(x) = (x_1,...,x_n)$ são observados, então $delta(underline(x)) = max_(theta) f(underline(x)|theta)$ é chamado de *Estimativa de Máxima Verossimilhança*
+]
+
+Essa definição parece ser bem intuitiva, correto? Vamos ver um exemplo:
+
+#example[
+  Suponha que você tem $n$ variáveis de tal forma que:
+  $
+    X_1,...,X_n | theta ~ "Bern"(theta)
+  $
+  De forma que $theta$ é desconhecido. Para todos os valores $x_1,...,x_n$ observados, temos que a p.m.f conjunta é:
+  $
+    f(underline(x)|theta) = product_(i=1)^n theta^(x_i)(1-theta)^(1-x_i)
+  $
+  Em vez de maximizar esse troço, vamos maximizar o $log$ dele, já que, como ela é crescente, o máximo do $log$ também é o máximo da função em si. Tirando o log, temos:
+  $
+    ln(f(underline(x)|theta)) &= sum_(i=1)^n x_i ln(theta) + (1-x_i)ln(1-theta)    \
+
+    &= (sum^n_(i=1)x_i)ln(theta) + (n - sum^n_(i=1)x_i) ln(1-theta)
+  $
+  Derivando isso em relação a $theta$ e igualando a $0$, vamos ter que:
+  $
+    0 &= (sum^n_(i=1)x_i)1/theta - (n - sum^n_(i=1)x_i)1/(1-theta)    \
+
+    0 &= (n accent(x, -)_n) 1/theta - n(1 - accent(x, -)_n) 1/(1-theta)   \
+
+    0 &= accent(x, -)_n / theta - (1 - accent(x, -)_n) / (1 - theta)    \
+  $
+  $
+    0 &= (1 - theta)accent(x, -)_n - (1 - accent(x, -)_n) theta   \
+
+    0 &= accent(x, -)_n - theta accent(x, -)_n - theta + theta accent(x, -)_n   \
+
+    theta &= accent(x, -)_n
+  $
+
+  Ou seja, chegamos a uma conclusão razoável que o estimador que minimiza a verossimilhança é a média das variáveis de Bernoulli
+]
+
+Porém, nem sempre essa abordagem é viável, vamos ver um exemplo:
+
+#example[
+  Suponha que temos uma amostra $X_1,...,X_n|theta ~ "Unif"[0, theta]$, de forma que a distribuição é levemente alterada para ser da forma:
+  $
+    f(x|theta) = cases(
+      1/theta "para" 0 < x < theta,
+      0 "caso contrário"
+    )
+  $
+  Temos então que a máxima verossimilhança é:
+  $
+    f(underline(x)|theta) = cases(
+      1/theta^n "para" 0 < x_i < theta space (i=1,...,n),
+      0 "caso contrário"
+    )
+  $
+  Como $1\/theta^n$ é uma função decrescente, o valor de $theta$ que maximiza a função e ainda se encaixa na restrição $theta > max{x_1,...,x_n}$ seria $theta = max{x_1,...,x_n}$, porém, não podemos usar esse valor por conta da desigualdade *estrita* na função de verossimilhança. O que isso quer dizer? Que esse caso *não possui um Estimador de Máxima Verossimilhança*
+]
+
+O livro também aborda outros casos em que um mesmo caso pode ter *vários* estimadores ou casos em que um estimador, mesmo existindo, não demonstra ser um valor interessante/desejado.
+
+Mas eu falei antes que esses estimadores formalizavam a ideia de "O parâmetro $theta$ parece ser esse daqui", mas não é bem assim que funciona. A gente viu que ele é o parâmetro que *maximiza* a probabilidade daquela observação ocorrer. E qual é a diferença disso pro que falei antes? Simples, quando vemos os valores de observações, o fato de eles aparecerem daquela forma, não significa que o valor que $theta$ mais aparenta ser seja o real. Ué, como assim? Muitos fatores podem estar envolvidos, fatores que, logo de cara, não conseguimos observar apenas nos dados. Para que isso ocorresse, os dados deveriam conter muito mais informação do que tinhamos à priori (Antes das observações)
