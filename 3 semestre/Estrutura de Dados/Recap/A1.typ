@@ -127,10 +127,25 @@ $T(n) = 1 + 2n + 1 =  2n + 2$
 
 Agora, qual seria o pior caso? Aconteceria se n fosse muito grande, certo? Se n fosse muito grande(tendendo a infinito), as contantes 2 que somam e multiplicam a n não importariam o suficiente e, portanto, dizemos que esse algoritmo tem complexidade de execução $O(n).$
 
-Existem outras análises, que calculam o melhor caso, caso médio, etc. Não vamos entrar nesse assunto no momento, e sim na próxima matéria,PAA.
-
 Por fim, a definição formal da notação big O para encontrar o pior caso é: Dizemos que a função $f(n) = O(g(n))$ se existir uma constante $c$ e um valor $n_0$ tal que $f(n) ≤ c g(n).$
 
+== 1.2 Notação $Omega$
+
+Ok, entendemos que $O(.)$ significa a análise do tempo geral de execução no pior caso, mas como seria para analisar o melhor caso? Para isso, usamos a notação $Omega(.)$.
+
+Exemplo:
+
+```cpp
+int linearSearch(int arr[], int n, int x) {
+    for (int i = 0; i < n; i++) {
+        if (arr[i] == x) {
+            return i; 
+        }
+    }
+    return -1; 
+}```
+
+Note que, nesse caso se o elemento estiver no início da fila, teremos a nossa busca satisfeita imediatamente, no caso, $Omega(1)$. E fica fácil analisar que o pior caso é $O(n)$. Logo, o melhor caso é denotado $Omega(1)$ e o pior caso é $O(n)$.
 
 = 2. Tipos Abstratos de Dados
 
@@ -382,7 +397,6 @@ void destroyCircularQueue(CircularQueue *cq) {
     delete cq;
 }```
 
-#pagebreak()
 
 == 2.4 Comparação entre TADs
 
@@ -648,7 +662,6 @@ void popEndDLList(DoubleLinkedList* list) {
     if (list->tail == nullptr) {
         return;
     }
-
     Node* temp = list->tail;
     list->tail = list->tail->prev;
     if (list->tail != nullptr) {
@@ -764,7 +777,6 @@ Existem outros tipos de características relevantes, como adaptabilidade e paral
 
 == img
 
-Note que precisamos de dois inteiros, um para salvar o índice do menor elemento, e outro para fazer a troca de elementos. O primeiro for passará por toda a lista, e o segundo for comparará os elementos subjacentes ao indíce i, pois antes desse índice os elementos já foram ordenados. Fazemos a comparação do valor do índice i com todos os posteriores, e atualizamos o índice j. Após cada comparação, salvamos o valor do menor elemento, atualizamos o valor do índice do menor elemento como o elemento do índice i, e por fim atualizamos o valor do índice i como o menor elemento.  
 ```cpp
 void selectionSort(int arr[], int n) {      // Custo  | Vezes
     int minIndex, temp;                     // 2      | 1
@@ -782,6 +794,8 @@ void selectionSort(int arr[], int n) {      // Custo  | Vezes
 } 
 ```
 
+Note que precisamos de dois inteiros, um para salvar o índice do menor elemento, e outro para fazer a troca de elementos. O primeiro for passará por toda a lista, e o segundo for comparará os elementos subjacentes ao indíce i, pois antes desse índice os elementos já foram ordenados. Fazemos a comparação do valor do índice i com todos os posteriores, e atualizamos o índice j. Após cada comparação, salvamos o valor do menor elemento, atualizamos o valor do índice do menor elemento como o elemento do índice i, e por fim atualizamos o valor do índice i como o menor elemento.  
+
 - *Características:*
     - Complexidade de tempo de execução: $O(n^2)$ para o pior caso, dado dois fors que iteram praticamente até $n$;
     - Complexidade de espaço: $O(1)$, pois não precisamos criar nada; 
@@ -796,31 +810,31 @@ void selectionSort(int arr[], int n) {      // Custo  | Vezes
 
 === img
 
-Pense em uma separação da mesma lista em duas, uma ordenada e a outra não. Olhando para o código
-começamos com a declaração do valor elemento que salvaremos, após isso abrimos um for para passar por toda a lista, salvamos o 
-current como o elemento i e iniciamos o j como o índice do elemento antes de i. Então,
-se antes do elemento i está ordenado, basta achar o lugar certo para o elemento i. 
-
-É isso que fazemos com o while, olhamos enquanto não chegamos no índice j = 0(início da lista) e enquanto o elemento do array
-no índice j é maior que o item a direita dele. 
-Quando ele não for, significa que é a posição ordenada, e atualizamos a posição fora do while.
-
-Note que quando entramos no while mas não saímos, significa que ainda não encontramos o local exato do elemento, e para manter a
- estrutura da lista, atualizamos o array no indice j+1 como sendo o valor do elemento anterior.
 ```cpp
 void insertionSort(int arr[], int n) {          // Custo  | Vezes
     int current;                                // 3      | 1
     for (int i = 1; i < n; i++) {               // 2      | n 
         current = arr[i];                       // 1      | n-1
         int j = i - 1;                          // 1      | n-1
-        while (j >= 0 && arr[j] > current) {    // 3      | i-1 -> 0 -> n-2
-            arr[j+1] = arr[j];                  // 1      | i-1 -> 0 -> n-2
-            j = j - 1;                          // 1      | i-1 -> 0 -> n-2
+        while (j >= 0 && arr[j] > current) {    // 3      | i-1 -> n-2
+            arr[j+1] = arr[j];                  // 1      | i-1 -> n-2
+            j = j - 1;                          // 1      | i-1 -> n-2
         }
         arr[j+1] = current;                     // 1      | n-1
     }
 }
 ```
+Pense em uma separação da mesma lista em duas, uma ordenada e a outra não. Olhando para o código
+começamos com a declaração do valor elemento que salvaremos, após isso abrimos um for para passar por toda a lista, salvamos o 
+current como o elemento i e iniciamos o j como o índice do elemento antes de i. Então,
+se antes do elemento i está ordenado, basta achar o lugar certo para o elemento i. 
+
+É isso que fazemos com o while, olhamos enquanto não chegamos no índice j = 0(início da lista) e enquanto o eleme   nto do array
+no índice j é maior que o item a direita dele. 
+Quando ele não for, significa que é a posição ordenada, e atualizamos a posição fora do while.
+
+Note que quando entramos no while mas não saímos, significa que ainda não encontramos o local exato do elemento, e para manter a
+ estrutura da lista, atualizamos o array no indice j+1 como sendo o valor do elemento anterior.
 
 - *Características:*
     - Complexidade de tempo de execução: $O(n^2)$ para o pior caso, dado o for e o while que iteram em função de n;
@@ -829,4 +843,58 @@ void insertionSort(int arr[], int n) {          // Custo  | Vezes
 
 == 3.4 Bubble Sort
 
+- *ideia*
+    - Percorre a lista e compara elementos adjacentes, trocando se estiverem fora de ordem;
+    - Repete o processo até que esteja ordenado(pense que se tivessemos o maior elemento como primeiro da fila, teríamos n trocas).
 
+=== img
+
+```cpp
+void bubbleSort(int arr[], int n) {
+    int temp;                                     // Custo | Vezes
+    for (int i = 0; i < n - 1; i++) {             // 2     | n-1
+        for (int j = 0; j < n - i - 1; j++) {     // 2     | n-i-1 ->  1
+            if (arr[j] > arr[j + 1]) {            // 1     | n-i-1 ->  1
+                temp = arr[j];                    // 1     | n-i-1 ->  1
+                arr[j] = arr[j + 1];              // 1     | n-i-1 ->  1
+                arr[j + 1] = temp;                // 1     | n-i-1 ->  1
+            }
+        }
+    }
+}
+```
+
+Como explicado, a ideia é simples, o que faz com que o algoritmo também seja. Salvamos um int para fazer a troca entre elementos subjacentes. O primeiro for fará com que a verificação seja feita n - 1  vezes, e o segundo for fará a comparação entre todos os elementos subjacentes escolhendo o maior e levando-o ao final da fila, por isso j vai até $n - i - 1$, o $-1$ serve para não sair da lista(fazemos j + 1 no if), e o $-i$ está ali pois o if carrega o maior elemento da lista até o fim dela a cada iteração, portanto não precisamos mais ordenar ele.
+
+- *Características:*
+    - Complexidade de tempo de execução: $O(n^2)$ no pior caso;
+    - Complexidade de espaço: $O(1)$ (in-place);
+    - Estabilidade: estável, pois só trocamos se for maior que o próximo elemento.
+
+== 3.5 Comparação entre algoritmos de ordenação
+
+Esses algoritmos, embora didáticos, são ineficientes para grandes conjuntos de dados. Nas próximas seções, abordaremos algoritmos mais avançados, como Merge Sort e Quick Sort, que possuem melhor desempenho. Vamos comparar os algoritmos que vemos até agora:
+
+#set table(
+  stroke: none,
+  gutter: 0.2em,
+  fill: (x, y) =>
+    if x == 0 or y == 0 { gray },
+  inset: (right: 1.5em),
+)
+
+#align(
+    center,
+    table(
+  columns: 5,
+  [Algoritmo], [Melhor caso], [Pior caso], [Estável?],[In-place?],
+
+  [Selection Sort], [$Omega(n^2)$], [$O(n^2)$], [Não],[Sim],
+  [Insertion Sort], [$Omega(n)$], [$O(n^2)$], [Sim],[Sim],
+  [Bubble Sort],  [$Omega(n)$], [$O(n^2)$], [Sim],[Sim],
+)
+)
+
+Fazendo uma rápida análise, vemos que não temos diferenças aparentes nas características entre Insertion Sort e Bubble Sort, enquanto o Selection Sort é pior que os dois.
+
+= 4.0 Ordeanção avançada
