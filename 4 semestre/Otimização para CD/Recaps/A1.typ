@@ -1319,6 +1319,8 @@ Vale ressaltar também que $h_j$ são convexas
   $
 ]
 
+Show! Inclusive, por conta que o nosso problema é convexo, podemos trocar a necessidade do LICQ (@licq) por uma condição um pouco mais fácil
+
 #definition("Condição de Slater")[
   Dizemos que a condição de Slater é satisfeita para as funções $g_1,...,g_m$ (convexas) se
   $
@@ -1326,11 +1328,13 @@ Vale ressaltar também que $h_j$ são convexas
   $
 ]<slater-condition>
 
+Ou seja, essa condição é satisfeita quando $x^*$ é um ponto viável (Dentro do conjunto viável). Agora podemos refazer o teorema utilizando dessa condição
+
 #theorem("KKT e Slater")[
   Se $x^*$ é mínimo local de $f(x)$ (Nas restrições $g_i (x) <= 0$ e $h_j (x) = 0$ sendo funções continuamente diferenciáveis e convexas) e $x^*$ satisfaz @slater-condition, então $x^*$ é ponto KKT (A volta não vale)
 ]<kkt-and-slater>
 
-Porém, não faz sentido falarmos de funções convexas de igualdade ($h_j (x) = 0$), isso nos permite reescrever o problema de uma forma interessante:
+Porém, como falei anteriormente, não faz sentido falarmos de funções convexas de igualdade ($h_j (x) = 0$) que *não são afins*, isso nos permite reescrever o problema de uma forma interessante:
 $
   min_(x) f(x)    \
   g_i (x) <= 0 wide i in [m]   \
@@ -1338,7 +1342,7 @@ $
   s_k (x) = 0 wide k in [q]    \
 
   "Onde" f, space g_i "são convexas e" h_j, space s_k "são afins"
-$
+$<optimization-with-linear-and-generic-conditions>
 
 Então podemos adaptar a condição de slater:
 
