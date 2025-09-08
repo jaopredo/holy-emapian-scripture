@@ -496,37 +496,56 @@ Voltando ao assunto sobre *evoluções*, eu estou interessado em pensar um jeito
 
 Então vamos imaginar o seguinte cenário. Eu tenho uma rede inicial $G_0(V_0,E_0)$ e a cada unidade de tempo $t$ eu vou ter uma nova rede $G_t (V_t,E_t)$, de forma que a cada unidade de tempo, eu vou adicionar um novo nó em $V_(t-1)$ e novas arestas em $E_(t-1)$. Qual é a distribuição do grau médio desses nós? O que podemos inferir dessa rede?
 
-Vamos imaginar uma *anexação uniforme*. Nesse caso, cada nó inserido sempre terá um grau de $m$. Ou seja, a *probabilidade* de um link do meu novo nó inserido se interligar ao vértice $v_i$ é igual a $m/i$, ou seja, eu tenho que o *grau esperado* do meu vértice $v_i$ é $m + m/i$, de forma que podemos montar uma formulazinha:
+== Anexação Uniforme
+Vamos imaginar uma *anexação uniforme*. Nesse caso, cada nó inserido sempre terá um grau de $m$. Ou seja, a *probabilidade* de um link do meu novo nó inserido se interligar ao vértice $v_i$ é igual a $m\/i$ (A chance de ele se ligar com uma das arestas é $1\/i$, logo, como eu posso me ligar com $m$ arestas diferentes, todas independentes entre si, a probabilidade total vai ser $m\/i$), logo:
 $
-  delta(v_i, t=i) = m  \
+  delta(v_j, t=i) := "Grau de" v_j "no momento" i   \
+$
+Com isso, podemos interpretar esse grau como uma *variável aleatória*. Temos que o grau de $v_i$ no momento inicial $i$ é fixa como $m$. Então a quantidade de arestas no momento $i+1$ pode ser escrita como:
+$
+  delta(v_i, i+1) = m + II_(i+1)(1) + II_(i+1)(2) + ... + II_(i+1)(m)
+$
+Onde $II_j (k)$ é a variável indicadora que diz se, no momento $j$, a aresta $k$ do *novo nó que está sendo adicionado na rede* foi adicionado ou não no nosso nó. Podemos reescrever como a soma de uma única variável aleatória de distribuição binomial também. Você pode ter reparado que eu utilizei $i$ tanto no $v_i$ quanto no $i$. Vou utilizar isso pois eu estou supondo que, na nossa análise, estamos saindo do último nó adiconado (Uma aproximação razoável do modelo real, obviamente que nem todos os nós vão ser adicionados com essa anexação, já que antes de eu iniciar essa abordagem, já vai ter uma rede "preexistente")
 
-  delta(v_i, i+1) = m + m/i    \
-
-  delta(v_i, i+2) = m + m/i + m/(i+1)    \
-
-  dots.v    \
-
-  delta(v_i, t) = m (sum^(t-1)_(i=1) 1/i )   \
-
-  delta(v_i, t) approx m + m ln((t-1)/(i-1))   \
-
-  delta(v_i, t) / m - 1 approx ln((t-1)/(i-1))   \
-
-  exp( ( delta(v_i, t)-m ) / m ) approx (t-1)/(i-1)   \
-
-  exp( -( delta(v_i, t)-m ) / m ) approx (i-1)/(t-1)   \
-
-  exp(-( delta(v_i, t)-m ) / m ) approx i/t
+Porém, queremos ter uma *noção* de como isso vai ser ao longo prazo, podemos então tirar a esperança disso.
+$
+  EE[delta(v_i, i+1)] = m + m/i
+$
+Porém, isso é apenas para um único passo, queremos generalizar para vários passos. Vamos supor então que estamos saindo do $i$-ésimo nó adiconado e estamos no momento $t$:
+$
+  delta(v_i, t) = m + sum_(k=i+1)^t sum_(j=1)^m II_(k)(j)
+$
+$
+  EE[delta(v_i, t)] &= m + sum_(k=i+1)^t sum_(j=1)^m EE[II_(k)(j)]  \
+  
+  &= m + sum_(k=i+1)^t sum_(j=1)^m j/(k-1)    \
 $
 
-No intervalo $[0,1]$, temos a seguinte estruturação:
+$
+  EE[delta(v_i, t)] = m dot sum^t_(k=i+1) 1/(k-1)   \
+
+  EE[delta(v_i, t)] approx m + m ln((t-1)/(i-1))   \
+
+  EE[delta(v_i, t)] / m - 1 approx ln((t-1)/(i-1))   \
+
+  exp( ( EE[delta(v_i, t)]-m ) / m ) approx (t-1)/(i-1)   \
+
+  exp( -( EE[delta(v_i, t)]-m ) / m ) approx (i-1)/(t-1)   \
+
+  exp(-( EE[delta(v_i, t)]-m ) / m ) approx i/t
+$
+
+No intervalo $[0,t]$, temos a seguinte estruturação:
 #figure(
   caption: [Intervalo de $i\/t$],
   image("images/01-interval.png")
 )
 
-Então temos que
+Então, o que encontramos foi a chance de que, no momento $t$, o grau de $v_i$ seja maior ou igual a $EE[delta(v_i)]$, pois encontramos a exata probabilidade de que, no momento $t$, o grau de $v_i$ seja aquele valor. Então temos que:
 $
-  PP(delta(v_i)<=t) = 1 - e^(-(k-m)/m)
+  PP(delta_t (v_i) <= k) = 1 - e^( -(k - m)/m )
 $
-Ou seja, temos uma distribuição *exponencial*
+Logo, temos uma distribuição *Exponencial*
+
+== Anexação Preferencial
+
