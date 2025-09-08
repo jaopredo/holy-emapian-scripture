@@ -1304,7 +1304,10 @@ void merge(int v[], int startA, int startB, int endB)
 }
 ```
 
-Dado que cada sequência tem $n$ entradas, são executadas $2n$ operações, logo, a complexidade é $Theta(n)$
+Dado que cada sequência tem $n$ entradas, são executadas $2n$ operações, logo, a complexidade é
+$
+  T(n) = Theta(n)
+$
 
 O algoritmo consiste em dividir a sequência $R$ em duas subsequências $A$ e $B$. Eu recursivamente ordeno essas duas sequências e repito o processo até que $R$ esteja ordenado
 
@@ -1525,3 +1528,172 @@ Cada nível $i$, de baixo para cima, tem aproximadamente $n\/2^i$ nós, ou seja,
 $
   T(n) = sum^(log(n))_(i=1) i dot n/2^i = O(n)
 $
+
+== Counting Sort
+O algoritmo de ordenação por contagem (counting sort) consiste em computar para cada elemento quantos elementos menores existem na sequência
+- Sabendo que o elemento $v_i$ possui $j$ elementos menores do que ele, podemos definir sua posição final como $j + 1$
+
+Vamos enunciar novamente nosso problema:
+desejamos ordenar os elementos do vetor $v[0,...,n - 1]$
+considerando as seguintes restrições:
+- Os elementos são números inteiros.
+- Os números estão presentes no intervalo $[0, ..., k - 1]$
+- O universo possui tamanho $k$.
+- $k$ é pequeno
+
+#figure(
+  caption: [Array de Exemplo],
+  image("images/example-array.png"),
+)
+
+Nesse exemplo, temos um total de $11$ elementos e $6$ opções entre eles (Os elementos vão de $0$ à $5$)
+
+#figure(
+  caption: [],
+  image("images/auxiliar-sequence.png")
+)
+
+Criamos então um a *sequência auxiliar* de tamanho $k$, nessa sequência, cada índice representa um elemento específico do array e os elemento representam *quantas vezes esses elementos aparecem na lista original*. Com essa sequência $f$, vamos gerar *outra* sequência auxiliar $s f$, de tal forma que:
+$
+  s f_i = sum^(i-1)_(j=0) f[j] = f[i-1] - s f[i-1] wide (i>0)
+$
+Ou seja, o elemento $i$ de $s f$ é a *quantidade de elementos menores que $i$*
+
+#figure(
+  caption: [Segunda lista auxiliar $s f$],
+  image("images/second-auxiliar-sequence.png")
+)
+
+Então, utilizando $s f$, podemos criar uma nova lista ordenada, de forma que o elemento $i in [0,k]$ estará localizado no índice $s f_i$
+
+#figure(
+  caption: [Lista ordenada],
+  image("images/ordered-list.png")
+)
+
+#codly(
+  header: [*IMPLEMENTAÇÃO*]
+)
+```cpp
+void countingSort(int v[], int n, int k) {
+  int fs[k + 1];
+  int temp[n];
+  for (int j = 0; j <= k; j++) {
+    fs[j] = 0;
+  }
+  for (int i = 0; i < n; i++) {
+    fs[v[i] + 1] += 1;
+  }
+  for (int j = 1; j <= k; j++) {
+    fs[j] += fs[j - 1];
+  }
+  for (int i = 0; i < n; i++) {
+    int j = v[i];
+    temp[fs[j]] = v[i];
+    fs[j]++;
+  }
+  for (int i = 0; i < n; i++) {
+    v[i] = temp[i];
+  }
+}
+```
+
+Podemos avaliar o desempenho do algoritmo Counting Sort através da seguinte
+função:
+$
+  f(n, k) &= c_1 k + c_2 n + c_3 k + c_4 n + c_5 n    \
+  &= (c_1 + c_3) k + (c_2 + c_4 + c_5) n    \
+  &= Theta(k + n)
+$
+
+Exige O(n + k) de espaço adicional. Portanto, se k for muito pequeno a complexidade será $Theta(n)$. É considerado um algoritmo eficiente para ordenar sequências com elementos repetidos.
+
+== Radix Sort
+O algoritmo Radix sort consiste em ordenar os elementos de uma sequência digito à digito, do menos significativo para o mais significativo. Considera que cada elemento é uma sequência com $w$ dígitos (Todos os elementos precisam ter $w$ dígitos). Embora o termo dígito remeta à números do conjunto ${0,1,...,9}$, podemos utilizar qualquer valor que possa ser mapeado em um inteiro
+
+#figure(
+  caption: [Radix Sort exemplo],
+  image("images/radix-sort.png")
+)
+
+#codly(
+  header: [*IMPLEMENTAÇÃO*]
+)
+```cpp
+void radixSort(unsigned char * v[], int n, int W, int K) {
+  int fp [K + 1];
+  unsigned char* aux[n];
+  for (int w = W - 1; w >= 0; w--) {
+    for (int j = 0; j <= K; j++) { fp[j] = 0; }
+    for (int i = 0; i < n; i++) {
+      fp[v[i][w] + 1] += 1;
+    }
+    for (int j = 1; j <= K; j++) { fp[j] += fp[j - 1]; }
+    for (int i = 0; i < n; i++) {
+      int j = v[i][w];
+      aux[fp[j]] = v[i];
+      fp[j]++;
+    }
+    for (int i = 0; i < n; i++) { v[i] = aux[i]; }
+  }
+}
+```
+
+Podemos avaliar o desempenho do algoritmo Radix Sort através da seguinte função:
+$
+  f (n, k, w) &= w(c_1 k + c_2 n + c_3 k + c_4 n + c_5 n)   \
+  &= w( (c_1 + c_3) k + (c_2 + c_4 + c_5) n)   \
+  &= Theta(w(k + n))
+$
+Exige $O(n + k)$ de espaço adicional. Se $k$ e $w$ forem pequenos a complexidade pode ser avaliada como $Theta(n)$.
+
+== Bucket Sort
+Esse algoritmo vai utilizar de hash tables para fazer ordenação de números *fracionários*. Vamos pegar uma sequência $v$ com $n$ elementos e dividí-la em $n$ grupos (baldes)
+
+#figure(
+  caption: [Lista de valores em $[0,1)$],
+  image("images/fractions-list.png")
+)
+
+Vamos pressupor que os valores estão *todos* entre $[0,1]$
+- Criar um vetor $b$ com tamanho $n$
+  - Cada elemento de $b$ é uma lista encadeada
+- Para cada elemento $v[i]$
+  - Inserir em $b$ na posição $floor(n dot v[i])$
+- Para cada lista $b[i]$
+  - Ordenar os seus elementos utilizando algum algoritmo conhecido
+    - Ex: Insertion Sort
+- Para cada lista $b[i]$
+  - Para cada elemento $j$ de $b[i]$
+    - Inserir na lista original $v$
+
+
+#codly()
+```cpp
+void bucketSort(float v[], int n) {
+  vector<float> b[n];
+  for (int i = 0; i < n; i++) {
+    int inx = n * v[i];
+    b[inx].push_back(v[i]);
+  }
+  for (int i = 0; i < n; i++) {
+    insertionSort(b[i]);
+  }
+  int index = 0;
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < b[i].size(); j++) {
+      v[index++] = b[i][j];
+    }
+  }
+}
+```
+
+Podemos avaliar o desempenho do algoritmo através da seguinte função:
+$
+T(n) = Theta(n) + sum^(n-1)_(i=0) n_i^2
+$
+Portanto, temos que:
+- O melhor caso é $Theta(n)$ - cada balde recebe exatamente um elemento.
+- O pior caso é $Theta(n^2)$ - um único balde recebe n elementos.
+- O caso médio é $Theta(n)$ - considerando a distribuição uniforme esperada, poucos elementos caem no mesmo balde.
+- Exige $O(n)$ de espaço adicional.
