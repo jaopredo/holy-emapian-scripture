@@ -541,11 +541,71 @@ No intervalo $[0,t]$, temos a seguinte estruturação:
   image("images/01-interval.png")
 )
 
-Então, o que encontramos foi a chance de que, no momento $t$, o grau de $v_i$ seja maior ou igual a $EE[delta(v_i)]$, pois encontramos a exata probabilidade de que, no momento $t$, o grau de $v_i$ seja aquele valor. Então temos que:
+Então, o que encontramos foi a fração de nós que tem grau maior que $v_i$. Então temos que:
 $
   PP(delta_t (v_i) <= k) = 1 - e^( -(k - m)/m )
 $
 Logo, temos uma distribuição *Exponencial*
 
 == Anexação Preferencial
+Na anexação *uniforme*, cada novo nó podia se ligar com um dos nós anteriores com mesma probabilidade. Nessa abordagem, os nós de *maior grau* terão uma *maior preferência* para serem escolhidos (Não é uma obrigatoriedade). Podemos expressar, então da seguinte forma. Antes, vamos fazer duas definições rápidas:
 
+#definition[
+  Dada uma rede $G(V,E)$, o conjunto $E_t$ é definido como o conjunto de arestas da rede no momento $t$
+]
+
+#definition[
+  Dado uma rede $G(V,E)$, a função $delta_t : V -> NN$ é a função que retorna o grau de um vértice em um momento $t$ do tempo
+]
+
+Voltando, queremos então, antes de tudo, saber qual que é a probabilidade do nó que vai ser adicionado se ligar com um vértice $v_i$, então:
+$
+  PP({v_i, v_(t+1)} in E_(t+1)) = ( delta_t (v_i) ) / ( sum_(j=1)^t delta_t (v_j) )
+$
+
+Queremos achar uma distribuição para os graus dos nós. Vamos tentar achar, então, uma taxa de crescimento do grau dos nós:
+$
+  (delta_(t+1) (v_i) - delta_t (v_i)) / (Delta t) = m dot ( delta_t (v_i) ) / ( sum_(j=1)^t delta_t (v_j) ) approx (dif (delta_t (v_i))) / (dif t)
+$
+Porém, sabemos que $sum^(t)_(j=1) delta_t (v_j) = 2 |E_t|$, então vamos obter:
+$
+  (dif (delta_t (v_i))) / (dif t) = m dot ( delta_t (v_i) ) / ( 2 |E_t| ) = m dot (delta_t (v_i))/(2 t m) = (delta_t (v_i))/(2 t)
+$
+
+Logo, obtemos uma EDO para resolver. Vamos chamar $delta_t (v_i)$ de $k$ apenas para facilitar a visualização:
+$
+  (dif k)/(dif t) &= k / (2t) wide (delta_i (v_i) = m)   \
+  
+  (dif k) / k &= (dif t) / (2 t)    \
+
+  integral (dif k) / k &= integral (dif t) / (2 t)    \
+
+  ln k &= 1/2 ln t + C    \
+
+  delta_t (v_i) &= t^(1\/2) dot D
+$
+Resolvendo para o caso $delta_i (i) = m$, temos:
+$
+  m = i^(1\/2)D  =>  D = m dot i ^ (-1\/2)    \
+
+  => delta_t (v_i) = m (t/i)^(1\/2)
+$
+
+Queremos então calcular $PP(delta_t (v_i) <= k)$. Na média, todos os nós *posteriores* ao nó $v_i$ tem grau menor do que $k$, então precisamos apenas inverter aquela equação de antes, assim, vamos obter:
+$
+  delta_t (v_i)^2 = m^2 t/i   \
+
+  <=> i = (m^2 dot t)/(delta_t (v_i)^2)
+$
+
+Assim, conseguimos obter a *fração de nós com grau maior que $v_i$*, que são justamente os nós anteriores a ele ($i\/t$) que é $m^2 delta_t (v_1)^(-2)$. Temos então que:
+$
+  PP(delta_t (v_i) <= k) = 1 - m^2 k^(-2)
+$
+
+Temos também que a densidade vai ser:
+$
+  f_K (k) =  2m^2 k^(-3)
+$
+
+Percebemos, então, que a variável aleatória $K$, que representa o grau de um nó na rede, tem a distribuição *$"Paretto"(2, m)$*
