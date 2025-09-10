@@ -433,3 +433,30 @@ Foi apresentado várias formas de balancear exploration e exploitation, com o $e
 Nesse novo capítulo introduziremos Processos de Decisão de Markov Finitos, ou MDPs, que envolve uma clássica formalização de tomada de decisão, onde ações não influenciam somente recompensas imediatas, mas também situações subsequentes, estados e recompensas futuras.
 
 == 3.1 A interface do agente-ambiente
+
+MDPs são uma formulação direta do problema de aprender de interações para alcançar um objetivo. O tomador de decisão é chamado de agente. A coisa que interage com ele, compreendendo tudo de fora do agente, é chamado de ambiente. Eles
+interagem continuamente, com o agente selecionando ações e o ambiente reagindo a essas ações e retornando outras situações e retornando recompensas.
+
+#show figure.caption: set align(left)
+#figure(
+    image("../Img/mdpenvironment.png", width:90%),
+    caption: [O agente e o ambiente interagindo em um Processo de Decisão de Markov.]
+)  
+
+Mais especificamente, o agente e o ambiente interage a cada sequência de passos discreta, $t = 1, 2, dots $(restringindo a uma quantidade discreta para entendermos  melhor). A cada passo $t$, o agente recebe alguma representação sobre o $"estado"$ do ambiente, $S_t in cal(S)$, e com base nisso seleciona uma ação, $A_t in cal(A)(s)$. Após a ação selecionada, o agente recebe uma recompensa numérica $R_(t+1) in cal(R) subset RR$ e acha para si mesmo um novo estado, $S_(t+1)$. O agente e o ambiente numa MDP faz uma trajetória desse tipo:
+
+$ S_0, A_0, R_1, S_1, A_1, R_2, S_2, A_2, R_3, dots $
+
+Em um MDP finito, o conjunto de ações e recompensas têm um número finito de elementos. Nesse caso, conseguimos definir variáveis aleatórias discretas $R_t$ e $S_t$ dependendo apenas do estado e ação anterior. Ou seja, para $s' in cal(S) "and " r in cal(R)$, existe uma probabilidade desses valores ocorrerem no tempo $t$, dado valores do estado e ação:
+
+$
+  p(s', r | s, a) dot(eq) Pr{S_t = s', R_t = r | S_(t-1) = s, A_(t-1) = a}
+$
+
+para todo $s', s in cal(S), r in cal(R)$ e $a in cal(A)(s)$. Lembre-se que $p$ especifica uma distribuição de probabilidade para cada escolha de $s$ e $a$, ou seja
+
+$
+  sum_(s' in cal(S)) sum_(r in cal(R)) p(s', r | s, a) = 1, "  para todo" s in cal(S), a in cal(A)(s)
+$
+
+Em MDPs, a probabilidade caracteriza completamente a dinâmica do ambiente. 
