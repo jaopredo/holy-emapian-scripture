@@ -583,3 +583,32 @@ Porém, nem sempre essa abordagem é viável, vamos ver um exemplo:
 O livro também aborda outros casos em que um mesmo caso pode ter *vários* estimadores ou casos em que um estimador, mesmo existindo, não demonstra ser um valor interessante/desejado.
 
 Mas eu falei antes que esses estimadores formalizavam a ideia de "O parâmetro $theta$ parece ser esse daqui", mas não é bem assim que funciona. A gente viu que ele é o parâmetro que *maximiza* a probabilidade daquela observação ocorrer. E qual é a diferença disso pro que falei antes? Simples, quando vemos os valores de observações, o fato de eles aparecerem daquela forma, não significa que o valor que $theta$ mais aparenta ser seja o real. Ué, como assim? Muitos fatores podem estar envolvidos, fatores que, logo de cara, não conseguimos observar apenas nos dados. Para que isso ocorresse, os dados deveriam conter muito mais informação do que tinhamos à priori (Antes das observações)
+
+== Propriedades
+#theorem[
+  Se $accent(theta, \^)$ é o Estimador de Máxima Verossimilhança (EMV) de $theta$ e $g$ é uma função bijetiva, então $g(accent(theta, \^))$ é o EMV de $g(theta)$
+]
+
+#definition[
+  Seja $g(theta)$ uma função arbitrária do parâmetro com $g: Omega -> G$. Para cada $t in G$, defina $G_t := { theta : g(theta) = t }$ e $L^*(accent(t, \^)) := max_(theta in G_t) log p(underline(x)|theta)$, defina então o EMV de $g(theta)$ como $accent(t, \^)$ como:
+  $
+    L^*(accent(t,\^)) = max_(t in G_t) L^*(t)
+  $
+]
+
+#theorem[
+  Dado $accent(theta, \^)$ sendo o EMV de $theta$ e $g: Omega -> G$, então:
+  $
+    hat(g(theta)) = g(hat(theta))
+  $
+]
+
+#pagebreak()
+
+#align(center + horizon)[
+  = Método dos Momentos
+]
+
+#pagebreak()
+
+

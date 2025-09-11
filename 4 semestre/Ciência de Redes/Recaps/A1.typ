@@ -346,9 +346,9 @@ Em cima disso conseguimos montar as redes aleatórias, onde cada par de nós (Ar
   Uma rede aleatória é um grafo $G(V,E)$ de $|V| = N$ nós onde cada par de nós é conectado por uma probabilidade *$p$*
 ]
 
-Como cada aresta tem uma probabilidade $p$ de aparecer, podemos interpretar ela como ela aparecer ou não sendo uma variável indicadora, de forma que o número total de arestas segue uma distribuição binomial. Ou seja, a probabilidade a quantidade de arestas ser $L=l$ é:
+Considere, agora, uma rede aleatória $G(V,E)$ com $|V| = N$. Como cada aresta tem uma probabilidade $p$ de aparecer, podemos interpretar ela como ela aparecer ou não sendo uma variável indicadora, de forma que o número total de arestas segue uma distribuição binomial. Ou seja, a probabilidade a quantidade de arestas ser $|E|=l$ é:
 $
-  PP(L=l) =  mat(mat(N;2);l) p^l (1-p)^(N(N-1)/2 l)
+  PP(|E|=l) =  mat(mat(N;2);l) p^l (1-p)^(N(N-1)/2 l)
 $
 Podemos aplicar a mesma ideia para o grau de um vértice também:
 $
@@ -424,7 +424,7 @@ $
   u approx exp { - ( delta_"med" (G) ) / (1-u) }
 $
 
-Se denotarmos $S = N_G / |V|$, obtemos que:
+Se denotarmos $S = N_G / (|V|)$, obtemos que:
 $
   S = 1 - e^(-delta_"med" (G) dot S)
 $

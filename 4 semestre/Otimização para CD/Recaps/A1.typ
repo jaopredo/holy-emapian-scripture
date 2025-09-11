@@ -1302,7 +1302,7 @@ $
   "onde" f, space g_i " e " h_j "são convexas" forall i " e " forall j
 $<optimization-with-generic-convex-restrictions>
 
-Vale ressaltar também que $h_j$ são convexas
+Vale ressaltar também que $h_j$ são *afins*
 
 #theorem("KKT Convexo")[
   Se $x^*$ é um ponto de mínimo local de $f$ dado o problema @optimization-with-generic-convex-restrictions e a @licq é satisfeita em $x^*$, então $x^*$ é uma solução do problema se, e somente se:
@@ -1357,4 +1357,20 @@ Então podemos adaptar a condição de slater:
   $
 ]
 
-De forma que o @kkt-and-slater continua valendo
+De forma que o @kkt-and-slater continua valendo. Vimos 3 tipos de condições diferentes! Que tal a gente refazer o nosso teorema de uma forma geral?
+
+#theorem("Final KKT")[
+  Dado o problema @optimization-with-generic-restrictions, e seja $x^* in C$ (Conjunto viável), temos 3 caracterizações:
+  
+  + As restrições em $x^*$ são LICQ
+  + Problema convexo @optimization-with-generic-convex-restrictions + Condição de slater (@slater-condition)
+
+  Se $x^*$ ou o problema satisfaz qualquer uma dessas condições, então eu posso dividir meu problema em algumas condições:
+
+  - (Necessidade com qualificação de restrições)
+    - Se $x^*$ é um mínimo local e as restrições ativas em $x^*$ satisfazem LICQ $=>$ $x^*$ é um ponto KKT
+  
+  - (Convexidade $+$ Slater)
+    - $x^*$ é KKT (Ser mínimo $=>$ KKT)
+    - Reciprocamente 
+]
