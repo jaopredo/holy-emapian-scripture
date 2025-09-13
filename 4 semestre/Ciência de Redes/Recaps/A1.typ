@@ -443,6 +443,85 @@ Quanto $hat(k) < 1$, então a quantidade de nós na componente gigante é despre
   Onde, colocando $S=0$, descobrimos que o ponto crítico é $hat(k) = 1$
 ]
 
+Na verdade esse resultado é bem intuitivo. Faz sentido dizer que para que uma componente gigante exista, todos os nós precisam ter pelo menos grau 1, já que eles precisam estar conectados com algum outro nó, porém, o que não é muito intuitivo, é que todos eles terem grau 1 é *suficiente* para que a componente gigante apareça
+
+A gente pode reescrever $EE[K] = 1$ como:
+$
+  EE[K] = 1 <=> p(N-1) = 1 <=> p = 1/(N-1) approx N
+$
+E o que isso significa? Isso mostra outro resultado intuitivo. Quanto maior é minha rede, *menos probabilidade eu preciso para que uma componente gigante apareça*
+
+Algo interessante que podemos fazer é analisar como a proporção $N_G / N$ (Porcentagem de nós dentro da componente gigante) se comporta conforme nós aumentamos $EE[K]$. Nós fazemos isso dividindo esse processo em 4 fases (Ou 4 *regimes*), veja a imagem abaixo:
+
+#figure(
+  caption: [Crescimento da compoente conexa em função do grau médio],
+  image("images/network-evolution.png")
+)
+
+=== Regime Subcrítico ($0 < hat(k) < 1$)
+Quando $hat(k) = 0$, temos $N$ nós soltos na rede e conforme aumentamos $hat(k)$, mas mantemos ele menor que $1$, temos a formação de vários nós soltos e pequenos agrupamentos (Coisa pouca mesmo). Dessa forma, mesmo escolhendo a componente gigante como o maior desses agrupamentos, a proporção $N_G \/ N$ ainda vai ser muito baixa. O Barabás aproxima essa relação como
+$
+  N_G / N approx ln(N) / N -> 0 "quando" N -> infinity
+$
+Pois podemos considerar essas componentes menores como várias árvores (Também pequenas)
+
+=== Ponto Crítico
+É a transição do momento onde não há uma componente gigante para o momento que há uma. Porém o tamanho relativo dela ($N_G\/N$) ainda é muito próximo de $0$. O livro do Barabás afirma que $N_G approx N^(2/3)$, então $N_G$ cresce muito mais devagar se comparado a $N$, logo:
+$
+  N_G / N approx N^(-1/3) = O(N)
+$
+
+Porém, perceba que o salto de diferença de tamanho pode ser enorme dependendo da rede. Se pegarmos uma rede de tamanho $N = 7 times 10^9$ (Parecido com a rede mundial), para $hat(k) < 1$, a gente teria que o tamanho da componente gigante era de ordem:
+$
+  N_G approx ln(N) approx 22.7
+$
+Em contraste, se $hat(k) = 1$, então teriamos que
+$
+  N_G approx N^(2/3) approx 3 times 10^6
+$
+Que é uma diferença notável no tamanho das componentes gigantes
+
+=== Regime Supercrítico ($hat(k) > 1$)
+Esse regime tem mais relevância para redes reais, já que a componente gigante começa a se parecer realmente com uma rede. Aqui, o tamanho $N_G$ pode ser dado como:
+$
+  N_G = (p - p_c)N
+$
+Onde $p_c = 1\/(N)$. Ou seja, conforme eu aumentar meu grau médio, menor vai ficar meu $p$ e maior será a fração de nós que pertencem à componente gigante. Em resumo, nesse regime, várias componentes conexas coexistem junto da componente gigante, onde a componente gigante é uma rede comum, enquanto as outras componentes conexas são mais prováveis de serem árvores
+
+=== Regime Conexo ($hat(k) > ln(N)$)
+Agora, nesse regime, temos que o grafo é (ou quase) conexo, logo, todos os nós fazem parte da componente conexa (Ou a maioria, logo $N_G approx N$)
+
+#theorem[
+  Se $N_G approx N$, o valor de $hat(k)$ que satisfaz a propriedade de *a maior parte dos nós estarem na componente gigante* é:
+  $
+    hat(k) = ln(N) => p = ln(N) / N
+  $
+]
+#proof[
+  Para determinar o valor de $hat(k)$ no qual a maior parte dos nós fazem parte da componente gigante, temos que saber a probabilidade de que um *nó aleatório não tenha um link para a componente gigante*, e isso é:
+  $
+    (1-p)^(N_G) approx (1-p)^N
+  $
+  Já que eu tenho exatamente $N_G$ nós na componente gigante e eu não quer me ligar com nenhum deles. Novamente, tomando $II_k$ sendo a variável indicadora de que um nó $k$ *não* na componente gigante ($1$ quando ele não está), temos que a *quantidade de nós que não estão na componente gigante* tem uma distribuição *binomial* com parâmetros $N$, $(1-p)^N$, então, se considerarmos $L_G$ sendo essa quantidade, temos que:
+  $
+    EE[L_G] = N(1-p)^N = N(1 - (N p) / N)^N approx N e^(-N p)
+  $
+  Queremos então chegar no ponto em que temos, para um $p$ suficientemente próximo de $1$, que apenas 1 único nó esteja fora da componente conexa, então gostaríamos de analisar em que ponto:
+  $
+    EE[L_G] = 1 <=> N e^(-N p) = 1
+  $
+  Logo, tirando $ln$ em ambos os lados, chegamos que:
+  $
+    p = ln(N) / N
+  $
+  Ou seja
+  $
+    hat(k) = ln(N)
+  $
+]
+
+Esse resultado é de grande impacto! Quando analisamos muitas das redes reais, a maioria segue esse padrão de $hat(k) = ln(N)$, logo, as *redes reais são supercríticas*
+
 == Distribuição de tamanhos de Cluster
 Queremos também ter uma noção da probabilidade de um nó $v_i$ qualquer estar em um cluster (Grupo de nós na rede) de tamanho $s$. No livro do Newman, ele nos mostra que essa probabilidade é:
 $
