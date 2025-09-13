@@ -1372,5 +1372,104 @@ De forma que o @kkt-and-slater continua valendo. Vimos 3 tipos de condições di
   
   - (Convexidade $+$ Slater)
     - $x^*$ é KKT (Ser mínimo $=>$ KKT)
-    - Reciprocamente 
+    - Reciprocamente, se $x^*$ é viável e é KKT, então $x^*$ é ótimo global
 ]
+
+#pagebreak()
+
+#align(center+horizon)[
+  = Algoritmos de Otimização
+]
+
+#pagebreak()
+
+Agora que vimos bastante da teoria por trás da otimização, precisamos viabilizar isso para problemas enormes! Não faz sentido, por exemplo, um ser humano comum resolver um sistema KKT para uma função no $RR^(1000)$ por exemplo, né? Então vamos utilizar dos *computadores*. Temos algumas famílias de métodos para otimização:
+
+- Métodos de ordem-zero
+- Métodos de primeira-ordem
+  - Método do gradiente (Cauchy)
+  - Método do subgradiente
+  - ...
+- Método de segunda-ordem
+  - Método de Newton
+  - Métodos Quasi-Newton
+  - Método de pontos-interiores
+  - ...
+- Método de confiança
+
+Esse são apenas alguns exemplos, mas existem *inúmeros* algoritmos nesse ramo
+
+#definition("Suavidade")[
+  Dizemos que $f: RR^n -> RR$ é uma função $L$-suave se $exists L > 0$ tal que:
+  $
+    forall x, y, space ||nabla f(x) - nabla f(y)|| <= L ||x-y||
+  $
+  Ou, equivalentemente
+  $
+    ||nabla f(x) - nabla f(y)|| <= O(||x-y||)
+  $
+]
+
+== Método Gradiente
+Vamos definir o algoritmo do gradiente
+
+#pseudocode-list[
+  + $x_1$ inicial
+  + *for* $t=1,...,n$ *do*:
+    + $x_(t+1) = x_t - alpha_t nabla f(x_t)$
+]
+
+Onde $alpha_t>0$ é o "passo" ou learning rate
+
+
+#definition("Direção de Descida")[
+  Dizemos que $d in RR^n$ é de "descida" a partir de um ponto $x in RR^n$ se:
+  $
+    (nabla f(x))^T d < 0
+  $
+]
+
+#theorem("Suavidade")[
+  $forall x,y in RR^n$ vale que:
+  $
+    f: RR^n -> RR "é L-suave" <=> f(y) <= f(x) + nabla f(x)^T (y - x) + L/2 ||y-x||^2
+  $
+]
+
+Se $d$ é a direção de descida em $x$, então
+$
+  x^+ := x + alpha d
+$
+
+tem que, por suavidade de f:
+$
+  f(x^+) - f(x) &<= nabla f(x)^T (x^+ - x) + L/2 ||x^+ - x||^2    \
+
+  &= alpha nabla f(x)^T d + (L alpha^2)/2 ||d||^2   \
+
+  &= alpha (nabla f(x)^T d + (L alpha)/2 ||d||^2) < 0
+$
+
+E temos que
+$
+  lim_(alpha -> 0^+) (nabla f(x)^T d + (L alpha)/2 ||d||^2) = nabla f(x)^T d < 0    \
+  
+  => exists hat(alpha) > 0 "tal que" nabla f(x)^T d + (L hat(alpha))/2 ||d||^2 < 0
+$
+
+#theorem[
+  $forall t in NN$ e supondo que $0 < alpha_t <= 2/L$, então (Considerando que a direção de descida é $-nabla f(x)$:
+  $
+    alpha_t (1 - (L alpha_t)/2) ||nabla f(x_t)||^2 <= f(x_t) - f(x_(t+1))
+  $
+]
+#proof[
+  $f$ é suave:
+  $
+    f(x_(t+1)) &<= f(x_t) + nabla f(x_t)^T (x_(t+1) - x_t) + L/2 ||x_(t+1) - x_t||^2   \
+
+    &= f(x_t) - alpha_t ||f(x_t)||^2 + (L alpha_t^2)/2 ||nabla f(x_t)||^2
+  $
+]
+
+

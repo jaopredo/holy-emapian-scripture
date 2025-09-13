@@ -1106,7 +1106,7 @@ $
 #pagebreak()
 
 #align(center+horizon)[
-  = ALGORITMOS DE ORDENAÇÃO
+  = Algoritmos de Ordenação
 ]
 
 #pagebreak()

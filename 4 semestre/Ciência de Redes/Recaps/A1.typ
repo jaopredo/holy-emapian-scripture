@@ -346,40 +346,42 @@ Em cima disso conseguimos montar as redes aleatórias, onde cada par de nós (Ar
   Uma rede aleatória é um grafo $G(V,E)$ de $|V| = N$ nós onde cada par de nós é conectado por uma probabilidade *$p$*
 ]
 
-Considere, agora, uma rede aleatória $G(V,E)$ com $|V| = N$. Como cada aresta tem uma probabilidade $p$ de aparecer, podemos interpretar ela como ela aparecer ou não sendo uma variável indicadora, de forma que o número total de arestas segue uma distribuição binomial. Ou seja, a probabilidade a quantidade de arestas ser $|E|=l$ é:
+Considere, agora, uma rede aleatória $G(V,E)$ com $|V| = N$. Sendo $L$ a variável aleatória que representa a quantidade de arestas em $E$, queremos descobrir sua distribuição. Como cada aresta tem uma probabilidade $p$ de aparecer, podemos interpretar como ela aparecer ou não sendo uma variável indicadora, de forma que o número total de arestas segue uma distribuição binomial (Soma de variáveis de bernoulli independentes). Ou seja, a probabilidade a quantidade de arestas ser $L=l$ é:
 $
-  PP(|E|=l) =  mat(mat(N;2);l) p^l (1-p)^(N(N-1)/2 l)
+  PP(L=l) =  mat(mat(N;2);l) p^l (1-p)^(N(N-1)/2 - l)
 $
-Podemos aplicar a mesma ideia para o grau de um vértice também:
+Podemos aplicar a mesma ideia para o grau de um vértice também. Vamos definir que $K$ é a variável aleatória que representa o *grau de um vértice arbitrário*, então:
 $
-  PP(delta(v) = k) = mat(N-1;k) p^k (1-p)^(N-1-k)
+  PP(K = k) = mat(N-1;k) p^k (1-p)^(N-1-k)
 $
-Já que meu vértice pode se ligar a $N-1$ vértices com probabilidade $k$, então isso vira a soma das variáveis indicadores que são $1$ quando o meu vértice se liga com outro vértice, de forma que eu tenho a soma de $N-1$ variáveis de bernoulli
+Já que meu vértice pode se ligar a $N-1$ vértices com probabilidade $p$, então isso vira a soma das variáveis indicadores que são $1$ quando o meu vértice se liga com outro vértice ($PP(II = 1) = p$), de forma que eu tenho a soma de $N-1$ variáveis de bernoulli independentes
 
-Com isso, nós temos:
+Com isso, nós podemos definir o grau médio de $G$ como $EE[K]$:
 $
-  delta_"med" (G) = (N-1)p
+  delta_"med" (G) = EE[K] = (N-1)p
 $
 
 E podemos obter também a variância dos graus
 $
-  VV(delta(v)) = (N-1)p(1-p)
+  VV(K) = (N-1)p(1-p)
 $
 
 Então, apenas para resumir, temo que:
 $
-  "Número de arestas" L ~ "Bin"(mat(N;2), p)    \
-  "Grau do vértice" delta(v) ~ "Bin"(N-1, p)
+  L ~ "Bin"(mat(N;2), p)    \
+  K ~ "Bin"(N-1, p)
 $
 
-Porém, em redes reais, elas são *esparsas*, ou seja, eu tenho *muitos* nós e graus pequenos. E lembra qual é a distribuição que é a binomial com $n$ muito grande? Exato, a *Poisson*! Essas redes aleatórias também são chamadas de *redes de poisson*
+Porém, em redes reais, elas são *esparsas*, ou seja, eu tenho *muitos* nós e graus pequenos ($N >> EE[K]$ notação que diz que $N$ é *muito maior* que $EE[K]$). E lembra qual é a distribuição que é a binomial com $n$ muito grande? Exato, a *Poisson*! Essas redes aleatórias também são chamadas de *redes de poisson*. Vamos, a partir de agora, denotar $delta_"med" (G) = EE[K] = hat(k)$
 $
-  PP(delta(v)=k) = e^(-delta_"med" (G)) ( delta_"med" (G)^k )/k!
+  PP(delta(v)=k) = e^(-hat(k)) ( hat(k)^k )/k!
 $
 Ou seja, para $N$ muito grande e $k$ pequeno com relação a $N$, podemos estimar de forma que:
 $
-  "Grau do vértice" delta(v) ~ "Poisson"(delta_"med" (G))
+  K ~ "Poisson"(hat(k))
 $
+
+E isso tudo nos dá um resultado bem condizente e intuitivo, que é que, conforme nós aumentamos a probabilidade $p$ de uma aresta existir, então a rede vai ficando cada vez mais densa
 
 == Evolução das Redes Aleatórias
 Conforme iniciamos um grafo com um grau médio $0$ e vamos aumentando ele aos poucos, nós percebemos que a partir de um ponto chave, os nós começam a se agrupar em algo que chamamos de *componente gigante*, que seria a maior componente conexa da rede.
@@ -389,45 +391,57 @@ Conforme iniciamos um grafo com um grau médio $0$ e vamos aumentando ele aos po
   image("images/mean-degree-and-big-component-fraction.png")
 )
 
-Quanto $delta_"med" (G) < 1$, então a quantidade de nós na componente gigante é desprezível em relação à quantidade de nós na rede, porém, a partir de $delta_"med" (G) = 1$, isso indica que temos, pelo menos, $n/2$ componentes conexas, o que já começa a fazer uma diferença no gráfico.
+Quanto $hat(k) < 1$, então a quantidade de nós na componente gigante é desprezível em relação à quantidade de nós na rede, porém, a partir de $hat(k) = 1$, isso indica que temos, pelo menos, $n/2$ componentes conexas, o que já começa a fazer uma diferença no gráfico. Esse é um argumento utilizado por Erdös e Renyi em um paper por eles publicado
 
-Dado uma rede $G(V,E)$, vamos definir a fração de nós que *não está* na componente gigante como:
-$
-  u = 1 - N_G / (|V|)
-$
+#theorem("Ponto Crítico")[
+  Temos uma componente gigante $<=>$ $EE[K] >= 1$
+]
+#proof[
+  Dado uma rede $G(V,E)$, vamos definir a fração de nós que *não está* na componente gigante como:
+  $
+    u = 1 - N_G / (|V|)
+  $
 
-De forma que $N_G$ é a quantidade de nós dentro dessa componente gigante, vamos definir essa componente como $Psi subset.eq V$. Se um nó $v_i in Psi$, então ele deve estar interligado com outro nó $v_j$, que também deve satisfazer $v_j in Psi$. Por isso, se $v_i in.not Psi$, então isso pode ocorrer por duas razões:
+  De forma que $N_G$ é a quantidade de nós dentro dessa componente gigante, vamos definir essa componente como $Psi subset.eq V$. Se um nó $v_i in Psi$, então ele deve estar interligado com outro nó $v_j$, que também deve satisfazer $v_j in Psi$. Por isso, se $v_i in.not Psi$, então isso pode ocorrer por duas razões:
 
-- ${v_i, v_j} in.not E$. A probabilidade de isso acontecer é $1-p$
-- ${v_i, v_j} in E$, porém $v_j in.not Psi$. A probabilidade de isso acontecer é $p u$
+  - ${v_i, v_j} in.not E$. A probabilidade de isso acontecer é $1-p$
+  - ${v_i, v_j} in E$, porém $v_j in.not Psi$. A probabilidade de isso acontecer é $p u$
 
-Então temos:
-$
-  PP(v_i in.not Psi) = 1 - p + p u
-$
+  Então temos:
+  $
+    PP(v_i in.not Psi) = 1 - p + p u
+  $
 
-Então a probabilidade de que $v_i$ não esteja linkado a $Psi$ por qualquer nó é de $(1 - p + p u)^(|V| - 1)$, já que temos outros $|V|-1$ nós que poderiam fazer com que $v_i$ se interligasse a componente gigante.
+  Então a probabilidade de que $v_i$ não esteja linkado a $Psi$ por qualquer nó é de $(1 - p + p u)^(|V| - 1)$, já que temos outros $|V|-1$ nós que poderiam fazer com que $v_i$ se interligasse a componente gigante.
 
-Sabemos que $u$ é a fração de nós que não está em $Psi$, para qualquer $p$ e $|V|$, a solução da equação
-$
-$
-$
-  u = (1 - p + p u)^(|V| - 1)
-$
+  Sabemos que $u$ é a fração de nós que não está em $Psi$, para qualquer $p$ e $|V|$, a solução da equação
+  $
+  $
+  $
+    u = (1 - p + p u)^(|V| - 1)
+  $
 
-nos dá o tamanho da componente gigante por meio de $N_G = |V|(1-u)$. Usando $p = (delta_"med" (G)) / (|V|-1)$ e tirando $log$ de ambos os lados, para $delta_"med" (G) << |V|$ (Grau médio *muito* menor que $|V|$), obtemos:
-$
-  ln(u) approx (|V|-1) ln[ 1 - (delta_"med" (G)) / (|V|-1) (1 - u) ]    \
+  nos dá o tamanho da componente gigante por meio de $N_G = |V|(1-u)$. Usando $p = (hat(k)) / (|V|-1)$ e tirando $log$ de ambos os lados, para $hat(k) << |V|$ (Grau médio *muito* menor que $|V|$), obtemos:
+  $
+    ln(u) approx (|V|-1) ln[ 1 - (hat(k)) / (|V|-1) (1 - u) ]    \
 
-  "Tiramos exponencial e obtemos:"    \
+    "Tiramos exponencial e obtemos:"    \
 
-  u approx exp { - ( delta_"med" (G) ) / (1-u) }
-$
+    u approx exp { - ( hat(k) ) / (1-u) }
+  $
 
-Se denotarmos $S = N_G / (|V|)$, obtemos que:
-$
-  S = 1 - e^(-delta_"med" (G) dot S)
-$
+  Se denotarmos $S = N_G / (|V|)$, obtemos que:
+  $
+    S = 1 - e^(-hat(k) dot S)
+  $
+
+  Agora obtemos o tamanho da componente gigante em função do *grau médio*. O ponto crítico ocorre na mudança de fase do sistema (Tópico mais complicado que não compreendo, estou apenas falando o que o livro do Barabas fala), que é quando os dois lados da igualdade tem a mesma derivada, então:
+  $
+    dif / (dif S) (1 - e^(hat(k) S)) &= 1    \
+    hat(k) e^(-hat(k) S) = 1
+  $
+  Onde, colocando $S=0$, descobrimos que o ponto crítico é $hat(k) = 1$
+]
 
 == Distribuição de tamanhos de Cluster
 Queremos também ter uma noção da probabilidade de um nó $v_i$ qualquer estar em um cluster (Grupo de nós na rede) de tamanho $s$. No livro do Newman, ele nos mostra que essa probabilidade é:
