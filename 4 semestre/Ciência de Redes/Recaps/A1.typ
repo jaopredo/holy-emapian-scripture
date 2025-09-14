@@ -520,7 +520,31 @@ Agora, nesse regime, temos que o grafo é (ou quase) conexo, logo, todos os nós
   $
 ]
 
-Esse resultado é de grande impacto! Quando analisamos muitas das redes reais, a maioria segue esse padrão de $hat(k) = ln(N)$, logo, as *redes reais são supercríticas*
+Esse resultado é de grande impacto! Quando analisamos muitas das redes reais, a maioria segue esse padrão de $hat(k) = ln(N)$, logo, as *redes reais são supercríticas*. Veja a tabela presente no livro do Barabás:
+
+#figure(
+  caption: [ Tabela de redes no Barabás ],
+  table(
+    columns: (auto, 1fr, 1fr, 1fr, 1fr),
+    inset: 10pt,
+    align: horizon,
+    table.header(
+      [*Rede*], [*N*], [*L*], [$EE[K]$], [$ln(N)$]
+    ),
+
+    [Internet],	$192244$,	$609066$,	$6.34$,	$12.17$,
+    
+    [Power Grid], [$4,941$], [$6,594$], [$2.67$], [$8.51$],
+
+    [Science Collaboration], [$23,133$], [$94,437$], [$8.08$], [$10.05$],
+
+    [Actor Network], [$702,388$], [$29,397,908$], [$83.71$], [$13.46$],
+
+    [Protein Interactions], [$2,018$], [$2,930$], [$2.90$], [$7.61$]
+  )
+)
+
+
 
 == Distribuição de tamanhos de Cluster
 Queremos também ter uma noção da probabilidade de um nó $v_i$ qualquer estar em um cluster (Grupo de nós na rede) de tamanho $s$. No livro do Newman, ele nos mostra que essa probabilidade é:
@@ -533,29 +557,41 @@ Mundos pequenos (Small worlds) são grafos em que, independente da quantidade de
 
 #link("https://youtu.be/TcxZSmzPw8k?si=jXPDJE_SWwNys4YM")[_Vídeo sobre o assunto (Clique aqui)_]
 
-E se quisermos ter uma noção de o quão *não-relacionadas* duas pessoas são em uma rede social? Podemos calcular sua distância, obviamente, mas alguns algoritmos ficam computacionalmente inviáveis. Podemos então estimar uma distância média entre dois nós selecionados aleatoriamente no grafo
+E se quisermos ter uma noção de o quão *não-relacionadas* duas pessoas são em uma rede social? Podemos calcular sua distância, obviamente, mas alguns algoritmos ficam computacionalmente inviáveis. Podemos então estimar uma distância média entre dois nós selecionados aleatoriamente no grafo.
 
-#wrap-it.wrap-content(
-  figure(
-    caption: [Grafo Árvore],
-    image("images/tree-shaped-graph.png", width: 60%)
-  ),
-  [
-    Redes aleatórias costumam ter uma topologia de árvore com praticamente um número constante de graus. Perceba então que eu posso escrever a quantidade de nós $|V|$ como:
-    $
-      |V| &= 1 + delta_"med" (G) +... + delta_"med" (G)^(d_"max")   \
+Tendo uma rede $G(V,E)$ com grau médio $hat(k) = EE[K]$, é intuitivo pensar que cada nó tem, em média:
+$
+  &hat(k) "nós a" 1 "unidade de distância"    \
+  &hat(k)^2 "nós a" 2 "unidades de distância"    \
+  &dots.v  \
+  &hat(k)^d "nós a" d "unidades de distância"    \
+$
+Então é plausível dizer que a quantidade média de nós presentes até uma distância $d$ de um nó qualquer é expresso como:
+$
+  N(d) = sum_(i=0)^d hat(k)^i = ( hat(k)^(d+1) - 1 ) / ( hat(k) - 1 )
+$
 
-      &= (delta_"med" (G)^(d_"max") - 1) / ( delta_"med" (G) - 1 ) 
-    $
-    Então vamos ter que:
-    $
-      d_"max" approx (log |V|) / (log (delta_"med" (G)))
-    $
-  ]
-)
+Sabemos que esse valor não pode ter valores arbitrários, ele não passa de $|V| = N$, então podemos encontrar o grau médio que satisfaz esse o valor. Assim, fazemos:
+$
+  ( hat(k)^(d+1) - 1 ) / ( hat(k) - 1 ) approx N
+$
+
+Assumindo que $hat(k) >> 1$, podemos desprezar os termos $-1$, assim vamo obter que:
+$
+  d_"max" approx ln(N) / ln(hat(k))
+$
+
+Que é a representação matemática do problema dos minimundos. Porém, isso também traz uma interpretação muito interessante.
+
+Porém, aqui a gente ta vendo o *diâmetro* da rede, e nós comentamos anteriormente sobre *a distância entre dois nós aleatórios*. Impressionantemente, essa aproximação também é válida para essa ocasião. Denotando essa distância média, temos que a característica dos minimundos é:
+$
+  hat(d) approx ln(N) / ln(hat(k))
+$
+
+Mas por que isso acontece? Falando de um jeito mais intuitivo, essa aproximação de $d_"max"$ costuma funcionar mais para a média do caminho entre dois nós aleatórios pois, em redes reais, o $d_"max"$ é dado por um único caminho ou pouquissimos caminhos daquele tamanho, enquanto $hat(d)$ é ponderado em todos os nós. Além de que essa fórmula traz algumas intuições interessantes. Ela mostra que a distância média entre os nós aumenta conforme aumentamos o tamanho da rede, mesmo que não linearmente ou exponencialmente. E mostra também com o termo $1\/ln(hat(k))$ que, quanto mais densa é minha rede, menor vai ser a distância média
 
 == Coeficiente de Clustering
-Indica o quão agrupado um nó está dentro de uma rede
+Indica o quão agrupado um nó está dentro de uma rede. O grau de um nó não fala nada sobre a relação entre seus vizinhos, e é aí que o coeficiente de clustering entra
 
 #definition("Coeficiente de Clustering")[
   Dado uma rede $G(V,E)$, o coeficiente de clustering de um nó $v_i in V$ é definido como:
@@ -565,12 +601,16 @@ Indica o quão agrupado um nó está dentro de uma rede
   Onde $LL(v_i)$ é quantas arestas *entre si* os *vizinhos* de $v_i$ possuem e $(delta(v_i)(delta(v_i)-1))/2$ é a quantidade *máxima* de arestas que poderiam estar interligando os vizinhos de $v_i$ (Quantidade de arestas em um grafo completo $K_(delta(v_i))$)
 ]
 
-Em redes aleatórias, como as arestas são independentes e tem a mesma probabilidade $p$ de aparecer, temos:
+Vamos tomar $LL(v_i)$ como sendo a variável aleatória que indica quantas arestas os vizinhos de $v_i$ tem entre si. Novamente, como sempre, tomamos a variável indicadora $II_k$ como sendo a variável indicadora que diz se a aresta $k$ faz parte desse grupo de links entre os vizinhos do nó $v_i$. Sabemos que $PP(I_k=1)=p$, então $LL(v_i)$ seria uma binomial, mas qual seria o parâmetro da quantidade? Quantas variáveis indicadoras $II_k$ eu tenho que somar? Se pararmos para pensar, o *máximo* de links que podem existir entre os vizinhos de $v_i$ é o grafo completo formado por todos eles, então, no final, temos que:
 $
-  LL(v_i) approx p (delta(v_i) (delta(v_i) - 1))/2   =>   "Cluster"(v_i) = p = ( delta_"med" (G) ) / ( |V| )
+  LL(v_i) ~ "Bin"(mat(hat(k);2), p)
+$
+Então, no final, vamos ter que:
+$
+  EE[LL(v_i)] approx p (delta(v_i) (delta(v_i) - 1))/2   =>   "Cluster"(v_i) = p = ( EE[K] ) / ( |V| )
 $
 
-Só que sabemos que, em redes aleatórias, para que esse número seja alto, a probabilidade em si das arestas tem que ser alto, porém, se $p$ é alto, então a rede aleatória em si será um grande aglomerado, seria um único cluster enorme. Essa característica é um forte indicativo, por exemplo, de que redes como as *redes sociais* *não são* redes aleatórias
+Só que sabemos que, em redes aleatórias, para que esse número seja alto, a probabilidade em si das arestas tem que ser alto, porém, se $p$ é alto, então a rede aleatória em si será um grande aglomerado, seria um único cluster enorme. Essa característica é um forte indicativo, por exemplo, de que redes como as *redes sociais* *não são* redes aleatórias. O livro do Barabás mostra um experimento e mostra que, em redes reais, o coeficiente de clustering é muito maior do que o esperado em redes aleatórias, de forma que, em redes reais, esse coeficiente costuma ser bastante independente de $N$, diferente do que encontramos agora há pouco
 
 == Conclusão
 Como conclusão, temos que redes aleatórias *não representam bem as redes da vida real*. Não existem redes na natureza que são corretamente descritas como *redes aleatórias*. Então por que estudar elas? Na verdade, veremos posterioremente que, mesmo elas sendo erradas e irrelevantes, elas são *muito úteis*
@@ -701,4 +741,4 @@ $
   f_K (k) =  2m^2 k^(-3)
 $
 
-Percebemos, então, que a variável aleatória $K$, que representa o grau de um nó na rede, tem a distribuição *$"Paretto"(2, m)$*
+Percebemos, então, que a variável aleatória $K$, que representa o grau de um nó na rede, tem a distribuição *$"Paretto"(2, m)$*. O que, na verdade, faz bastante sentido. A distribuição de Paretto é bastante usada para descrever a concentração de riquezas e, como sabemos bem, o dinheiro costuma se concentrar sempre em quem tem mais dinheiro, então é só imaginar que o grau de um nó representa o quão rica uma pessoa é e bingo, faz todo sentido essa distribuição!
