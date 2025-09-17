@@ -1399,6 +1399,17 @@ Agora que vimos bastante da teoria por trás da otimização, precisamos viabili
 
 Esse são apenas alguns exemplos, mas existem *inúmeros* algoritmos nesse ramo
 
+== Método Gradiente
+Vamos definir o algoritmo do gradiente
+
+#pseudocode-list[
+  + $x_1$ inicial
+  + *for* $t=1,...,n$ *do*:
+    + $x_(t+1) = x_t - alpha_t nabla f(x_t)$
+]
+
+Onde $alpha_t>0$ é o "passo" ou learning rate. Vamos agora fazer algumas definições para mostrar o porquê do método do gradiente funcionar
+
 #definition("Suavidade")[
   Dizemos que $f: RR^n -> RR$ é uma função $L$-suave se $exists L > 0$ tal que:
   $
@@ -1409,18 +1420,6 @@ Esse são apenas alguns exemplos, mas existem *inúmeros* algoritmos nesse ramo
     ||nabla f(x) - nabla f(y)|| <= O(||x-y||)
   $
 ]
-
-== Método Gradiente
-Vamos definir o algoritmo do gradiente
-
-#pseudocode-list[
-  + $x_1$ inicial
-  + *for* $t=1,...,n$ *do*:
-    + $x_(t+1) = x_t - alpha_t nabla f(x_t)$
-]
-
-Onde $alpha_t>0$ é o "passo" ou learning rate
-
 
 #definition("Direção de Descida")[
   Dizemos que $d in RR^n$ é de "descida" a partir de um ponto $x in RR^n$ se:
@@ -1471,5 +1470,3 @@ $
     &= f(x_t) - alpha_t ||f(x_t)||^2 + (L alpha_t^2)/2 ||nabla f(x_t)||^2
   $
 ]
-
-
