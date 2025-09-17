@@ -612,6 +612,21 @@ $
 
 Só que sabemos que, em redes aleatórias, para que esse número seja alto, a probabilidade em si das arestas tem que ser alto, porém, se $p$ é alto, então a rede aleatória em si será um grande aglomerado, seria um único cluster enorme. Essa característica é um forte indicativo, por exemplo, de que redes como as *redes sociais* *não são* redes aleatórias. O livro do Barabás mostra um experimento e mostra que, em redes reais, o coeficiente de clustering é muito maior do que o esperado em redes aleatórias, de forma que, em redes reais, esse coeficiente costuma ser bastante independente de $N$, diferente do que encontramos agora há pouco
 
+== Grau Máximo e Grau Mínimo
+Dependendo do contexto analisado, pode ser de grande interesse saber os valores esperados do *maior grau* de uma rede e do *menor grau*. Para descobrir o *maior grau*, precisamos que, na rede, tenhamos *no máximo* um nó com grau maior que $k_"max"$. Isso significa que a área do gráfico da distribuição *em frente* a $k_max$ é aproximadamente 1:
+$
+  N dot PP(K >= k_max) approx 1   \
+
+  N dot (1 - PP(K < k_max)) approx 1
+$
+
+E podemos usar um argumento análogo, afirmando que deveríamos ter, no máximo, apenas um nó com grau menor que $k_min$, então teríamos:
+$
+  N dot PP(K <= k_min - 1) = 1
+$
+Assim resolvemos as duas equações para achar $k_min$ e $k_max$
+
+
 == Conclusão
 Como conclusão, temos que redes aleatórias *não representam bem as redes da vida real*. Não existem redes na natureza que são corretamente descritas como *redes aleatórias*. Então por que estudar elas? Na verdade, veremos posterioremente que, mesmo elas sendo erradas e irrelevantes, elas são *muito úteis*
 
@@ -742,3 +757,189 @@ $
 $
 
 Percebemos, então, que a variável aleatória $K$, que representa o grau de um nó na rede, tem a distribuição *$"Paretto"(2, m)$*. O que, na verdade, faz bastante sentido. A distribuição de Paretto é bastante usada para descrever a concentração de riquezas e, como sabemos bem, o dinheiro costuma se concentrar sempre em quem tem mais dinheiro, então é só imaginar que o grau de um nó representa o quão rica uma pessoa é e bingo, faz todo sentido essa distribuição!
+
+#pagebreak()
+
+#align(center+horizon)[
+  = Redes Livres de Escala
+]
+
+#pagebreak()
+
+São as redes geradas após um processo de *Anexação Preferencial*. Um grande exemplo é a rede da internet (WWW). Quando olhamos ela de relance, ela aparenta ser uma rede aleatória, porém, é notável que certos nós ficam agrupados em regiões com outros nós de grau *muito grande*. Veja essa representação em rede dos documentos da Internet gerada por Hawoong Jeong na Universidade de Notre-Dame
+
+#figure(
+  caption: [Rede WWW],
+  image("images/www.png")
+)
+
+Se a rede WWW fosse uma rede aleatória, os graus teriam uma distribuição Poisson, porém, como a imagem a seguir mostra, isso não ocorre:
+
+#figure(
+  caption: [Distribuição dos graus em Log-Log],
+  image("images/scale-free-degree-distribution.png")
+)
+
+Como podemos ver, os graus, no gráfico log-log, são bem aproximados por uma reta. Isso é um indicativo de que a sua distribuição é algo parecido com:
+$
+  PP(K = k) = k^(-gamma)
+$
+
+Isso é chamado de *Distribuição de Lei de Potência*, e $gamma$ é o *expoente do grau*. A internet é uma rede direcionada, então todo documento tem um grau de entrada e de saída. Com esse contexto em mente, podemos finalmente definir:
+
+#definition("Redes livres de Escala")[
+  Uma rede é dita livre de escala quando a distribuição do grau de seus vértices segue uma forma exponencial
+]
+
+== Formalismo Discreto
+Para cálculos analíticos, é interessante deixar que os graus possam assumir qualquer tipo de valor real (Mesmo que apenas os naturais sejam possíveis). Seja $K$ a variável aleatória que indica o grau de um vértice escolhido aleatoriamente, temos que:
+$
+  PP(K=k) = C k^(-gamma)
+$
+
+Normalizando, temos:
+$
+  integral_(k_min)^(infinity) PP(K=k) dif k = 1   \
+
+  => C = (gamma-1)k_min ^(gamma-1)
+$
+
+Então temos que a distribuição segue a P.M.F:
+$
+  PP(K=k) = (gamma - 1) k_min ^(gamma-1) k^(-gamma)
+$
+
+== Centros
+Vamos analisar a seguinte imagem:
+
+#figure(
+  caption: [Distribuição de Poisson e Distribuição de Potência],
+  image("images/poisson-and-power-comparision.png", width: 58%)
+)
+
+A gente pode analisar em 3 pontos principais:
+
+- Antes de $hat(k)$ a rede livre de escala é maior, ou seja, há mais nós com grau pequeno nela do que na poisson
+- Na vizinhança de $hat(k)$, a poisson é maior, logo, existe um excesso de nós com grau $hat(k)$ na rede Poisson
+- Depois a rede livre de escala volta a ser maior
+
+Isso significa que, em redes livre de escala, temos altas chances, ou de obter *um nó com grau muito grande (Hub)* ou obter vários nós com grau pequeno
+
+=== Maior Centro
+Também chamados de *hubs*, são os nós mais centrais, aqueles que representam uma maior importância dependendo do contexto, aqui, sendo aqueles com o maior grau. Podemos querer saber como eles se comportam nessas redes livres de escala! Para isso, temos que calcular qual é o maior grau da distribuição $k_"max"$, também chamado de corte natural da distribuição. Representa o tamanho esperado do maior hub. Antes de partir para o caso complicado geral de $p(k) = C k^(-gamma)$, vamos primeiro fazer um caso mais simples, vamos fazer para a *exponencial*:
+$
+  p(k) = C e^(-lambda k)
+$
+Para uma rede com grau mínimo $k_min$, temos que a normalização vai ficar:
+$
+  integral_(k_min)^(infinity) p(k) dif k = 1  =>  C = lambda e^(lambda k_min)
+$
+Agora, para saber $k_max$, fazemos o mesmo processo que vimos antes, vamos supor que, em uma rede com $N$ nós, o valor esperado do grau para o regime $(k_max, infinity)$ seja $1$, ou seja:
+$
+  EE[K|k>k_max] = 1 => N dot PP(K>=k_max) = 1   \
+
+  <=> integral_(k_max)^(infinity) p(k) dif k = 1/N
+$<kmin-and-kmax-equation>
+
+Resolvendo a integral, vamos obter:
+$
+  k_max = k_min + ln(N) / lambda
+$
+
+Essa equação nos indica algo interessante. $ln(N)$ é uma função que cresce devagar conforme $N -> infinity$, já que a sua derivada tende a $0$, então quanto maior o $N$, mais devagar a função vai crescer. Ou seja, isso indica que, conforme o $N$ cresce, o grau máximo e mínimo não diferem tanto!
+
+Esse cálculo pra distribuição de Poisson é um pouquinho mais evoluído, mas a gente chega que o resultado é muito parecido e que $N$ cresce mais lentamente ainda
+
+Agora, para as redes livre de escala, resolvendo @kmin-and-kmax-equation, a gente obtém:
+$
+  k_max = k_min dot N^(1/(gamma-1))
+$<biggest-hub-relation>
+
+Ou seja, quanto maior é minha rede, maior vai ser o tamanho do meu centro (Maior é o grau do nó com mais graus). Isso é um resultado bem intuitivo, na verdade! Lembra que nós começamos dando o contexto da rede da internet (WWW)? Se pararmos para pensar, conforme as pessoas criam páginas na internet, elas tendem a colocar links para páginas famosas na internet, ou que tem alguma relevância em *comunidades*, ou seja, quanto mais links referenciando uma página, mais páginas vão referenciar ela, de forma que, quanto mais páginas vão sendo criadas, maior vai ser a quantidade de links referenciando páginas famosas ou reconhecidas!
+
+== Significado de Livre de Escala
+Antes de entender o significado desse termo, vamos nos familiarizar com alguns conceitos. Vimos em probabilidade o conceito de *momentos*. O $n$-ésimo momento da distribuição dos graus (Levando em conta a variável aleatória $K$ que é o grau de um vértice aleatório) é:
+$
+  EE[K^n] = sum_(i=k_min)^(infinity) k^n dot PP(K=k) = integral_(k_min)^(infinity) k^n p(k) dif k
+$
+
+Resolvendo a integral, vamos obter:
+$
+  EE[K^n] = C (k_max^(n-gamma+1) - k_min^(n-gamma+1)) / (n-gamma+1)
+$
+
+Sabemos que, normalmente, $k_min$ é fixo enquanto $k_max$ aumenta confirme $N->infinity$. Então vamos fazer uma análise mais detalhada sobre essa fórmula para o $n$-ésimo momento
+
+- Se $n - gamma + 1 <= 0$, então $k_max^(n-gamma+1) -> 0$ quando $N -> infinity$ (Ou $1$ quando a equação é igual a $0$). Então todos os momentos que satisfazem $n < gamma - 1$ são *finitos*
+
+- Do contrário, se $n - gamma + 1 > 0$, então $k_max^(n-gamma+1) -> infinity$ quando $N -> infinity$, então os momentos que satisfazem $n > gamma - 1$ *divergem*
+
+Agora a gente pode tentar entender melhor o que esse *sem escala* significa. Vamos pegar uma rede de Poisson, sabemos que $EE[K]=hat(k)$ e que $sigma_k = sqrt(hat(k))$ (Desvio padrão dos graus). Pela desigualdade de Chebyshev:
+$
+  PP(|K-hat(k)| >= h sigma_k) <= 1/h^2
+$
+
+Que que isso quer dizer? O que quero dizer é que, em redes de Poisson, a chance de os graus estárem a $h$ desvios padrões da média é *no máximo* $1\/h^2$. Isso é um indicativo grande de que a média dos graus serve como uma "escala", de forma que temos uma  noção do quão longe desse valor podemos estar caso escolhemos um nó aleatório.
+
+Porém, em redes livres de escala em que o segundo momento diverge? Isso significa que, quando eu pego um nó aleatoriamente nessa rede, eu não sei o que esperar, a diferença dele para a média pode ser arbitrariamente grande ou pequena, não temos como ter ideia, ou seja, *não há uma escala para comparação*
+
+É claro que a divergência de $EE[K^2]$ só acontece no limite $N->infinity$, mas isso ainda tem uma relevância para redes finitas. Vamos pegar o caso da rede de internet novamente, sabemos que a quantidade de documentos (Nós) está na casa dos bilhões ou trilhões, o que indica que temos uma variância MUITO GRANDE, ou seja, mesmo tendo uma variância finita e, no concreto, tenhamos uma escala, ela é quase irrelevante, já que, ao pegarmos um documento aleatório, ele pode estar sendo citado por apenas dois outros documentos, ou ser citado por bilhões de documentos (Como google, facebook, etc.)
+
+== Propriedade _Ultra Small_
+Essa propriedade dos centros faz levantar uma pergunta: Será que os centros afetam a propriedade dos minimundos? (Distância média). Se formos parar para tentar ter uma visão intuitiva, faz sentido dizer que elas afetam. Se eu tenho nós que se ligam em *MUITOS* outros nós (Os centros), então faz sentido dizer que a probabilidade de a distância entre dois outros nós quaisquer ser pequena é bem alta. Na verdade essa visão intuitiva está *correta*. As distâncias em uma rede *livre de escala* são menores do que em redes aleatórias equivalentes. Nós temos a seguinte relação: Seja D a variável aleatória que representa a distância entre dois nós aleatórios na rede
+$
+  EE[D] = cases(
+    "const" wide &gamma = 2,
+    ln(ln(N)) wide &2 < gamma < 3,
+    ln(N) / (ln(ln(N))) wide &gamma = 3,
+    ln(N) wide & gamma > 3
+  )
+$<average-path-distance-ultra-small-networks>
+
+Vamos falar um pouco sobre cada um desses _regimes_
+
+=== Regime Anômalo ($gamma = 2$)
+De acordo com a equação @biggest-hub-relation, quando $gamma=2$, o maior hub (Maior centro) vai crescer linearmente com relação a $N$, ou seja, o tamanho do caminho entre dois nós aleatórios não depende de $N$ já que essa relação linear indica que todos os nós vão estar conectados ao mesmo hub central
+
+=== Super minimundo ($2 < gamma < 3$)
+Nesse regmie, como previsto pela relação @average-path-distance-ultra-small-networks, a dsitância fica em relação a $ln(ln(N))$, que é um crescimento absurdamente lento comparado a $ln(N)$ obtido em redes aleatórias. Essas redes são chamadas de *Ultra Small* por que os hubs reduzem o tamanho dos caminhos *muito*, já que eles se ligam com milhares de nós com baixo grau
+
+=== Ponto Crítico ($gamma = 3$)
+Aqui o segundo momento já não diverge mais, então é um ponto teórico de bastante interesse. Aqui o termo $ln(N)$ encontrado nas redes aleatórias volta, mas tem uma correção com $ln(ln(N))$ ainda
+
+=== Minimundo ($gamma > 3$)
+Aqui o termo $ln(N)$ volta! Isso mostra um indicativo que para essas redes, mesmo a presença de hubs ainda existindo, eles não são grandes o suficiente para influenciar na distância entre os nós, sendo desprezíveis praticamente ao afetarem a distância
+
+#wrap-it.wrap-content(
+  figure(
+    caption: [Distância média em função da quantidade de nós e distribuição das distâncias para $N=10^2$, $N=10^4$ e $N=10^6$],
+    image("images/distance-distribution.png")
+  ),
+  [
+    Essa imagem presente no livro do barabasi mostra a prograssão das distâncias médias conforme aumentamos a quantidade de nós. Perceba que, para $N$ não muito grandes, como $N=10^4$, as distribuições (E a distância média) não tem tanta diferença assim, porém com $N=10^6$, ja da para notar diferenças atenuadas. Isso também é um indicativo de que, quanto maior o expoente da rede livre de escala, maior é a distância média entre dois nós
+  ]
+)
+
+== O Papél do Expoente do Grau
+Se pararmos para analisar redes na vida real, vamos perceber que $gamma$ varia de rede para rede, isso nos leva a intuitivamente querer saber como $gamma$ influencia nas redes reais. Na maioria das redes reais, temos que $gamma > 2$, o que também gera a pergunta: Por quê?
+
+#figure(
+  caption: [Regimes de $gamma$],
+  image("images/gamma-regimes.png")
+)
+
+=== Regime Anômalo ($gamma <= 2$)
+Nesse regime, o expoente $1\/(gamma-1)$ é maior que $1$, ou seja, o número de links conectados ao maior hub cresce *mais rápido que o próprio número de links em si*, além de que $EE[K]$, sendo K a variável aleatória do grau dos nós, também diverge. O que isso indica? Isso mostra que, redes livre de escala *sem links múltiplos*, ou seja, a existência de várias arestas que ligam os mesmos dois nós, *não podem existir*
+
+=== Regime Livre de Escala ($2 < gamma < 3$)
+Aqui, o primeiro momento converge enquanto o segundo diverge, o que faz a gente cair na situação que ja comentei anteriormente de os graus serem arbitrariamente grandes, porém, que a distância entre dois nós cresce *muito* devagar, os já mencionado *Ultra Small Worlds*
+
+=== Regime de Rede Aleatória ($gamma > 3$)
+Como indicado relação @average-path-distance-ultra-small-networks, e por motivos práticos também, nesse regime, as propriedades das redes livres de escala não são muito diferentes das propriedades das redes aleatórias. Isso pois, como ja comentado, o grau dos nós decaem rapido o suficiente para que os hubs, mesmo os maiores, não sejam tão numerosos ao ponto de que afetem muito a distância média entre os nós
+
+Na prática, costuma-se observar que, para que os hubs venham a influenciar na distância média, $k_max$ tem que ser, pelo menos, umas $10^2$, $10^3$ vezes maior que $k_min$. Na prática a gente pode reformular a relação @biggest-hub-relation como:
+$
+  N = (k_max / k_min)^(gamma - 1)
+$
+
+E isso daria uma relação de quantos nós precisamos para que começássemos a registrar a propriedade da rede livre de escala. Por exemplo, vamos supor que queremos saber quantos nós precisamos para começar a ver essa propriedade em redes de $gamma = 5$ (E, por exemplo, $k_min=1$ e $k_max = 10^2$), então deveríamos ter $N>10^8$, e são poucas as redes, na prática, com um tamanho absurdo desses!

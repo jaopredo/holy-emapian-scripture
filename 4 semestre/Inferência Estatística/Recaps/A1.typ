@@ -586,11 +586,21 @@ Mas eu falei antes que esses estimadores formalizavam a ideia de "O parâmetro $
 
 == Propriedades
 #theorem[
-  Se $accent(theta, \^)$ é o Estimador de Máxima Verossimilhança (EMV) de $theta$ e $g$ é uma função bijetiva, então $g(accent(theta, \^))$ é o EMV de $g(theta)$
+  Se $accent(theta, \^) in Omega$ é o Estimador de Máxima Verossimilhança (EMV) de $theta$ e $g$ é uma função bijetiva, então $g(accent(theta, \^))$ é o EMV de $g(theta)$
+]
+#proof[
+  Seja $Gamma$ o novo espaço paramétrico, ou seja, $g: Omega -> Gamma$. Vamos definir $h$ como sendo a função inversa, ou seja $theta = h(psi)$. Se expressarmos a p.d.f em função de $psi$, vamos obter $f(x|h(psi))$ e a função de verossimilhança será $f(underline(x)|h(psi))$.
+
+  Sabemos que o EMV $hat(psi)$ de $psi$ é vai ser o valor de $psi$ que maximiza $f(underline(x)|h(x))$. Como $f(x|theta)$ é maximizada quando $theta = hat(theta)$, então $h(psi) = hat(theta)$ maximiza a verossimilhança. Porém, aplicando $g$ em ambos os lados, obtemos que:
+  $
+    hat(psi) = g(hat(theta))
+  $
 ]
 
-#definition[
-  Seja $g(theta)$ uma função arbitrária do parâmetro com $g: Omega -> G$. Para cada $t in G$, defina $G_t := { theta : g(theta) = t }$ e $L^*(accent(t, \^)) := max_(theta in G_t) log p(underline(x)|theta)$, defina então o EMV de $g(theta)$ como $accent(t, \^)$ como:
+Essa propriedade é algo ótimo! Tendo em vista que no método anterior, o estimador de Bayes de $1\/theta$ podia ser diferente de $1\/hat(theta)$. Porém, podemos estender esse teorema para casos em que a função $g$ não é bijetiva. Vamos então definir o *estimador de uma função*
+
+#definition("MVE de uma Função")[
+  Seja $g(theta)$ uma função arbitrária do parâmetro com $g: Omega -> G$. Para cada $t in G$, defina $G_t := { theta : g(theta) = t }$ e $L^*(accent(t, \^)) := max_(theta in G_t) log f(underline(x)|theta)$, defina então o EMV de $g(theta)$ como $accent(t, \^)$ como:
   $
     L^*(accent(t,\^)) = max_(t in G_t) L^*(t)
   $
@@ -602,6 +612,12 @@ Mas eu falei antes que esses estimadores formalizavam a ideia de "O parâmetro $
     hat(g(theta)) = g(hat(theta))
   $
 ]
+#proof[
+  Como $L^*(t)$ é o máximo de $log f(underline(x)|theta)$ em $theta$ num subconjunto de $Omega$, e como $log f(underline(x)|hat(theta))$ é o máximo sob todos os $theta$, então sabemos que $L^*(t) <= log f(underline(x)|theta) space forall t in G$. Denote $hat(t) = g(hat(theta))$. Perceba que $hat(theta) in G_hat(t)$. Como $hat(theta)$ maximiza $f(underline(x)|theta)$ em todos $theta$, então ele também maximiza $f(underline(x)|theta)$ sob todos os $theta in G_hat(t)$. Por isso, $L^*(hat(t)) = log f(underline(x)|hat(theta))$ e $hat(t) = g(hat(theta))$ é um EVM de $g(theta)$
+]
+
+== Computação Numérica
+Muitos problemas possuem um EVM $hat(theta)$ de um parâmetro $theta$, porém esses não podem ser computados com fórmulas fechadas. Nesses casos, precisamos utilizar de métodos numéricos para aproximações.
 
 #pagebreak()
 
