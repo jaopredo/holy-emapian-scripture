@@ -853,7 +853,7 @@ Esse cálculo pra distribuição de Poisson é um pouquinho mais evoluído, mas 
 Agora, para as redes livre de escala, resolvendo @kmin-and-kmax-equation, a gente obtém:
 $
   k_max = k_min dot N^(1/(gamma-1))
-$
+$<biggest-hub-relation>
 
 Ou seja, quanto maior é minha rede, maior vai ser o tamanho do meu centro (Maior é o grau do nó com mais graus). Isso é um resultado bem intuitivo, na verdade! Lembra que nós começamos dando o contexto da rede da internet (WWW)? Se pararmos para pensar, conforme as pessoas criam páginas na internet, elas tendem a colocar links para páginas famosas na internet, ou que tem alguma relevância em *comunidades*, ou seja, quanto mais links referenciando uma página, mais páginas vão referenciar ela, de forma que, quanto mais páginas vão sendo criadas, maior vai ser a quantidade de links referenciando páginas famosas ou reconhecidas!
 
@@ -885,4 +885,61 @@ Porém, em redes livres de escala em que o segundo momento diverge? Isso signifi
 
 É claro que a divergência de $EE[K^2]$ só acontece no limite $N->infinity$, mas isso ainda tem uma relevância para redes finitas. Vamos pegar o caso da rede de internet novamente, sabemos que a quantidade de documentos (Nós) está na casa dos bilhões ou trilhões, o que indica que temos uma variância MUITO GRANDE, ou seja, mesmo tendo uma variância finita e, no concreto, tenhamos uma escala, ela é quase irrelevante, já que, ao pegarmos um documento aleatório, ele pode estar sendo citado por apenas dois outros documentos, ou ser citado por bilhões de documentos (Como google, facebook, etc.)
 
+== Propriedade _Ultra Small_
+Essa propriedade dos centros faz levantar uma pergunta: Será que os centros afetam a propriedade dos minimundos? (Distância média). Se formos parar para tentar ter uma visão intuitiva, faz sentido dizer que elas afetam. Se eu tenho nós que se ligam em *MUITOS* outros nós (Os centros), então faz sentido dizer que a probabilidade de a distância entre dois outros nós quaisquer ser pequena é bem alta. Na verdade essa visão intuitiva está *correta*. As distâncias em uma rede *livre de escala* são menores do que em redes aleatórias equivalentes. Nós temos a seguinte relação: Seja D a variável aleatória que representa a distância entre dois nós aleatórios na rede
+$
+  EE[D] = cases(
+    "const" wide &gamma = 2,
+    ln(ln(N)) wide &2 < gamma < 3,
+    ln(N) / (ln(ln(N))) wide &gamma = 3,
+    ln(N) wide & gamma > 3
+  )
+$<average-path-distance-ultra-small-networks>
 
+Vamos falar um pouco sobre cada um desses _regimes_
+
+=== Regime Anômalo ($gamma = 2$)
+De acordo com a equação @biggest-hub-relation, quando $gamma=2$, o maior hub (Maior centro) vai crescer linearmente com relação a $N$, ou seja, o tamanho do caminho entre dois nós aleatórios não depende de $N$ já que essa relação linear indica que todos os nós vão estar conectados ao mesmo hub central
+
+=== Super minimundo ($2 < gamma < 3$)
+Nesse regmie, como previsto pela relação @average-path-distance-ultra-small-networks, a dsitância fica em relação a $ln(ln(N))$, que é um crescimento absurdamente lento comparado a $ln(N)$ obtido em redes aleatórias. Essas redes são chamadas de *Ultra Small* por que os hubs reduzem o tamanho dos caminhos *muito*, já que eles se ligam com milhares de nós com baixo grau
+
+=== Ponto Crítico ($gamma = 3$)
+Aqui o segundo momento já não diverge mais, então é um ponto teórico de bastante interesse. Aqui o termo $ln(N)$ encontrado nas redes aleatórias volta, mas tem uma correção com $ln(ln(N))$ ainda
+
+=== Minimundo ($gamma > 3$)
+Aqui o termo $ln(N)$ volta! Isso mostra um indicativo que para essas redes, mesmo a presença de hubs ainda existindo, eles não são grandes o suficiente para influenciar na distância entre os nós, sendo desprezíveis praticamente ao afetarem a distância
+
+#wrap-it.wrap-content(
+  figure(
+    caption: [Distância média em função da quantidade de nós e distribuição das distâncias para $N=10^2$, $N=10^4$ e $N=10^6$],
+    image("images/distance-distribution.png")
+  ),
+  [
+    Essa imagem presente no livro do barabasi mostra a prograssão das distâncias médias conforme aumentamos a quantidade de nós. Perceba que, para $N$ não muito grandes, como $N=10^4$, as distribuições (E a distância média) não tem tanta diferença assim, porém com $N=10^6$, ja da para notar diferenças atenuadas. Isso também é um indicativo de que, quanto maior o expoente da rede livre de escala, maior é a distância média entre dois nós
+  ]
+)
+
+== O Papél do Expoente do Grau
+Se pararmos para analisar redes na vida real, vamos perceber que $gamma$ varia de rede para rede, isso nos leva a intuitivamente querer saber como $gamma$ influencia nas redes reais. Na maioria das redes reais, temos que $gamma > 2$, o que também gera a pergunta: Por quê?
+
+#figure(
+  caption: [Regimes de $gamma$],
+  image("images/gamma-regimes.png")
+)
+
+=== Regime Anômalo ($gamma <= 2$)
+Nesse regime, o expoente $1\/(gamma-1)$ é maior que $1$, ou seja, o número de links conectados ao maior hub cresce *mais rápido que o próprio número de links em si*, além de que $EE[K]$, sendo K a variável aleatória do grau dos nós, também diverge. O que isso indica? Isso mostra que, redes livre de escala *sem links múltiplos*, ou seja, a existência de várias arestas que ligam os mesmos dois nós, *não podem existir*
+
+=== Regime Livre de Escala ($2 < gamma < 3$)
+Aqui, o primeiro momento converge enquanto o segundo diverge, o que faz a gente cair na situação que ja comentei anteriormente de os graus serem arbitrariamente grandes, porém, que a distância entre dois nós cresce *muito* devagar, os já mencionado *Ultra Small Worlds*
+
+=== Regime de Rede Aleatória ($gamma > 3$)
+Como indicado relação @average-path-distance-ultra-small-networks, e por motivos práticos também, nesse regime, as propriedades das redes livres de escala não são muito diferentes das propriedades das redes aleatórias. Isso pois, como ja comentado, o grau dos nós decaem rapido o suficiente para que os hubs, mesmo os maiores, não sejam tão numerosos ao ponto de que afetem muito a distância média entre os nós
+
+Na prática, costuma-se observar que, para que os hubs venham a influenciar na distância média, $k_max$ tem que ser, pelo menos, umas $10^2$, $10^3$ vezes maior que $k_min$. Na prática a gente pode reformular a relação @biggest-hub-relation como:
+$
+  N = (k_max / k_min)^(gamma - 1)
+$
+
+E isso daria uma relação de quantos nós precisamos para que começássemos a registrar a propriedade da rede livre de escala. Por exemplo, vamos supor que queremos saber quantos nós precisamos para começar a ver essa propriedade em redes de $gamma = 5$ (E, por exemplo, $k_min=1$ e $k_max = 10^2$), então deveríamos ter $N>10^8$, e são poucas as redes, na prática, com um tamanho absurdo desses!
