@@ -111,31 +111,32 @@ Já vemos desde o começo do curso que um algoritmo é um conjunto de instruçõ
   image("images/problem-solution-path.png")
 )
 
-Então como podemos comparar eles? Como eu sei qual que é o melhor caminho até minha solução? De primeira a gente pode pensar: "Vê quanto tempo executou!", mas isso gera um problema... Se eu executo um algoritmo em um computador de hoje em dia e o mesmo algoritmo em um computador de 1980, com certeza eles vão levar tempos diferentes para executar, correto? Isso pode afetar na medição que eu estou fazendo do meu algoritmo!
+Então, como podemos comparar eles? Como saber qual é o melhor caminho até a solução? De primeira podemos pensar: "É só ver quanto tempo demora para executar!", mas isso gera um problema... Se executarmos um algoritmo em um computador atual e o mesmo algoritmo em um computador de $1980$, com certeza eles vão levar tempos diferentes para executar, correto? Isso pode afetar na medição do algoritmo!
 
-Então o que fazer? O mais comum é analisarmos o quão bem meu algoritmo consegue funcionar de acordo com o quão grande meu problema fica!
+Então, o que fazer? O mais comum é analisarmos o quão bem o algoritmo consegue funcionar de acordo com o quão grande o problema fica!
 
 #definition("Função de Complexidade")[
-  A complexidade de um algoritmo é a função $T: U^+ -> RR$ que leva do espaço do tamanho das entradas do problema até a quantidade de instruções feitas para realizá-lo
+  A complexidade de um algoritmo é a função $T: U^+ -> RR$ que leva do espaço do tamanho das entradas do problema até a quantidade de instruções feitas para realizá-lo.
 ]
 
-#example[
-  ```py
-  def sum(numbers: list):
-    result = 0
-    for number in numbers:
-      result += 1
-    return result
-  ```
-  Eu tenho que, para esse algoritmo, $T(n) = n$, pois, quanto maior é a quantidade de números na minha lista, maior é o tempo que a função vai ficar executando
+#example[```cpp
+int sum(const int numbers[], int size) { 
+  int result = 0;
+  for (int i = 0; i < size; i++) {
+      result += numbers[i];
+  }
+  return result;
+}
+```
+  Portanto, temos que, para esse algoritmo, $T(n) = n$, pois o algoritmo depende diretamente do tamanho da entrada, já que passa uma vez por cada elemento Como isso acontece somente uma vez(além de declarações unitárias de variáveis que não dependendem de n), $T(n) = n$.
 ]
 
-Só que achar qual é essa função exatamente pode ser muito trabalhoso, além de que muitas funções são parecidas e podem gerar uma dificuldade na hora da análise. Então o que fazemos?
+Achar qual é exatamente essa função pode ser muito trabalhoso, além de que, muitas funções são parecidas e podem gerar dificuldade na hora da análise. Então, o que fazemos?
 
-Faz sentido dizermos que, se a partir de algum ponto uma função $T_1$ cresce mais do que $T_2$, então o algoritmo $T_1$ acaba sendo pior, então criamos a definição:
+Se a partir de algum ponto certa função $T_1$ cresce mais do que $T_2$, então o algoritmo $T_1$ é pior que $T_2$, por isso, criamos a definição:
 
 #definition("Big O")[
-  Dizemos que $T(n) = O(f(n))$ se $exists c, n_0 > 0$ tais que
+  Dizemos que $T(n) = O(f(n))$ se $exists " " c, n_0 > 0$ tais que
   $
     T(n) <= c f(n), space forall n >= n_0
   $
@@ -148,11 +149,25 @@ Ou seja, dado algum $c$ e $n_0$ qualquer, depois de $n_0$, $f(n)$ SEMPRE cresce 
   $
     T(n) >= c f(n), space forall n >= n_0
   $
-]
+]<defomega>
+
+Note que a definição acima apenas limita inferiormente, enquanto a primeira limita superiormente a função $T(n)$.
 
 #definition([Big $Theta$])[
   Dizemos que $T(n) = Theta(f(n))$ se $T(n) = Omega(f(n))$ e $T(n) = O(f(n))$
 ]
+
+Ou seja, o algoritmo é completamente limitado e definido por $f(n)$(perceba que nem sempre é possível limitar o algoritmo superiormente e inferiormente pela mesma função).
+
+Por fim, perceba que, se que $T(n) = O(f(n))$, e $h(n_0) > f(n_0) space forall n > n_0 $, então  $T(n) = O(h(n))$.
+
+#example[
+  Digamos que $T(n) = O(n)$. Logo, a partir de certo ponto, $T(n) = O(n^2)$, já que também consegue ser limitado pela função $n^2$.
+]
+
+Essa ideia serve principalmente para dizer que qualquer função maior que $f(n)$ pode limitar $T(n)$, e é claro que você, caro leitor, pode achar isso óbvio, mas parece um pouco duvidoso achar que $T(n) = n$ é $O(n^3)$, porém isso é verdade.
+
+O mesmo vale para funções menores que $Omega(f(n))$, por isso, fique atento a esse tipo de pegadinha!
 
 #pagebreak()
 
@@ -162,23 +177,28 @@ Ou seja, dado algum $c$ e $n_0$ qualquer, depois de $n_0$, $f(n)$ SEMPRE cresce 
 
 #pagebreak()
 
-Alguns algoritmos são fáceis de terem suas complexidades calculadas, porém, na programação, existem casos onde uma função utiliza ela mesma dentro de sua chamada, as temidas *recursões*
-
-```py
-def fatorial(n):
-  if n == 1:
-    return 1
-  return n*fatorial(n-1)
+Alguns algoritmos são fáceis de terem suas complexidades calculadas, porém, existem casos onde uma função utiliza ela mesma dentro de sua chamada, chamadas de *recursões*.
+#example[
+```cpp
+int fatorial(int n) {
+  if (n == 1) {
+      return 1;
+  }
+  return n * fatorial(n - 1);
+}
 ```
 
-Então nós temos um $T(n)$ que chama $T(n-1)$, o que fazemos? Temos 4 métodos de resolver esse problema
+ Aqui, temos um $T(n)$ que chama $T(n-1)$, até que se chegue no caso base de $n = 1$, como calcular a complexidade disso?]
+
+ Temos 4 métodos de resolver esse problema:
+
 - *Método da substituição*
 - *Método da árvore de recursão*
 - *Método da iteração*
 - *Método mestre*
 
 == Método da substituição
-Vamos provar por *indução* que $T(n)$ é $O$ de uma função *pressuposta*. Só posso usar quando eu tenho uma hipótese da solução. Precisamos provar exatamente a hipótese. Pode ser usado para limites superiores e inferiores
+A ideia é provar  por *indução* que $T(n)$ é $O$ de uma função *pressuposta*. Por isso, é claro, só é passível de uso quando se tem uma hipótese da solução, e provamos exatamente a hipótese na indução. Pode ser usado para limites superiores e inferiores.
 #example[
   $
     T(n) = cases(
@@ -206,7 +226,7 @@ Vamos provar por *indução* que $T(n)$ é $O$ de uma função *pressuposta*. S�
 ]
 
 == Método da árvore de recursão
-O método da árvore de recursão consiste em construir uma árvore definindo em cada nível os sub-problemas gerados pela iteração do nível anterior. A forma geral é encontrada ao somar o custo de todos os nós
+A ideia consiste em construir uma árvore definindo em cada nível os sub-problemas gerados pela iteração do nível anterior. A forma geral é encontrada ao somar o custo de todos os nós
 - Cada nó representa um subproblema.
 - Os filhos de cada nó representam as suas chamadas recursivas.
 - O valor do nó representa o custo computacional do respectivo problema.
@@ -382,9 +402,11 @@ int linear_search(const int v[], int size, int x) {
 }
 ```
 
-No pior caso, esse algoritmo tem complexidade $Theta(n^2)$
+No pior caso, esse algoritmo tem complexidade $Theta(n)$
 
-Porém, se considerarmos uma lista ordenada, podemos fazer algo mais inteligente. Comparamos do meio do vetor e dependendo se o valor atual é maior ou menor comparado ao avaliado, então eu ignoro uma parte do vetor. O algoritmo consiste em avaliar se o elemento buscado ($x$) é o elemento no meio do vetor ($m$), e caso não seja executar a mesma operação sucessivamente para a metade superior (caso $x > m$) ou inferior (caso $x < m$).
+- Nota: Um erro comum de interpretação é se perguntar por quê foi usado um $Theta(n)$ se, claramente, o algoritmo é $Omega(1)$. Acontece que estamos analisando o pior caso, ou seja, quando o elemento é o último da lista. Por isso, não existem análises de pior e melhor caso se sabemos que teremos que percorrer $n$ elementos até chegar no inteiro que estamos procurando, por isso, no caso do pior caso, o algoritmo tem complexidade $Theta(n)$.
+
+Porém, se considerarmos uma lista ordenada, podemos fazer algo mais inteligente. Começamos comparando o elemento do meio do vetor e dependendo se o valor que queremos buscar é maior ou menor comparado ao avaliado, podemos ignorar a parte oposta do vetor.Ou seja, o algoritmo consiste em avaliar se o elemento buscado ($x$) é o elemento no meio do vetor ($m$), e caso não seja executar a mesma operação sucessivamente para a metade superior (caso $x > m$) ou inferior (caso $x < m$).
 
 #codly(
   header: [*BUSCA BINÁRIA*],
@@ -413,6 +435,10 @@ Podemos escrever a complexidade da função como:
 $
   T(n) = T(n/2) + c
 $
+
+Pense no método de Árvore de Recursão, que aprendemos há pouco. Note que, nesse caso, $T(n)$ só se separa em um termo, e cada vez esse tamanho vira apenas metade do tamanho anterior
+
+
 Fazendo os cálculos, obtemos que $T(n) = Theta(log(n))$
 
 == Árvores
