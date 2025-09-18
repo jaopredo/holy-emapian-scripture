@@ -72,7 +72,9 @@
 #align(center + top)[
   FGV EMAp
 
-  João Pedro Jerônimo
+  Escrita:  João Pedro Jerônimo
+  
+  Revisão: Thalis Ambrosim Falqueto 
 ]
 
 #align(horizon + center)[
@@ -755,8 +757,10 @@ Nós queremos criar funções $Theta(1)$ para executar funções de *inserção,
 
 Vamos idealizar um problema para motivar os nossos objetivos.
 
-== Um problema
-*Problema*: Considere um programa que recebe eventos emitidos por veículos ao entrar em uma determinada região Cada evento é composto por um inteiro representando o ID do veículo. O programa deve contar o número de vezes que cada veículo entrou na região. Ocasionalmente o programa recebe uma requisição para exibir o número de ocorrências de um dado veículo. *Mandatório*: a contagem deve ser incremental, sem qualquer estratégia de cache. Uma requisição para exibir o resultado parcial da contagem deverá contemplar todos os eventos recebidos até o momento.
+== Desafio
+ Considere um programa que recebe eventos emitidos por veículos ao entrar em uma determinada região Cada evento é composto por um inteiro representando o ID do veículo. O programa deve contar o número de vezes que cada veículo entrou na região. Ocasionalmente o programa recebe uma requisição para exibir o número de ocorrências de um dado veículo. 
+
+ *Mandatório*: a contagem deve ser incremental, sem qualquer estratégia de cache. Uma requisição para exibir o resultado parcial da contagem deverá contemplar todos os eventos recebidos até o momento.
 
 === Primeira abordagem: Endereçamento Direto
 ```cpp
@@ -811,7 +815,7 @@ int search(int key) {
   return node != nullptr ? node->count : 0;
 }
 ```
-Infelizmente nessa abordagem nós não atingimos o objetivo principal de realizar as operações em $Theta(1)$, já que a função de busca é $Theta(n)$ no pior caso
+Infelizmente nessa abordagem nós não atingimos o objetivo principal de realizar as operações em $Theta(1)$, já que a função de busca é $Theta(n)$ no pior caso. Como melhorar isso?
 
 == Definição
 Agora que entendemos toda a ideia da hash table, podemos fazer uma definição melhor para ela
@@ -832,7 +836,7 @@ Agora que entendemos toda a ideia da hash table, podemos fazer uma definição m
   É quando a função de espalhamento gera os mesmos hashes para chaves diferentes. Existem várias abordagens para resolver esse problema
 ]
 
-Uma função de hash é considerada *boa* quando minimiza as colisões (Mas, pelo princípio da casa dos pombos, elas são inevitáveis)
+Uma função de hash é considerada *boa* quando minimiza as colisões (Mas, pelo princípio da casa dos pombos, elas são inevitáveis, pois quase sempre existem mais elementos do que chaves).
 
 == Soluções para colisão
 Vamos ver algumas abordagens para resolver o problema de colisão
@@ -953,14 +957,22 @@ Alguns métodos mais comuns:
 - *Simples*
   - Se a chave for um número real entre [0, 1)
   - `hash(key)` $= floor("key" dot M)$
+  - Exemplo: Suponha M = 10, então teremos $0, dots, 9$ hashes:
+    - chave $= 0,27 => 0,27 . 10 = 2,7 => floor(2.7) = 2$ 
+    - chave $= 0,92 => 0,92 . 10 = 9,2 => floor(9.2) = 9$
+    
 - *Método da divisão*
   - Se a chave for um número inteiro
   - `hash(key)` $= "key"% M$
   - Costuma-se definir M como um número primo.
+  - Exemplo: Suponha M = 23, logo, temos 23 hashes.
+    - chave $= 14 => 14 % 23 = 14 $
+    - chave $= 35 => 35%23 = 12 $ 
 - *Método da multiplicação*
-  - *hash(key)* $= floor( "key" dot A % 1 M )$
+  - `hash(key)` $= floor( M . (("key" dot A) % 1) )$
   - A é uma constante no intervalo $0 < A < 1$.
-
+  - Exemplo: Suponha M $= 10$, A $= 0,618$, 100 hashes
+      - chave $= 123 => 123 .  0,618 = 76,014 => 76,014 % 1 = 0,014 => floor(0.014 * 100) = floor(1.4) = 1$
 Observe que a chave pode assumir qualquer tipo suportado pela linguagem
 #example[```py countries["BR"]```]
 
@@ -978,8 +990,8 @@ int hashStr(const char * value, int size) {
   return hash;
 }
 ```
-
-A complexidade da função de espalhamento é constante: $Theta(1)$. Em uma busca mal sucedida, temos que a complexidade é $T(n,m) = n/m$, isso se dá pois temos $m$ entradas no array da tabela hash e temos $n$ entradas utilizadas no todo, então a *complexidade média* do tempo de busca fica $n/m$. Então nosso objetivo é sempre que $n$ seja bem menor que $m$, de forma que isso seja muito próximo de $Theta(1)$.
+#pagebreak()
+Em uma busca mal sucedida, temos que a complexidade é $T(n,m) = n/m$, isso se dá pois temos $m$ entradas no array da tabela hash e temos $n$ entradas utilizadas no todo, e esperamos que, escolhendo uma função de espalhamento que espalhe os valores uniformemente, a *complexidade média* do tempo de busca fica $n/m$. Nosso objetivo é sempre que $n$ seja bem menor que $m$, de forma que isso seja muito próximo de $Theta(1)$.
 
 Então podemos calcular a complexidade das operações de *remoção*, *inserção* e *busca* como:
 $
@@ -990,9 +1002,9 @@ Esse $1/n sum^n_i$ representa uma média aritmética em todos os nós do valor q
 
 Considerando a hipótese de hash uniforme simples podemos assumir que cada lista terá aproximadamente o mesmo tamanho.
 
-Conforme você insere elementos na tabela o desempenho vai se degradando, calculando $alpha = n\/m$ a cada inserção conseguimos calcular se a tabela está em um estado ineficiente.
+Conforme inserimos elementos na tabela o desempenho vai se degradando, e calculando $alpha = n\/m$ a cada inserção conseguimos calcular se a tabela está em um estado ineficiente, e quando a considerarmos ineficiente, teremos então que fazê-la ficar eficiente novamente, mas como? Redimensionando-a.
 
-A operação de redimensionamento aumenta o tamanho do vetor de $m$ para $M'$, porém, isso invalida o mapeamento das chaves anteriores, já que a minha métrica era feita especificamente para o tamanho que eu tinha. Para contornar isso, podemos reinserir todos os elementos. Porém, isso é $Theta(n)$. Se a operação de `resize` & `rehash` tem complexidade $Theta(n)$ , como manter $Theta(1)$ para as demais operações?
+A operação de redimensionamento aumenta o tamanho do vetor de $m$ para $M'$, porém, isso invalida o mapeamento das chaves anteriores, já que a métrica era feita especificamente para o tamanho anterior . Para contornar isso, podemos reinserir todos os elementos. Porém, isso é $Theta(n)$. Se a operação de `resize` & `rehash` tem complexidade $Theta(n)$ , como manter $Theta(1)$ para as demais operações?
 
 Então temos a *análise amortizada*, que avalia a complexidade com base em uma sequência de operações.
 
@@ -1004,13 +1016,49 @@ $
   ( n dot Theta(1) + Theta(n) )/n = Theta(1)
 $
 
+Esse $n$ no denominador vem exatamente da amortização da análise, $n$ é o número de elementos inseridos.
+
+*Exemplo de Análise Amortizada*
+
+Vamos considerar a inserção de $n=8$ elementos em uma tabela hash que
+dobra de tamanho sempre que enche.
+
+Inicialmente $m=1$, e os redimensionamentos ocorrem da seguinte forma:
+$1 -> 2 -> 4 -> 8$.
+
++ Inserir o 1º elemento $->$ custo $1$.
++ Inserir o 2º elemento $->$ tabela cheia, redimensiona para $2$ e re-hash de $1$ elemento.
+   Custo: $1$ (re-hash) + $1$ (inserção) = $2$.
++ Inserir o 3º elemento $->$ tabela cheia, redimensiona para $4$ e re-hash de $2$ elementos.
+  Custo: $2$ (re-hash) + $1$ (inserção) = $3$.
++ Inserir o 4º elemento $->$ custo $1$.
++ Inserir o 5º elemento $->$ redimensiona para $8$ e re-hash de $4$ elementos.
+   Custo: $4$ (re-hash) + $1$ (inserção) = $5$.
++ Inserir o 6º elemento $->$ custo $1$.
++ Inserir Inserir o 7º elemento $->$ custo $1$.
++ Inserir o 8º elemento $->$ custo $1$. 
+
+- Inserções sem redimensionamentos: 5 operações (1, 4, 6, 7, 8)
+- Redimensionamentos: $2 + 3 + 5 = 10$.
+- Custo total: $15$.
+
+Portanto, foram $n = 8$ inserções no total. O custo amortizado é dado por:
+
+$
+    "Custo total"/"inserções" =  15/8 = 1.875 approx Theta(1) 
+$
+
+Assim, mesmo com redimensionamentos custosos, o custo médio por
+operação permanece constante.
+
+
 === Tabela hash com endereçamento aberto
 #wrap-it.wrap-content(
   figure(
     image("images/hash-table-with-open-address.png", width: 45%)
   ),
   [
-    O problema de colisão é solucionado armazenando os elementos na primeira posição vazia a partir do índice definido pelo hash. Ou seja, quando eu vou inserir um elemento $y$ na tabela, mas ele tem o mesmo hash do meu elemento $x$ (Que já está inserido na tabela), eu simplesmente armazeno no próximo slot vazio
+    O problema de colisão é solucionado armazenando os elementos na primeira posição vazia a partir do índice definido pelo hash. Ou seja,ao inserir um elemento $y$ na tabela, se ele tem o mesmo hash do elemento $x$ (que já está inserido na tabela), basta inserir num slot vazio.
 
     #link(
       "https://www.youtube.com/watch?v=yA8bDfWj0UU",
@@ -1102,13 +1150,16 @@ bool remove(int key) {
 }
 ```
 
-A remoção em uma tabela hash com endereçamento aberto apresenta um problema:
-- Ao remover uma chave key de uma posição $h$, partindo de uma posição $h_0$, tornamos impossível encontrar qualquer chave presente em uma posição $h'$ > $h$, pois, quando eu procuro partindo de $h_0$, eu vou interpretar que, como $h$ está vazio, eu não preciso mais ir para frente, porém a chave que estou procurando pode estar depois.
+Porém, a remoção em uma tabela hash com endereçamento aberto também apresenta um problema:
+- Ao remover uma chave key de uma posição $h$, partindo de uma posição $h_0$, tornamos impossível encontrar qualquer chave presente em uma posição $h'$ > $h$, pois, quando o algoritmo procura partindo de $h_0$, como $h$ está vazio, interpretará que não precisa continuar a busca, porque ele não sabe que a key da posição $h$ foi removida.
 
 #figure(
   caption: [Exemplo de tabela com problema na remoção],
   image("images/remove-problem-table-example.png")
 )
+
+No exemplo acima, perceba que tínhamos um hash uniforme simples, com o hash = $"key" % M$, e provavelmente a sequência de ordenação como 
+$ dots 131 -> 33 -> 91 -> 76 -> 61 -> ... $ e que, logo após, removemos o número $131$. Depois, buscamos os valores $91$ e $61$, mas não os encontramos, pois o primeiro slot onde eles se encaixariam(o do $131$) está vazio. Por isso, o algoritmo para e retorna que eles não estão na lista(por isso estão acinzentados).
 
 Uma possível solução consiste em marcar o nó removido de forma que a busca não o considere vazio.
 
@@ -1156,39 +1207,81 @@ bool remove(int key) {
 ```
 
 O fator de carga da abordagem de endereçamento aberto é definido da mesma forma: $alpha = n\/M$
-- No entanto observe que nesse caso teremos sempre $alpha <= 1$ visto que $M$ é o número máximo de elementos no vetor (Antes eu podia ter mais chaves do que espaços no meu vetor).
-- A busca por uma determinada chave depende da sequência de sondagem `hash(key, i)` fornecida pela função de espalhamento
-- Observe que existem M! permutações possíveis para a sequência de sondagem.
-- A sondagem linear é o método mais simples de gerar a sequência de espalhamento `hash(key, i) = (hash’(key) + i) % M`
+- No entanto observe que nesse caso teremos sempre $alpha <= 1$ visto que $M$ é o número máximo de elementos no vetor (Antes,podíamos ter mais chaves do que espaços no vetor).
+- A busca por uma determinada chave depende da sequência de sondagem `hash(key, i)` fornecida pela função de espalhamento. (i é o número da iteração da sondagem).
+  - Exemplo linear: `hash(key, i) = (hash'(key) + i) mod M`
+    - `hash(key, 0) = hash'(key)` $->$ `hash(key, 1) = (hash'(key) + 1) mod M`
 
-Porém, a abordagem linear rapidamente se torna ineficaz, já que em determinado momento o problema se transforma basciamente em inserir elementos em uma lista, então surge a alternativa da abordagem quadrática
+Note que `hash(key,i)` é a função de sondagem completa, que depende tanto da chave quanto da tentativa, enquanto `hash'(key)` é a função de espalhamento base, ou seja, a posição inicial da chave antes da colisão
+
+- Observe que existem M! permutações possíveis para a sequência de sondagem(em geral isso não importa muito).
+
+Porém, a abordagem linear rapidamente se torna ineficaz, já que em determinado momento o problema se transforma basicamente em inserir elementos em uma lista. Temos, por isso, outras alternativas:
 
 #figure(
   caption: [Exemplificação de sondagem quadrática],
   image("images/quadratic-probing.png")
 )
-
-Agora temos que a função de hash segue o seguinte padrão:
+Na abordagem quadrática, temos que a função de hash segue o seguinte padrão:
 `hash(key, i) = ( hash'(key) + b*i + a*i**2 ) % m`
 
-Porém isso gera agrupamentos secundários, ou seja, se duas chaves caem no mesmo local inicial `hash'(key)`, então elas seguirão a mesma sequência e tentarão ocupar os mesmos slots (Aí podemos inserir outras abordagens)
+#example[
+- Tamanho da tabela: $M = 11$
+- Função de hash base: `hash'(key) = key mod M`
+- Parâmetros: `a = 1`, `b = 0`
 
-Para melhorar ainda mais nossas abordagens, podemos introduzir o *hash duplo*, que eu vou ter *duas* funções de hash diferentes $"hash"_1$ e $"hash"_2$ de forma que o novo hash de uma chave vai ser dado por: `hash(key, i) = (hash1(key) + i * hash2(key)) % m` de forma que, mesmo que uma mesma chave
+Sequência de sondagem quadrática:
+
+`hash(27, 0) = (5 + 0 * 0 + 1 * 0) mod 11 = 5`
+
+`hash(27, 1) = (5 + 0 * 1 + 1 * 1) mod 11 = 6`
+
+`hash(27, 2) = (5 + 0 * 2 + 1 * 4) mod 11 = 9`
+
+`hash(27, 3) = (5 + 0 * 3 + 1 * 9) mod 11 = 3`
+
+`hash(27, 4) = (5 + 0 * 4 + 1 * 16) mod 11 = 10`
+
+]
+
+Porém isso gera agrupamentos secundários, ou seja, se duas chaves caem no mesmo local inicial `hash'(key)`, então elas seguirão a mesma sequência e tentarão ocupar os mesmos slots (podemos inserir outras abordagens).
+
+Podemos introduzir o *hash duplo*, tal que temos *duas* funções de hash diferentes $"hash"_1$ e $"hash"_2$ de forma que o novo hash de uma chave será dado por: `hash(key, i) = (hash1(key) + i * hash2(key)) % M'`. Dessa forma, mesmo que uma mesma chave colida com outra na primeira função de hash, a segunda função garante que cada tentativa subsequente irá gerar um novo índice diferente, distribuindo melhor as chaves na tabela.
+
+#example[
+- Tamanho da tabela: $M = 11$
+- Funções de hash:
+  - `hash1(key) = key mod 11`
+  - `hash2(key) = 1 + (key mod (M - 1))`
+
+Sequência de sondagem com hash duplo:
+
+`hash(27, 0) = (5 + 0 * 8) mod 11 = 5`
+
+`hash(27, 1) = (5 + 1 * 8) mod 11 = 2`
+
+`hash(27, 2) = (5 + 2 * 8) mod 11 = 10`
+
+`hash(27, 3) = (5 + 3 * 8) mod 11 = 7`
+
+`hash(27, 4) = (5 + 4 * 8) mod 11 = 4`
+
+]
 
 #figure(
   caption: [Exemplificação de hash duplo],
   image("images/double-hash.png")
 )
 
-Porém, vale ressaltar que minha segunda função de hash deve satisfazer:
+Porém, vale ressaltar que a segunda função de hash deve:
 - Ser completamente diferente da primeira
 - Não retornar $0$
 
-O número de sondagens para inserir uma chave em uma tabela hash de endereçamento aberto (No caso médio) é:
+O número de sondagens(buscas) para inserir uma chave em uma tabela hash de endereçamento aberto (No caso médio) é:
 $
   T(n) = sum^(infinity)_(i=0) alpha^i = 1/(1-alpha) = O(1)
 $
-
+ também pela forma da PG.
 
 #pagebreak()
 
