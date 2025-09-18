@@ -617,7 +617,17 @@ Essa propriedade é algo ótimo! Tendo em vista que no método anterior, o estim
 ]
 
 == Computação Numérica
-Muitos problemas possuem um EVM $hat(theta)$ de um parâmetro $theta$, porém esses não podem ser computados com fórmulas fechadas. Nesses casos, precisamos utilizar de métodos numéricos para aproximações.
+Muitos problemas possuem um EVM $hat(theta)$ de um parâmetro $theta$, porém esses não podem ser computados com fórmulas fechadas. Nesses casos, precisamos utilizar de métodos numéricos para aproximações. Existem *inúmeros* métodos de aproximação numérica de funções, porém, aqui vamos abordar brevemente apenas um
+
+#definition("Método de Newton")[
+  Seja $f(theta)$ uma função real de uma variável e suponha que nós desejamos resolver a equação $f(theta) = 0$. Seja $theta_0$ um chute inicial da solução e $theta_t$ o valor obtido na $t$-ésima iteração do programa. O método de Newton atualiza nossa resposta da seguinte forma:
+  $
+    theta_(t+1) = theta_t - f(theta_t) / (f'(theta_t))
+  $
+]
+
+Se pararmos para interpretar, o que o algoritmo faz é checar se eu tenho que mexer $theta_t$ para frente ou para trás dependendo do sinal e da inclinação de $f$. Quando $f(theta_t)$ é negativo e $f'(theta_t)$ é positivo, então eu preciso mover para a direita para poder chegar próximo a raíz, e aí vai
+
 
 #pagebreak()
 
@@ -628,3 +638,34 @@ Muitos problemas possuem um EVM $hat(theta)$ de um parâmetro $theta$, porém es
 #pagebreak()
 
 
+Lembra que estimamos o primeiro momento $EE[X] approx 1\/n dot sum^n_(i=1)X_i$? Será que da pra estimar os outros momentos de uma forma parecida? Na verdade sim! É bem intuitivo:
+
+#definition("Método dos Momentos")[
+  Suponha que $X_1, ..., X_n$ formam uma amostra aleatória de uma distribuição indexada por um parâmetro $k$-dimensional $theta$ e que tem, pelo menos, $k$ momentos finitos. Para $j=1,...,k$, deixe $mu_j (theta) = EE[X_1^j | theta]$. Suponha que a função $mu(theta) = (mu_1 (theta), ..., mu_k (theta))$ é uma função bijetiva de $theta$. Seja $M(mu_1, ..., mu_k)$ a função inversa, ou seja, para todo $theta$ é válido que:
+  $
+    theta = M(mu_1 (theta), ..., mu_k (theta))
+  $
+  Defina os _momentos amostrais_ como:
+  $
+    m_j = 1/n sum^n_(i=1) (X_i)^j
+  $
+  Para $j=1,...,k$. O _método do estimador de momentos_ de $theta$ é $M(m_1,...,m_j)$
+]<method-of-moments>
+
+O método mais usual de se implementar esse método é resolvendo todas as equações $m_j = mu_j (theta)$ e então resolver para $theta$
+
+#theorem("Consistência")[
+  Suponha que $X_1,X_2,...$ são i.i.d com uma distribuição indexada por um parâmetro $k$-dimensional $theta$. Suponha também que o os primeiros $k$ momentos da distribuição são finitos e existem para todo $theta$. Suponha também que a função inversa $M$ é definida como na @method-of-moments e é contínua. Então a sequência de estimadores pelo método dos momentos baseada em $X_1,...,X_n$ é uma sequência consistente de estimadores de $theta$
+]
+#proof[
+  A Lei dos Grandes Números diz que os momentos amostrais convergem em probabilidade para os momentos $mu_1 (theta), mu_2 (theta), ..., mu_k (theta)$. Isso implica que, ao generalizar isso para funções de $k$ variáveis isso implica que $M$, nos momentos amostrais, converge em probabilidade para $theta$
+]
+
+
+#pagebreak()
+
+#align(center+horizon)[
+  = Estatística Suficiente
+]
+
+#pagebreak()
