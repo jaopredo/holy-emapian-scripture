@@ -436,17 +436,27 @@ $
   T(n) = T(n/2) + c
 $
 
-Pense no método de Árvore de Recursão, que aprendemos há pouco. Note que, nesse caso, $T(n)$ só se separa em um termo, e cada vez esse tamanho vira apenas metade do tamanho anterior
+Pense no método de Árvore de Recursão, que aprendemos há pouco. Note que, nesse caso, $T(n)$ só se separa em um termo, e, a cada iteração, temos o tamanho do vetor 
+dividido por $2$ e um termo $+c$. Portanto, nosso custo é $n/2^k$ e queremos achar o k que satisfaz esse termo chegar ao caso base, $T(1)$.
+Logo, 
+$
+n/2^k = 1 => log(n) - log(2^k) = 0 => log(n) = k log(2) => k = log(n)/log(2)
+$
 
+Portanto, temos o custo por nó de $c$, e assim o custo total fica:
+$
+  sum_(k=1)^log(n) c = c sum_(k=1)^log(n) = c log(n)
+$
 
-Fazendo os cálculos, obtemos que $T(n) = Theta(log(n))$
+Então, obtemos que $T(n) = O(log(n))$
+Num contexto de melhor caso, acharíamos o valor na primeira iteração e, portanto, $T(n) = Omega(1)$.
 
 == Árvores
 Uma árvore binária consiste em uma estrutura de dados capaz de armazenar um conjunto de nós.
-- Todo nó possui uma chave
-- Opcionalmente um valor (dependendo da aplicação).
-- Cada nó possui referências para dois filhos
-- Sub-árvores da direita e da esquerda.
+- Todo nó possui uma chave;
+- Opcionalmente um valor (dependendo da aplicação);
+- Cada nó possui referências para dois filhos;
+- Sub-árvores da direita e da esquerda;
 - Toda sub-árvore também é uma árvore.
 
 #figure(
@@ -473,8 +483,20 @@ Um nó sem pai é uma *raíz*, enquanto um nó sem filhos é um nó *folha*
   $
 ]
 
+Para $n_"min"$, pense apenas numa lista encadeada. Ela é uma árvore, certo? Ela é o menor caso possível intuitivamente e tem $h + 1$ nós.
+
+Para $n_"max"$, pense numa árvore completa, claro. Se isso ocorrer, temos $2^0$ nós na altura $0$, $2^1$ nós na altura $1$, e assim sucessivamente.
+Temos então um somatório de nós até a altura $h$:
+
+$
+  S_h = sum_(k = 0)^(k = h)  2^k = 1.(2^(h+1) - 1)/ 
+  (2-1) = 2^(h+1) - 1
+$
+
+pela forma da soma da PG.
+
 #definition[
-  Uma árvore está *balanceada* quando a altura das subárvores de um nó apresentem uma diferença de, no máximo, $1$
+  Uma árvore está *balanceada* quando a altura das subárvores de um nó apresentam uma diferença de, no máximo, $1$
 ]
 
 #theorem[
@@ -484,7 +506,41 @@ Um nó sem pai é uma *raíz*, enquanto um nó sem filhos é um nó *folha*
   $
 ]
 
-Para códigos posteriores, considere a seguinte estrutura:
+#proof[
+
+Seja $N(h)$ o número mínimo de nós de uma árvore balanceada de altura $h$.
+Temos a recorrência (pior caso):
+
+$ N(h) = 1 + N(h-1) + N(h-2) $
+
+O $1$ vem da raiz, $N(h-1)$ de alguma das sub-árvores, e $N(h-2)$ vem da outra sub-árvore, com a distância entre as duas de $1$.
+
+Ainda, temos que $N(0)=1$ e $N(1)=2$, 
+
+*Hipótese:* $N(h) >= 2^(h/2)$ para todo $h >= 0$.
+
+*Base:*  
+Para $h = 0$: $N(0)=1 >= 2^0$.  
+Para $h = 1$: $N(1)=2 >= 2^(1/2)$.
+
+*Passo indutivo:* suponha válido para $h-1$ e $h-2$. Então
+
+$ N(h) >= N(h-1) + N(h-2) >= 2^((h-1)/2) + 2^((h-2)/2) = 2^((h-2)/2)(2^(1/2)+1). $
+
+Como $2^(1/2)+1 > 2$, segue $N(h) >= 2^(h/2)$.
+
+Se a árvore tem $n$ nós então $n >= N(h) >= 2^(h/2)$, logo
+
+$
+ n >= 2^(h/2) => log_2 (n) >= h/2 log_2 (2) => h <= 2 log_2 (n)
+$ 
+
+Portanto, $h = O(log n)$.
+]
+
+Essa hipótese é um pouco não trivial, mas se quiser, também é possível provar reconhecendo que os temos $N(h) = N(h - 1) + N(h-2)$ lembram bastante Fibonacci.
+
+Agora, vamos ver algumas formas de andar por essa árvore binária, ou seja, andar corretamente de nó em nó usando a estrutura que criamos, além de formas para descobrir sua altura. Para códigos posteriores, considere a seguinte estrutura:
 
 ```cpp
 class Node {
@@ -532,9 +588,13 @@ int nodeHeight(Node * node) {
   }
 }
 ```
-A complexidade dessa solução é $Theta(n)$
+A complexidade dessa solução é $Theta(n)$, pois independente da ideia, precisamos passar por todos os nós para termos certeza da altura.
 
 *Problema*: Dada uma árvore binária $A$ imprima a chave de todos os nós através da busca em profundidade. Desenvolva o algoritmo para os 3 casos: Em ordem, pré-ordem, pós-ordem
+
+Relembrando os 3 casos que você provavelmente já viu em Estrutura de Dados:
+
+- Em ordem: Esquerda -> Raizz -> Direita
 
 #codly(
   header: [*EM ORDEM*],
@@ -551,6 +611,7 @@ void printTreeDFSInorder(class Node * node) {
   printTreeDFSInorder(node->rightNode());
 }
 ```
+- Pré-ordem : Raiz -> Esquerda -> Direita
 
 #codly(
   header: [*PRÉ-ORDEM*],
@@ -567,7 +628,7 @@ void printTreeDFSPreorder(class Node * node) {
   printTreeDFSPreorder(node->rightNode());
 }
 ```
-
+- Pós - ordem: Esquerda -> Direita -> Raiz
 #codly(
   header: [*PÓS-ORDEM*],
   header-cell-args: (align: center),
@@ -584,7 +645,7 @@ void printTreeDFSPostorder(class Node * node) {
 }
 ```
 
-*Problema*: dada uma árvore binária $A$ imprima a chave de todos os nós através da busca em largura.
+*Problema*: dada uma árvore binária $A$ imprima a chave de todos os nós através da busca em largura. Imagino que você saiba, mas relembrando, busca em largura nada mais é que a busca de altura em altura, começando pela raiz.
 
 ```cpp
 void printTreeBFSWithQueue(Node * root) {
@@ -622,7 +683,7 @@ void printTreeBFSWithQueue(Node * root) {
   image("images/binary-tree-example.png", width: 60%)
 )
 
-Então queremos utilizar essa árvore para poder procurar valores. Na verdade ela é bem parecida com o caso de aplicar uma busca binária em um vetor ordenado.
+Então queremos utilizar essa árvore para poder procurar valores. Na verdade, ela é bem parecida com o caso de aplicar uma busca binária em um vetor ordenado.
 
 *Problema*: dada uma árvore binária de busca $A$ com altura $h$ encontre o nó cuja chave seja $k$.
 
@@ -643,7 +704,7 @@ Node * binaryTreeSearchRecursive(Node * node, int key) {
   }
 }
 ```
-Esse algoritmo tem complexidade $Theta(h)$
+Esse algoritmo tem complexidade $Theta(h)$ no pior caso.
 
 #codly(
   header: [*BUSCA EM ÁRVORE BINÁRIA (ITERATIVO)*],
