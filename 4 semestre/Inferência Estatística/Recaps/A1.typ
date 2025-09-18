@@ -669,3 +669,69 @@ O método mais usual de se implementar esse método é resolvendo todas as equa�
 ]
 
 #pagebreak()
+
+A gente viu alguns métodos para fazer estimativas que consistiam no uso de distribuições priori e posteriori. Porém, há alguns métodos que estimam dos parâmetros apenas utilizando de distribuições condicionais de funções dos dados.
+
+A gente viu antes que nem sempre os métodos de estimativa que a gente tem vão ser interessantes ou vão ser boas estimativas (Para melhor detalhes, pode conferir os exemplos do livro). Nesses casos, precisamos desenvolver métodos novos de estimativa para nossos parâmetros.
+
+Imagina que nós temos uma amostra elatória $X_1,...,X_n$ e temos dois estatísticos, o $A$ e o $B$. Vamos supor que $A$ tem acesso a todos os valores de $X_1,...,X_n$, enquanto $B$ só pode saber sobre uma estimativa específica $T = r(X_1,...,X_n)$. Qual deles vai poder fazer melhores estimativas para $theta$? Com certeza o mano estatístico $A$! Porém, entretudo, todavia, em alguns problemas, o estatístico $B$ pode fazer estimativas tão bem quanto o estatístico $A$, pois a função $T$ pode, de alguma forma, conter todas as informações relevantes e necessárias para que meu problema possa ser solucionado! Quando $T$ tem essa característica, chamamos ela de *estatística suficiente*
+
+#definition("Estatística Suficiente")[
+  Seja $X_1,...,X_n$ uma amostra aleatória de uma distribuição indexada pelo parâmetro $theta$ e $T$ uma estatística. Suponha também que, para todo $theta$ e todo valor possível $t$ de $T$, a distribuição conjunta de $X_1,...,X_n|T=t, theta$ depende apenas de $t$ e não de $theta$. Ou seja, para cada $t$, a distribuição conjunta de $X_1,...,X_n|T=t,theta$ é a mesma *para todo* $theta$. Então dizemos que $T$ é uma *estatística suficiente para o parâmetro $theta$*
+]
+
+A principal característica que separa estatísticas suficientes de não-suficientes é a dependência no valor de $theta$. O livro traz um processo chamado *randomização auxiliar*, que consiste em simular variáveis $X'_1,...,X'_n$ com mesma distribuição que $X_1,...,X_n|theta$, porém, essas variáveis simuladas são feitas baseando-se única e exclusivamente numa estatística suficiente $T$. Se a estatística $T$ não fosse suficiente, não conseguiriamos nem fazer a randomização auxiliar, pois necessariamente precisariamos saber qual seria o valor de $theta$
+
+Com esse processo fica fácil de ver agora o porquê de o estatístico $B$ conseguir se sair tão bem quanto o estatístico $A$. Se $A$ vai utilizar de um estimador $delta(X_1,...,X_n)$ para estimar $theta$, se $B$ tiver acesso a estatística suficiente $T$, então ele pode criar variáveis auxiliares $X'_1,...,X'_n$ que tem mesma distribuição que as originais, então de $B$ utilizar o estimador $delta$ porém aplicando as suas variáveis $delta(X'_1,...,X'_n)$, então a distribuição do estimador de $A$ é a mesma distribuição do estimador de $B$
+
+== Critério de Fatoração
+Agora nos é apresentado um método de identificar estatísticas suficientes (Um teorema bem interessante) desenvolvido por R. A. Fisher em 1922, J. Neyman em 1935 e P. R. Halmos e L. J. Savage em 1949
+
+#theorem("Critério da Fatoração")[
+  Sejam $X_1,...,X_n$ uma amostra aleatória de uma distribuição contínua ou discreta para qual a p.d.f ou a p.f é $f(x|theta)$, onde o valor de $theta$ é desconhecido e pertence a um espaço paramétrico $Omega$. Uma estatística $T = r(X_1,...,X_n)$ é *suficiente* para $theta$ *se, e somente se,* a função de densidade ou de massa conjunta $f(underline(x)|theta)$ de $X_1,...X_n$ pode ser fatorada, para todos os valores de $x=(x_1,...,x_n) in RR^n$ e para todos os valores de $theta in Omega$, da seguinte forma:
+  $
+    f(underline(x)|theta) = u(underline(x)) v(r(underline(x)), theta)
+  $
+  Onde $u$ e $v$ são não-negativas. $u$ pode depender em $underline(x)$ mas não em $theta$ e $v$ pode depende em $theta$ e na estatística $t$
+]
+#proof[
+  Vamos fazer a prova só para o caso que $X$ tem uma distribuição discreta, ou seja:
+  $
+    f(underline(x)|theta) = PP(X_1=x_1,...,X_n=x_n|theta)
+  $
+  Primeiro vamos fazer a volta. Então vamos supor que $f(underline(x)|theta)$ pode ser fatorado daquela forma. Para cada valor possível $t$ da estatística $T$, denote $A(t)$ como sendo o conjunto de todos os pontos $underline(x) in RR^n$ tal que $r(underline(x)) = t$. Para cada valor de $theta in Omega$, nós vamos determinar a distribuição condicional de $underline(X)$ dado $T=t$, então para todo ponto $underline(x) in A(t)$:
+  $
+    PP(underline(X)=underline(x)|T=t, theta) =
+    
+    PP(underline(X)=underline(x)|theta) / PP(T=t|theta) =
+    
+    f(underline(x)|theta) / ( sum_(underline(y) in A(t)) f(underline(y)|theta) )
+  $
+  Como $r(underline(y))=t$ para todo ponto $underline(y) in A(t)$ e como $underline(x) in A(t)$, então vamos ter que:
+  $
+    PP(underline(X)=underline(x)|T=t, theta) = u(underline(x)) / ( sum_(underline(y) in A(t)) u(underline(y)) )
+  $
+  Finalmente, para todo ponto $underline(x) in.not A(t)$:
+  $
+    PP(underline(X)=underline(x)|T=t, theta) = 0
+  $
+  Conseguimos ver, então, que a distribuição conjunta de $X$ não depende de $theta$, mas somente de $T$. Logo, por definição, $T$ é uma estatística suficiente
+
+  Agora para fazer a ida, vamos supor que $T$ é uma estatística suficiente. Então para todo valor dado $t$ de $T$, todo ponto $underline(x) in A(t)$ e todo valor $theta in Omega$ a probabiidade condicional $PP(underline(X)=underline(x)|T=t,theta)$ não vai depender de $theta$ (Como vimos anteriormente), então vai ser da forma:
+  $
+    PP(underline(X)=underline(x)|T=t,theta) = u(underline(x))
+  $
+  Se chamarmos $PP(T=t|theta) = v(t,theta)$, então temos:
+  $
+    PP(underline(X)=underline(x)|theta) &= PP(underline(X)=underline(x)|T=t,theta)PP(T=t|theta)   \
+
+    &= u(underline(x)) v(t, theta)
+  $
+  Assim, provamos (Para o caso discreto) que o teorema é válido (Também é válido para o caso contínuo, mas requer métodos diferentes e não será abordado)
+]
+
+Nós vimos anteriormente que, ao calcular a posteriori, ela era proporcional única e excluisivamente ao valor de $theta$, de forma que tudo que não era relacionado a $theta$ podia ser movido para a constante de proporcionalidade. Algo parecido ocorre aqui!
+
+#corollary[
+  Uma estatística $T = r(underline(X))$ é suficiente *se, e somente se,* não importa qual seja a distribuição a priori, a distribuição a posteriori de $theta$ depende dos dados única e exclusivamente através do valor de $T$
+]
