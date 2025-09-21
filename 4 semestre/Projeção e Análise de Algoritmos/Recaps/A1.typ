@@ -1646,6 +1646,8 @@ Por enquanto, vamos considerar os *heaps máximos*. A altura de um *heap* com $n
 - O filho esquerdo de um nó $p$ é $2p$
 - O filho esquerdo de um nó $p$ é $2p+1$
 
+Essa abordagem de implementação elimina a necessidade de ponteiros para o pai e para os filhos.
+
 #figure(
   caption: [Exemplo de HEAP],
   image("images/heap-example.png", width: 60%)
@@ -1656,15 +1658,16 @@ Por enquanto, vamos considerar os *heaps máximos*. A altura de um *heap* com $n
   image("images/heap-array-example.png")
 )
 
-Podeos ordenar uma árvore em um heap caso as propriedades do vetor não sejam satisfeitas. Podemos utilizar do algoritmo *max-heapify*
+Podemos ordenar uma árvore em um heap caso as propriedades do vetor não sejam satisfeitas. Para isso, utilizamos o algoritmo *max-heapify*
 
-- Assume-se que as sub-árvores do nó são heaps-máximos.
+- Assume-se que as sub-árvores do nó são heaps-máximos(ou mínimos no outro caso).
 - Caso $v[p]$ seja menor que $v[2p]$ ou $v[2p + 1]$ escolhe o maior e executa a troca.
 - Em seguida executa max-heapify recursivamente no nó filho alterado.
 
+
 #figure(
-  caption: [Visualização do algoritmo *max-heapify*],
-  image("images/heapify-visualization.png")
+  caption: [Visualização do algoritmo max-heapify],
+  image("images/heapify-visualization.png", width: 105%)
 )
 
 #codly(
@@ -1673,7 +1676,7 @@ Podeos ordenar uma árvore em um heap caso as propriedades do vetor não sejam s
 ```cpp
 void heapify(int v[], int n, int i) {
   int inx = i;
-  int leftInx = 2 * i + 1;
+  int leftInx = 2 * i + 1;    
   int rightInx = 2 * i + 2;
   if ((leftInx < n) && (v[leftInx] > v[inx])) {
     inx = leftInx;
@@ -1687,15 +1690,15 @@ void heapify(int v[], int n, int i) {
   }
 }
 ```
+Os índices da esquerda e da direita são criados como $2 * i + 1$ e $2 * i + 2$, em vez de $2 * i$ e $2 * i + 1$ por causa da indexação inicial de vetores nas linguagens. o inteiro `i` é o índice do nó que queremos corrigir. 
 
-A complexidade desse algoritmo é $T(n) = O(log n)$.
+Na primeira verificação vemos se o índice a esquerda que calculamos existe(sendo menor que $n$) e se o filho a esquerda do elemento `i` é maior. Fazemos a mesma coisa só que com o filho a direita de `v[i]`(note que a verificação do da direita compara não só com o pai, mas também com o filho a esquerda). 
 
-Dado o devido contexto sobre os *heaps*, vamos voltar para o algoritmo de *heapsort*. Esse algoritmo tem dois passos principais:
+Se o índice mudou, ou seja, se algum filho é maior que o pai, então trocamos o pai pelo maior filho e fazemos heapify novamente.
 
-+ Organizar o vetor de entradas em um *heap*
-+ Ordenar os elementos executando os seguintes passos para $v[n,...,1]$:
-  - Trocar o elemento atual $v[i]$ pela raíz $v[1]$ ($v[1]$ é o maior elemento do heap)
-  - Corrigir o *heap* usando o *heapify* para a raíz
+A complexidade desse algoritmo é $T(n) = O(log n)$, pela propriedade do heap que é criado como uma árvore quase completa, com a altura crescendo proporcionalmente com o número de elementos.
+
+Agora, vamos aprender a construir esse heap:
 
 #codly(
   header: [*IMPLEMENTAÇÃO*]
@@ -1705,7 +1708,35 @@ void buildHeap(int v[], int n) {
   for (int i=(n/2-1); i >= 0; i--) {
     heapify(v, n, i);
   }
-}
+}   
+```
+Bom, não é nada muito difícil. Todos os nós depois de $n/2$ são folhas, logo, como o heapify garante a propriedade de heap para o nó i e sua subárvore, "afundando" o valor de `v[i]` se necessário, fazemos um for que ordenará desde a raiz até o último pai, garantindo a propriedade do heap por construção. 
+
+Vamos ver a complexidade do buildHeap:
+
+#figure(
+  caption: [Aproximação de um algoritmo heapsort],
+  image("images/heap-construction.png", width: 99%)
+)
+
+Cada nível $i$, de baixo para cima, tem aproximadamente $n\/2^i$ nós, ou seja, o custo total vai ser:
+$
+  T(n) = sum^(log(n))_(i=1) i dot n/2^i = O(n)
+$
+
+
+pois o somatório converge. Agora, dado o devido contexto sobre os *heaps*, vamos voltar para o algoritmo de *heapsort*. Esse algoritmo tem dois passos principais:
+
++ Organizar o vetor de entradas em um *heap*
++ Ordenar os elementos executando os seguintes passos para $v[n,...,1]$:
+  - Trocar o elemento atual $v[i]$ pela raíz $v[1]$ ($v[1]$ é o maior elemento do heap)
+  - Corrigir o *heap* usando o *heapify* para a raíz
+Dessa forma ignoramos a parte já ordenada que colocamos de `v[i]` para frente e fazemos heapify com o restante da lista.
+
+#codly(
+  header: [*IMPLEMENTAÇÃO*]
+)
+```cpp
 void heapSort(int v[], int n) {
   buildHeap(v, n);
   for (int i=n-1; i > 0; i--) {
@@ -1719,18 +1750,7 @@ Para analisar o desempenho, podemos fazer o seguinte:
 - *Construção do heap*: Executa um *heapify* em um vetor de $approx n\/2$ posições, logo $O(n log (n))$
 - *Ordenação*: Executa o *heapify* para cada elemento em um vetor de $n-1$ posições, logo, temos um $O(n log(n))$
 
-No final, somando tudo, temos que $T(n) = Theta(n log(n))$. Melhorando um pouco a argumentação sobre a etapa de construção do heap, vamos analisar *aproximadamente*
-
-#figure(
-  caption: [Aproximação de um HEAP],
-  image("images/heap-construction.png")
-)
-
-Cada nível $i$, de baixo para cima, tem aproximadamente $n\/2^i$ nós, ou seja, o custo total vai ser:
-$
-  T(n) = sum^(log(n))_(i=1) i dot n/2^i = O(n)
-$
-
+No final, somando tudo, temos que $T(n) = Theta(n log(n))$.
 == Counting Sort
 O algoritmo de ordenação por contagem (counting sort) consiste em computar para cada elemento quantos elementos menores existem na sequência
 - Sabendo que o elemento $v_i$ possui $j$ elementos menores do que ele, podemos definir sua posição final como $j + 1$
