@@ -1424,13 +1424,13 @@ Parecido com o algoritmo de *Selection Sort*, que acabamos de ver. Porém, a ide
 
 #figure(
   caption: [Exemplificação do algoritmo Insertion Sort],
-  image("images/insertion-sort-exemplification.png")
+  image("images/insertion-sort-exemplification.png", width: 70%)
 )
 
 #example[
   #figure(
     caption: [Exemplo do algoritmo Insertion Sort],
-    image("images/insertion-sort-example.png",width: 69%)
+    image("images/insertion-sort-example.png",width: 65%)
   )
 ]
 
@@ -1450,48 +1450,61 @@ void insertionSort(int v[], int n) {
   }
 }
 ```
-Note que o loop de fora começa no segundo elemento da lista e que o loop de dentro ocorre enquanto não encontrarmos algum valor maior para ser trocado ou j não sair para fora da lista, pois meio que o algoritmo anda de trás para frente. Enquanto o loop não parar ele passa o valor de j para j + 1,    
-A complexidade desse algoritmo também é expressa na forma:
+O loop externo começa no segundo elemento porque o primeiro já forma uma sublista ordenada. A cada iteração, o valor `v[i]` é guardado em `currentValue`.
+O loop interno percorre da direita para a esquerda os elementos da sublista ordenada, deslocando todos os valores maiores que `currentValue` uma posição à direita. O algoritmo para quando encontramos um elemento menor ou igual a `currentValue` ou quando chegamos ao início do vetor.
+Assim, a posição `j+1`  é o local correto para inserir o `currentValue`, garantindo que, ao final da iteração, os elementos de `v[0..i]` estejam ordenados. A complexidade desse algoritmo também é expressa na forma:
 $
     T(n) = sum_(j=1)^(n-1)j = n(n-1)/2 = Theta(n^2)
 $
-Porém, no melhor caso, temos que $T(n)=Theta(n)$
+já que o loop de dentro apresenta um range parecido com o do algoritmo Selection Sort. Perceba que, no melhor caso, $T(n)=Theta(n)$, pois o loop de dentro sempre será quebrado em $O(1)$.
 
 == Mergesort
-O algoritmo Mergesort consiste em dividir a sequência em duas partes, executar chamadas recursivas para cada sub-sequência, e juntá-las (merge) de forma ordenada. Esse algoritmo depende de um algoritmo auxiliar de intercalação (merge)
+A ideia do algoritmo consiste em  dividir a sequência em duas partes, executar chamadas recursivas para cada sub-sequência, até que o tamanho das sequências sejam tão pequenas que caiam no caso trivial de se ordenar, e juntá-las (merge) de forma ordenada. Esse algoritmo depende de um algoritmo auxiliar de intercalação (merge)
 
 #figure(
-  caption: [Mergesort Exemplificação],
+  caption: [Exemplificação do algoritmo Mergesort],
   image("images/mergesort-exemplification.png")
 )
 
 #codly(
-  header: [*EXEMPLIFICAÇÃO DA FUNÇÃO DE INTERCALAÇÃO*]
+  header: [*FUNÇÃO DE INTERCALAÇÃO*]
 )
 ```cpp
-void merge(int v[], int startA, int startB, int endB)
-{
+void merge(int v[], int startA, int startB, int endB) {
   int r[endB - startA];
   int aInx = startA;
   int bInx = startB;
   int rInx = 0;
   while (aInx < startB && bInx < endB) {
-    r[rInx++] = v[aInx] <= v[bInx] ? v[aInx++] : v[bInx++];
+    if (v[aInx] <= v[bInx]) {
+      r[rInx++] = v[aInx++];
+    } else {
+      r[rInx++] = v[bInx++];
+    }
   }
-  while (aInx < startB) { r[rInx++] = v[aInx++]; }
-  while (bInx < endB) { r[rInx++] = v[bInx++]; }
+  while (aInx < startB) { 
+    r[rInx++] = v[aInx++]; 
+  }
+  while (bInx < endB) {
+    r[rInx++] = v[bInx++]; 
+  }
   for (aInx = startA; aInx < endB; ++aInx) {
     v[aInx] = r[aInx - startA];
   }
 }
 ```
+Cria-se um vetor r do tamanho da lista passada antes da separação, e definimos alguns inteiros para não alterarmos os tamanhos originais e conseguirmos saber o que estamos fazendo com a lista. Sabemos que no vetor `v`, a parte `startA` até `startB - 1` está ordenada corretamente, e o mesmo vale para `startB` até `endB`.
 
-Dado que cada sequência tem $n$ entradas, são executadas $2n$ operações, logo, a complexidade é
+O primeiro while serve para usar a ordem criada nas duas subsequências a nosso favor, ou seja, verificamos até alguma das duas chegar em seu tamanho final e, enquanto isso não acontece, comparamos cada elemento inicial de cada sub-sequência, e sabendo que estão ordenadas, não precisamos verificar outros elementos. O vetor `r` fica completamete ordenado, mas em caso de alguma contagem de índice(`aIdx` ou `bIdx`) acabar antes de outra,
+significa que alguns elementos do outro índice não foram passados para `r` ainda, e é para isso que servem os outros dois whiles no final.
+Por fim, o último for serve apenas para passar os elementos na ordem correta de `r` para o vetor original e ainda não ordenado `v`.
+
+Os 3 whiles somam $n$ operações, e o for final outras $n$. Logo, a complexidade é
 $
   T(n) = Theta(n)
 $
 
-O algoritmo consiste em dividir a sequência $R$ em duas subsequências $A$ e $B$. Eu recursivamente ordeno essas duas sequências e repito o processo até que $R$ esteja ordenado
+Agora que temos uma função que junta duas listas ordenadamente, conseguimos fazer o mergeSort. O algoritmo consiste em dividir a sequência do vetor $V$ em duas subsequências $A$ e $B$, fazendo isso recursivamente até que $V$ esteja ordenado.
 
 #codly(
   header: [*IMPLEMENTAÇÃO*]
@@ -1506,49 +1519,35 @@ void mergeSort(int v[], int startInx, int endInx) {
   }
 }
 ```
+Olhando o algoritmo, note que ele chama a recursão do mergeSort até que a diferença entre os dois index sejam um, portanto essa recursão acontece até que tenhamos $n$ listas de tamanho $1$, e o merge fará todo o trabalho de "ordenar". Olhe o exemplo:
+#figure(
+  caption: [Exemplo do algoritmo MergeSort],
+  image("images/mergesort-example.png", width: 72%)
+)
 
 Podemos então avaliar a função de complexidade:
 $
   T(n) = 2 T(n/2) + n
 $
 
-E já vimos em capítulos anteriores que isso é $T(n) = Theta(n log(n))$. Perceba que ele não compara todos os pares mesmo no pior caso, porém, ele exige um espaço de memória $O(n)$ *adicional* para a ordenação
+E já vimos em capítulos anteriores que isso é $T(n) = Theta(n log(n))$. Perceba que ele não compara todos os pares mesmo no pior caso, porém, ele exige um espaço de memória $O(n)$ *adicional* para a ordenação.
 
 == Quicksort
-Um tipo de mergesort, mas contém um algoritmo auxiliar específico, com exceção também que buscamos um algoritmo que não necessite dos $O(n)$ de espaço adicional. O algoritmo escolhe um elemento, o qual chamamos de *pivô*, e separamos em duas partições. Os elementos maiores e menores que o *pivô*
+É uma ideia parecida com o mergesort, mas contém um algoritmo auxiliar específico, com exceção também que buscamos um algoritmo que não necessite dos $O(n)$ de espaço adicional. O algoritmo escolhe um elemento, o qual chamamos de *pivô*, e separa em duas partições: Os elementos maiores e menores que o *pivô*.
 
 #figure(
-  caption: [Exemplificação Quicksort],
+  caption: [Exemplificação do algoritmo Quicksort],
   image("images/quicksort-exemplification.png")
 )
 
 Então resumimos o problema do particionamento como:
 
-*Dada uma sequência $v$ e um intervalo $[p,...,r]$ transponha elementos desse intervalo de forma que ao retornar um índice $j$ (pivô) tenhamos:*
+Dada uma sequência $v$ e um intervalo $[p,...,r]$ transponha elementos desse intervalo de forma que ao retornar um índice $j$ (pivô) tenhamos:
 $
   v[p,...,j-1] <= v[j] <= v[j+1,...,r]
 $
 
-Uma solução muito comum segue o seguinte:
-
-#pseudocode-list[
-  + *função* particionamento(_v_ $in RR^r$) {
-    + *var* pivô = v[r]
-    + *var* j = r
-    + *percorrer* sequência avaliando cada posição $i in [p, r-1]$ {
-      + *se* $v[i] <= "pivô"$ {
-        + trocar $v[i]$ e $v[j]$
-        + $j = j + 1$
-      + }
-    + }
-  + }
-]
-
-
-#figure(
-  caption: [Exemplo visual do algoritmo quicksort],
-  image("images/quicksort-visual-example.png")
-)
+Temos a seguinte implementação para o partition:
 
 #codly(
   header: [*IMPLEMENTAÇÃO*]
@@ -1568,13 +1567,18 @@ int partition(int v[], int p, int r) {
   return j;
 }
 ```
+Olhando para o algoritmo temos `r`, que é o índice da lista que vamos ordenar em função, temos também `p`, que é o índice de onde vamos começar a ordenar, e `j`, que será a quantidade a partir de `p` de elementos menores que `v[r]`. No caso, ordenaremos para a sublista `v[p, ..., r]` em função de `v[r]`. 
 
-Como a sequência de $n$ elementos é percorrida uma única vez executando operações constantes, temos que $T(n) = Theta(n)$
+Fazemos um for de `p` até `r`, e se `v[i]` for menor que o pivô, trocamos o elemento indexado em `i` com o em `j`. Como `j` só é incrementado quando acha um valor menor, então o que estamos fazendo é separando uma área para os elementos menores que `v[r]` enquanto deixamos que os maiores continuem em suas posições(a menos de troca com menores). No final, trocamos o `v[r]` com a última incrementação de `j`, deixando menores a esquerda e maiores a direita. Retorna a posição correta de `v[r]`.
+
+Como a sequência de $n$(a real é que a sequência é definida por `p` e `r`, mas normalmente esses valores serão o início e o fim da lista, respectivamente) elementos é percorrida uma única vez executando operações constantes, temos que $T(n) = Theta(n)$
 
 #figure(
-  caption: [Passo-a-passo do algoritmo],
-  image("images/quick-sort-step-by-step.png")
+  caption: [Exemplo do algoritmo Partition],
+  image("images/quicksort-visual-example.png")
 )
+
+Agora que temos a base, vamos para o algoritmo principal! 
 
 #codly(
   header: [*IMPLEMENTAÇÃO*]
@@ -1582,11 +1586,26 @@ Como a sequência de $n$ elementos é percorrida uma única vez executando opera
 ```cpp
 void quicksort(int v[], int p, int r) {
   if (p < r) {
-    int j = part j + 1, r);
+    int j = partition (v, p, r);
+    quicksort(v, p , j - 1);
+    quicksort(v, j + 1, r);
   }
 }
 quicksort(v, 0, n - 1);
 ```
+
+Funciona da seguinte forma: enquanto tivemos mais de um elemento na lista(isso que o if verifica), particionamos em cima de algum elemento da lista, e fazemos a mesma coisa recursivamente para a parte a esquerda e a direita da lista, com o elemento de j já ordenado.
+
+Note que, se sempre pegarmos um elemento do muito ruim, a complexidade do algoritmo irá aumentar. Por isso, temos algumas formas de escolher o elemento para ordenar em função:
++ Podemos permutar a entrada do vetor;
++ Sortear algum índice aleatório.
+Dessa forma aumentamos a probabilidade da partição ser razoavelmente equilibrida na média.
+
+#figure(
+  caption: [Exemplo do algoritmo quicksort],
+  image("images/quick-sort-step-by-step.png", width: 80%)
+)
+
 
 Temos que sua função de complexidade é tal que:
 $
@@ -1595,6 +1614,7 @@ $
        &= n(n+1)/2    \
        &= Theta(n^2)
 $
+onde $j$ é o índice do primeiro elemento particionado.
 
 O pior caso acontece quando o pivô é o último/primeiro elemento e ele é o maior/menor elemento, já que uma partição fica vazia
 
@@ -1608,7 +1628,7 @@ $
   T(n) = T(n/10) + T((9n) / 10) + n
 $
 
-Podemos avaliar como $Theta(n log (n))$, ou seja, é o mesmo caso do melhor caso possível, mas tem uma constante maior. Ou seja, conseguimos perceber que o desempenho do algoritmo depende *da escolha do pivô*. O pior caso é $Theta(n^2)$, porém só ocorre em casos muito extremos
+Podemos avaliar como $Theta(n log (n))$, ou seja, é o mesmo caso do melhor caso possível, mas tem uma constante maior. Então, conseguimos perceber que o desempenho do algoritmo depende da *escolha do pivô*. O pior caso é $Theta(n^2)$, porém só ocorre em casos muito extremos.
 
 == Heapsort
 O algoritmo Heapsort consiste em organizar os elementos em um heap binário e reinseri-los utilizando uma estratégia semelhante à do algoritmo de ordenação por seleção.
