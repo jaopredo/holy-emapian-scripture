@@ -245,7 +245,7 @@ Esse método é útil para analisar algoritmos de divisão e conquista.
 
   #figure(
     caption: [Árvore de $T(n)$],
-    image("images/tree-example.png")
+    image("images/tree-example.png",width: 65%)
   )
 
   Temos então que:
@@ -462,8 +462,8 @@ Uma árvore binária consiste em uma estrutura de dados capaz de armazenar um co
 - Toda sub-árvore também é uma árvore.
 
 #figure(
-  caption: [Exemplo de árvore],
-  image("images/tree-example.png", width: 70%)
+  caption: [Exemplo de árvore binária],
+  image("images/tree-example.png", width: 60%)
 )
 
 Um nó sem pai é uma *raíz*, enquanto um nó sem filhos é um nó *folha*
@@ -473,7 +473,7 @@ Um nó sem pai é uma *raíz*, enquanto um nó sem filhos é um nó *folha*
 ]
 
 #figure(
-  caption: [Exemplificação de altura],
+  caption: [Exemplificação de altura em árvore binária],
   image("images/node-height-example.png", width: 50%)
 )
 
@@ -681,7 +681,7 @@ void printTreeBFSWithQueue(Node * root) {
 ]
 
 #figure(
-  caption: [Exemplo de árvore binária],
+  caption: [Exemplo de árvore binária de busca(ordenada)],
   image("images/binary-tree-example.png", width: 60%)
 )
 
@@ -741,7 +741,7 @@ Nós a utilizamos para armazenar e pesquisar tuplas _\<chave, valor\>_. São com
 - *Hash Tables*: Implementação de um dicionário por meio de uma função de *hash*
 
 #figure(
-  caption: [Desenho de tabela hash],
+  caption: [Exemplificação do algoritmo de tabela hash],
   image("images/hash-table.png")
 )
 
@@ -1154,7 +1154,7 @@ Porém, a remoção em uma tabela hash com endereçamento aberto também apresen
 - Ao remover uma chave key de uma posição $h$, partindo de uma posição $h_0$, tornamos impossível encontrar qualquer chave presente em uma posição $h'$ > $h$, pois, quando o algoritmo procura partindo de $h_0$, como $h$ está vazio, interpretará que não precisa continuar a busca, porque ele não sabe que a key da posição $h$ foi removida.
 
 #figure(
-  caption: [Exemplo de tabela com problema na remoção],
+  caption: [Exemplo de erro possível no uso de endereçamento aberto],
   image("images/remove-problem-table-example.png")
 )
 
@@ -1219,7 +1219,7 @@ Note que `hash(key,i)` é a função de sondagem completa, que depende tanto da 
 Porém, a abordagem linear rapidamente se torna ineficaz, já que em determinado momento o problema se transforma basicamente em inserir elementos em uma lista. Temos, por isso, outras alternativas:
 
 #figure(
-  caption: [Exemplificação de sondagem quadrática],
+  caption: [Exemplificação do endereçamento aberto usando de sondagem quadrática],
   image("images/quadratic-probing.png")
 )
 Na abordagem quadrática, temos que a função de hash segue o seguinte padrão:
@@ -1269,7 +1269,7 @@ Sequência de sondagem com hash duplo:
 ]
 
 #figure(
-  caption: [Exemplificação de hash duplo],
+  caption: [Exemplificação do endereçamento aberto usando hash duplo],
   image("images/double-hash.png")
 )
 
@@ -1291,7 +1291,7 @@ $
 
 #pagebreak()
 
-Queremos que, dada uma sequência de valores, escreva um algoritmo capaz de retornar a sequência ordenada de valores a partir de uma entrada de vários números não-ordenados.
+Agora, dada uma sequência de valores, escreva um algoritmo capaz de retornar a sequência ordenada de valores a partir de uma entrada de vários números não-ordenados.
 
 ```cpp
 int v[] = {8, 11, 2, 5, 10, 16, 7, 15, 1, 4};
@@ -1302,33 +1302,33 @@ int v[] = {8, 11, 2, 5, 10, 16, 7, 15, 1, 4};
 Um algoritmo de ordenação é considerado *estável* quando, ao final do programa, elementos de mesmo valor aparecem na mesma ordem que antes. Por exemplo:
 
 #figure(
-  caption: [Exemplo com números fracionários],
+  caption: [Exemplo de algoritmo estável com números fracionários],
   image("images/stable-algorithm-example.png")
 )
 
-Considere um algoritmo que ordena o vetor mostrado acima considerando *apenas a parte inteira*. Nesse algoritmo, $5.5$ e $5.3$ tem o mesmo valor (Já que estamos considerando apenas a parte inteira), e no array antes da ordenação, $5.5$ aparece *antes* do $5.3$. Se o algoritmo for estável, então essa ordem deverá ser mantida e, como podemos ver no array ordenado, ela de fato foi
+Considere um algoritmo que ordena o vetor mostrado acima considerando *apenas a parte inteira*. Nesse algoritmo, $5.5$ e $5.3$ tem o mesmo valor (Já que estamos considerando apenas a parte inteira), e no array antes da ordenação, $5.5$ aparece *antes* do $5.3$. Se o algoritmo for estável,  como podemos ver no array ordenado, a ordem deverá ser mantida. 
 
 == Bubble Sort
 O algoritmo bubble sort (ordenação por flutuação) é uma das soluções mais simples para o problema de ordenação.
 A solução consiste em inverter (trocar) valores de posições adjacentes sempre que `v[i + 1] < v[i]`.
-Essa operação é executada para cada posição 0 ≤ i < n − 1 ao percorrer a sequência.
+Essa operação é executada para cada posição $0 ≤ i < n − 1$ ao percorrer a sequência.
 Observe que ao percorrer a sequência j = n − 1 vezes executando esse procedimento atingimos a sequência ordenada.
 
 #example[
   Considere o seguinte array:
 
   #figure(
-    caption: [Bubble Sort array de exemplo],
-    image("images/bubble-sort-example-array.png")
+    caption: [Lista para exemplo do algoritmo Bubble Sort],
+    image("images/bubble-sort-example-array.png",  width: 80%)
   )
 
   E a execução do código decorrerá da forma:
   #figure(
-    caption: [Bubble Sort exemplo de fluxo de código],
-    image("images/bubble-sort-example-code.png", width: 70%)
+    caption: [Fluxo de código do algoritmo Bubble Sort],
+    image("images/bubble-sort-example-code.png",)
   )
 
-  Então o meu código vai percorrer cada item da minha lista e, sempre que um elemento a esquerda de outro é maior que ele, os dois trocam de posição
+  Então, a ideia é percorrer cada item da lista e, sempre que um elemento a esquerda é maior que o elemento a direita, os dois trocam de posição
 ]
 
 #codly(
@@ -1336,6 +1336,7 @@ Observe que ao percorrer a sequência j = n − 1 vezes executando esse procedim
 )
 ```cpp
 #define swap(v, i, j) { int temp = v[i]; v[i] = v[j]; v[j] = temp; }
+
 void bubbleSort(int v[], int n) {
   for (int j = 0; j < n - 1; j++) {
     for (int i = 0; i < n - 1; i++) {
@@ -1347,12 +1348,12 @@ void bubbleSort(int v[], int n) {
 }
 ```
 
-O procedimento é executado $n-1$ vezes e, a cada iteração maior, ele executa $n-1$ subprocessos, logo, no final vamos ter um total de $T(n)=Theta(n^2)$ de complexidade (Tanto melhor quanto pior caso)
+O algoritmo é executado $n-1$ vezes e, a cada iteração do for de fora, ele executa $n-1$ subprocessos, logo, no final teremos um total de $T(n)=Theta(n^2)$ de complexidade (tanto melhor quanto pior caso, já que independentemente da lista os dois fors vão até $n - 1$).
 
-Porém, podemos fazer uma otimização no algoritmo:
+Porém, fazendo uma otimização no algoritmo:
 
 #codly(
-  header: [*IMPLEMENTAÇÃO ORDENADA*]
+  header: [*IMPLEMENTAÇÃO OTIMIZADA*]
 )
 ```cpp
 void bubbleSortOptimized(int v[], int n) {
@@ -1368,28 +1369,28 @@ void bubbleSortOptimized(int v[], int n) {
   }
 }
 ```
-Essa otimização checa se, dentro de um loop maior houve alguma troca, se não houve nenhuma, então o algoritmo é encerrado. Ao fazer isso, a complexidade do melhor caso desce para $Theta(n)$
+Essa otimização checa se dentro do loop maior houve alguma troca, se não houve nenhuma, então o algoritmo é encerrado, pois significa que está ordenado. Ao fazer isso, a complexidade do melhor caso desce para $Theta(n)$.
 
 == Selection Sort
 No selection sort, fazemos uma busca em *cada posição* pelo $i$-ésimo valor que *deveria* estar naquela posição
 
 #figure(
-  caption: [Selection Sort exemplificação],
+  caption: [Exemplificação do algoritmo Selection Sort],
   image("images/selection-sort-exemplification.png")
 )
 
-Dado uma posição $i$, e assumindo que todas as posições anteriores já estão ordenadas, ele vai procurar dentre as próximas $n - i$ posições um valor menor que o da posição $i$. Se isso acontece, significa que ele deveria estar na posição que $i$ está ocupando, então eu vou trocá-los de posição
+Dada uma posição $i$, e assumindo que todas as posições anteriores já estão ordenadas, o algoritmo irá procurar dentre as próximas $n - i$ posições um valor menor que o da posição $i$. Se isso acontece, significa que esse valor deveria estar na posição que $i$, e então trocamos de posição.
 
 #example[
   Considere o caso:
   #figure(
-    caption: [Selection Sort Caso de Exemplo],
+    caption: [Lista para exemplo do algoritmo Selection Sort],
     image("images/selection-sort-example-case.png")
   )
 
   E assim, o fluxo durante a execução do programa será:
   #figure(
-    caption: [Selection Sort Fluxo do Programa],
+    caption: [Fluxo do código do algoritmo Selection Sort],
     image("images/selection-sort-example-code-flow.png")
   )
 ]
@@ -1411,27 +1412,28 @@ void selectionSort(int v[], int n) {
 }
 ```
 
-Para avaliar o seu desempenho, podemos montar seu custo total utilizando vendo que, a cada iteração, eu vou avaliar um elemento a menos, de forma que podemos expressar a *função de complexidade* como:
+Para avaliar o desempenho, podemos montar seu custo total percebendo que, a cada iteração, o algoritmo avalia um elemento a menos, de forma que podemos expressar a *função de complexidade* como:
 $
   T(n) &= (n-1) + (n-2) + ... + 1 + 0   \
         &= sum_(i=0)^(n-1) i  = n(n-1)/2
 $
-Ou seja, obtemos que $T(n) = Theta(n^2)$, que também é a complexidade no melhor caso
+Ou seja, obtemos que $T(n) = Theta(n^2)$, que também é a complexidade no melhor caso, já que, novamente, os fors dependem totalmente de $n$.
 
 == Insertion Sort
-Muito parecido com o algoritmo de *Selection Sort*, porém, eu vou fixar uma posição $i$ e avaliar o valor naquela posição, e procurar dentre as posições $[0, i-1]$ qual deveria ser a posição que o valor da posição $i$ deveria estar
+Parecido com o algoritmo de *Selection Sort*, que acabamos de ver. Porém, a ideia é fixar uma posição $i$ e avaliar o valor naquela posição, procurando dentre as posições $[0, i-1]$ qual deveria ser a posição que o valor da posição $i$ deveria estar:
 
 #figure(
-  caption: [Insertion Sort Exemplificação],
+  caption: [Exemplificação do algoritmo Insertion Sort],
   image("images/insertion-sort-exemplification.png")
 )
 
 #example[
   #figure(
-    caption: [Insertion Sort Exemplo],
-    image("images/insertion-sort-example.png")
+    caption: [Exemplo do algoritmo Insertion Sort],
+    image("images/insertion-sort-example.png",width: 69%)
   )
 ]
+
 
 #codly(
   header: [*IMPLEMENTAÇÃO*]
@@ -1442,13 +1444,13 @@ void insertionSort(int v[], int n) {
     int currentValue = v[i];
     int j;
     for (j = i - 1; j >= 0 && v[j] > currentValue; j--) {
-      v[j + 1] = v[j];
+      v[j + 1] = v[j]; 
     }
     v[j + 1] = currentValue;
   }
 }
 ```
-
+Note que o loop de fora começa no segundo elemento da lista e que o loop de dentro ocorre enquanto não encontrarmos algum valor maior para ser trocado ou j não sair para fora da lista, pois meio que o algoritmo anda de trás para frente. Enquanto o loop não parar ele passa o valor de j para j + 1,    
 A complexidade desse algoritmo também é expressa na forma:
 $
     T(n) = sum_(j=1)^(n-1)j = n(n-1)/2 = Theta(n^2)
