@@ -1752,11 +1752,11 @@ Para analisar o desempenho, podemos fazer o seguinte:
 
 No final, somando tudo, temos que $T(n) = Theta(n log(n))$.
 == Counting Sort
-O algoritmo de ordenação por contagem (counting sort) consiste em computar para cada elemento quantos elementos menores existem na sequência
-- Sabendo que o elemento $v_i$ possui $j$ elementos menores do que ele, podemos definir sua posição final como $j + 1$
+O algoritmo de ordenação por contagem consiste em computar para cada elemento quantos elementos menores existem na lista, pois, sabendo que o elemento $v_i$ possui $j$ elementos menores do que ele, podemos definir sua posição final como $j + 1$
 
 Vamos enunciar novamente nosso problema:
-desejamos ordenar os elementos do vetor $v[0,...,n - 1]$
+
+Desejamos ordenar os elementos do vetor $v[0,...,n - 1]$
 considerando as seguintes restrições:
 - Os elementos são números inteiros.
 - Os números estão presentes no intervalo $[0, ..., k - 1]$
@@ -1765,17 +1765,17 @@ considerando as seguintes restrições:
 
 #figure(
   caption: [Array de Exemplo],
-  image("images/example-array.png"),
+  image("images/example-array.png", width: 90%),
 )
 
-Nesse exemplo, temos um total de $11$ elementos e $6$ opções entre eles (Os elementos vão de $0$ à $5$)
+Nesse exemplo, temos um total de $11$ elementos e $6$ opções entre eles (os elementos vão de $0$ à $5$)
 
 #figure(
-  caption: [],
-  image("images/auxiliar-sequence.png")
+  caption: [Array de frequência de cada número $f$],
+  image("images/auxiliar-sequence.png", width: 60%)
 )
 
-Criamos então um a *sequência auxiliar* de tamanho $k$, nessa sequência, cada índice representa um elemento específico do array e os elemento representam *quantas vezes esses elementos aparecem na lista original*. Com essa sequência $f$, vamos gerar *outra* sequência auxiliar $s f$, de tal forma que:
+Criamos então um a *sequência auxiliar* de tamanho $k$. Nessa sequência, cada índice representa um elemento específico do array e os elemento representam *quantas vezes esses elementos aparecem na lista original*. Com essa sequência $f$, vamos gerar *outra* sequência auxiliar $s f$, de tal forma que:
 $
   s f_i = sum^(i-1)_(j=0) f[j] = f[i-1] - s f[i-1] wide (i>0)
 $
@@ -1783,14 +1783,14 @@ Ou seja, o elemento $i$ de $s f$ é a *quantidade de elementos menores que $i$*
 
 #figure(
   caption: [Segunda lista auxiliar $s f$],
-  image("images/second-auxiliar-sequence.png")
+  image("images/second-auxiliar-sequence.png", width: 70%)
 )
 
 Então, utilizando $s f$, podemos criar uma nova lista ordenada, de forma que o elemento $i in [0,k]$ estará localizado no índice $s f_i$
 
 #figure(
   caption: [Lista ordenada],
-  image("images/ordered-list.png")
+  image("images/ordered-list.png",width: 80%)
 )
 
 #codly(
@@ -1798,13 +1798,13 @@ Então, utilizando $s f$, podemos criar uma nova lista ordenada, de forma que o 
 )
 ```cpp
 void countingSort(int v[], int n, int k) {
-  int fs[k + 1];
+  int fs[k + 2];                 //+1 indexação de arrays +1  de fs[0] = 0
   int temp[n];
-  for (int j = 0; j <= k; j++) {
+  for (int j = 0; j < k + 2; j++) {
     fs[j] = 0;
   }
   for (int i = 0; i < n; i++) {
-    fs[v[i] + 1] += 1;
+    fs[v[i] + 1] += 1;            //note que fs[0] = 0
   }
   for (int j = 1; j <= k; j++) {
     fs[j] += fs[j - 1];
@@ -1819,6 +1819,11 @@ void countingSort(int v[], int n, int k) {
   }
 }
 ```
+Criamos o vetor da soma de frequências com $k + 1$ entradas, e o vetor temp, que servirá para ordenar depois das frequências contadas. O primeiro for simplesmente preenche cada elemento de `fs` como $0$. O segundo for conta quantas vezes cada valor aparece (armazenando em `fs[v[i] + 1]`).
+
+O terceiro loop somará todas as frequências anteriores para definir a posição correta dos elementos de índice $j$, transformando `fs` em um array de prefixos acumulados. No quarto loop pegamos j que é o valor de `v[i]` e vemos qual o começo desse valor na lista de frequências, e adicionamos no lugar certo de temp graças a isso. Após, incrementamos o valor de `fs[j]`, pois, se o mesmo número aparecer, ele deve ir no próximo elemento depois do adicionado na iteração.
+
+Por fim, o último loop apenas passa a lista ordenada em `temp` para `v`.
 
 Podemos avaliar o desempenho do algoritmo Counting Sort através da seguinte
 função:
@@ -1828,7 +1833,7 @@ $
   &= Theta(k + n)
 $
 
-Exige O(n + k) de espaço adicional. Portanto, se k for muito pequeno a complexidade será $Theta(n)$. É considerado um algoritmo eficiente para ordenar sequências com elementos repetidos.
+Exige $O(n + k)$ de espaço adicional. Portanto, se k for muito pequeno a complexidade será $Theta(n)$. É considerado um algoritmo eficiente para ordenar sequências com elementos repetidos.
 
 == Radix Sort
 O algoritmo Radix sort consiste em ordenar os elementos de uma sequência digito à digito, do menos significativo para o mais significativo. Considera que cada elemento é uma sequência com $w$ dígitos (Todos os elementos precisam ter $w$ dígitos). Embora o termo dígito remeta à números do conjunto ${0,1,...,9}$, podemos utilizar qualquer valor que possa ser mapeado em um inteiro
@@ -1860,6 +1865,7 @@ void radixSort(unsigned char * v[], int n, int W, int K) {
   }
 }
 ```
+Note que esse código é literalmente o Counting Sort só que para cada "dígito" do elemento. Portanto, a explicação do código está uma seção acima.
 
 Podemos avaliar o desempenho do algoritmo Radix Sort através da seguinte função:
 $
