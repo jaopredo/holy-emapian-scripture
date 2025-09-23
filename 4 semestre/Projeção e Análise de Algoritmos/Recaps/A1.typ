@@ -1411,6 +1411,7 @@ void selectionSort(int v[], int n) {
   }
 }
 ```
+No primeiro for, pegamos o índice `i`, e no segundo loop passamos em todos os índices a frente de `i`, e se for menor que o `v[i]`(ou algum que foi substituído), realiza a troca depois de todas as verificações. Dessa forma, sempre pegamos o menor valor de da lista do índice `i` para frente.
 
 Para avaliar o desempenho, podemos montar seu custo total percebendo que, a cada iteração, o algoritmo avalia um elemento a menos, de forma que podemos expressar a *função de complexidade* como:
 $
@@ -1566,7 +1567,7 @@ int partition(int v[], int p, int r) {
   swap(v, j, r);
   return j;
 }
-```
+```<partition>
 Olhando para o algoritmo temos `r`, que é o índice da lista que vamos ordenar em função, temos também `p`, que é o índice de onde vamos começar a ordenar, e `j`, que será a quantidade a partir de `p` de elementos menores que `v[r]`. No caso, ordenaremos para a sublista `v[p, ..., r]` em função de `v[r]`. 
 
 Fazemos um for de `p` até `r`, e se `v[i]` for menor que o pivô, trocamos o elemento indexado em `i` com o em `j`. Como `j` só é incrementado quando acha um valor menor, então o que estamos fazendo é separando uma área para os elementos menores que `v[r]` enquanto deixamos que os maiores continuem em suas posições(a menos de troca com menores). No final, trocamos o `v[r]` com a última incrementação de `j`, deixando menores a esquerda e maiores a direita. Retorna a posição correta de `v[r]`.
@@ -1876,10 +1877,10 @@ $
 Exige $O(n + k)$ de espaço adicional. Se $k$ e $w$ forem pequenos a complexidade pode ser avaliada como $Theta(n)$.
 
 == Bucket Sort
-Esse algoritmo vai utilizar de hash tables para fazer ordenação de números *fracionários*. Vamos pegar uma sequência $v$ com $n$ elementos e dividí-la em $n$ grupos (baldes)
+Esse algoritmo vai utilizar de hash tables para fazer ordenação de números potencialmente uniformes. Vamos pegar uma sequência de números *fracionários* $v$ com $n$ elementos e dividí-la em $n$ grupos (baldes).
 
 #figure(
-  caption: [Lista de valores em $[0,1)$],
+  caption: [Lista de valores em $[0,1)$ para exemplificação do algoritmo Bucketsort],
   image("images/fractions-list.png")
 )
 
@@ -1925,3 +1926,120 @@ Portanto, temos que:
 - O pior caso é $Theta(n^2)$ - um único balde recebe n elementos.
 - O caso médio é $Theta(n)$ - considerando a distribuição uniforme esperada, poucos elementos caem no mesmo balde.
 - Exige $O(n)$ de espaço adicional.
+
+#pagebreak()
+
+#align(center+horizon)[
+  = Algoritmos de Seleção
+]
+
+#pagebreak()
+
+Dada uma sequência não ordenada, 
++ como retornar a mediana do conjunto sem ordenar a sequência?
++ como retornar o i-ésimo elemento sem ordenar a sequência?
+
+Se pudessemos ordenar... Bastaria: 
++ acessar `v[n/2]` se $n$ ímpar ou (`v[n/2]` + `v[n/2 + 1]`)/2 se $n$ par;
++ apenas acessar o elemento `v[i]`.
+
+Infelizmente, esse não é o caso. Então vamos aprender alguns algoritmos que descobrem isso sem ordenar a lista!
+
+== Quickselect
+
+O algoritmo consiste em particionar a sequência conforme o algoritmo Quicksort, e buscar recursivamente escolhendo uma das partições.
+
+Dada a sequência `v[0 ... n-1]` e a posição `x` buscada:
+  - Executamos o partition, obtendo a posição do pivô `j`. (note que estamos falando de índices)
+    - se `j = x - 1`, encontramos o elemento (o - 1 vem da indexação)
+    - se `j > x - 1`, executamos a recursão para `[0, ..., j - 1]`.
+    - se `j < x - 1`, executamos a recursão para `[j + 1, ..., n - 1]`.
+
+#example[ vamos buscar o terceiro menor elemento da sequência abaixo:
+
+#figure(
+  caption: [Exemplo do algoritmo Quickselect],
+  image("images/quickselectexample.png", width: 80%)
+)
+]
+Vamos para sua implementação!
+
+#codly()
+```cpp
+int quickselect(int v[], int l, int r, int x) {
+  if (x > 0 && x <= r - l + 1) {
+    int j = partition(v, l, r);
+    if (j - l == x - 1) {
+      return v[j];
+    }
+    if (j - l > x - 1) {
+      return quickselect(v, l, j - 1, x);
+    }
+    return quickselect(v, j + 1, r, x - j + l - 1);
+  }
+  return -1;
+}
+```
+
+O inteiro `l` é o índice do primeiro elemento da lista que iremos ordenar, e o inteiro `r` é o índice do último elemento. 
+O primeiro if verifica se o x está dentro da lista, e a partir daí pega o seu índice `j`(a posição correta do último elemento da lista) pelo partition, e verificamos se ela é exatamente o índice `x` que procuramos. Se não, vai ao próximo if(seria como se fosse um else if nesse caso) e verifica a esquerda de `j`, `[l, ..., j-1]` procurando por `x`. 
+
+Por fim, o último return do if inicial faz o quickselect para a esquerda de `j`, `[j + 1, ... , r]`, porém note que ele muda a indexação do `x`, por quê?
+
+Pois ao procurar `x`, note que o `x` não é o mesmo do ínicio, pois nos movemos `l` casas a direita. Por exemplo:
+
+#example[ 
+
+Queremos encontrar o *4º menor elemento* no vetor `v = [7, 2, 9, 4, 6]`:
+
+`quickselect(v, l=0, r=4, x=4)`
+
+- Subarray considerado: `[7, 2, 9, 4, 6]`
+- Pivô escolhido: 6
+
+Após a partição: `[2, 4, 6, 9, 7]`
+
+- Índice global do pivô: j = 2
+- Procuramos x - 1 = 3
+- Como j - l = 2 < 3, o elemento desejado está à direita do pivô.
+Note que aqui deveríamos então fazer a recursão a direita, e teríamos então o vetor `[9,7]` para olhar. Porém note que olhando para o mesmo `x` do começo, saíriamos da lista. Por isso precisamos "normalizar" o `x`, somando a quantidade de elementos que já passamos(`j - l`), e o `+1` do índice. Por isso `x = x -(j - l + 1)`.
+]
+
+Agora que entendemos o algoritmo, vamos analisar a complexidade:
+
+No melhor caso a sequência será particionada usando a mediana como pivô, levando à seguinte função:
+
+$
+  T(n) = c n + T(n/2)
+$
+
+e, continuando:
+
+$
+  T(n) &= c n + T(n/2)\
+       &= c n  + (c n )/ 2 + T(n/4)\
+       &= c n + (c n)/2 + (c n)/4 + T(n/8)\
+       &= c n( 1 + 1/2 + 1/4 + dots) <= O(n)
+$
+
+No entanto, no pior caso teremos sempre um conjunto vazio e um conjunto com $n - 1$ elementos, levando a seguinte função de recorrência:
+$
+  T(n) = c n + T(n - 1)
+$
+
+
+e, continuando:
+
+$
+  T(n) &= c n + T(n - 1)\
+       &= c n  + c (n  - 1) + T(n - 2)\
+       &= c n + c (n  - 1) + c(n - 2) + T(n - 3)\
+       &= c (n + (n -1) + (n - 2 ) + dots + 2 + 1)\
+       &= n(n + 1)/2\
+       &= O(n^2)
+$
+
+Portanto, o pior caso $O(n^2)$ e o melhor caso $O(n)$.
+
+== Mediana das Medianas
+
