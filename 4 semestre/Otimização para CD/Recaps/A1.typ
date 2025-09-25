@@ -1237,7 +1237,7 @@ O lagrangeando é uma função que será de grande importância, ela pode parece
 #theorem("Gradiente Lagrangeano")[
   Dado o Lagrangeano de uma função $f$, temos que o gradiente do lagrangeano *somente em relação a $x$* se da por:
   $
-    nabla_x L(x, lambda, mu) = nabla f(x) + sum_(i=1)^m lambda_i nabla g(x) + sum^p_(j=1) mu_j nabla h(x)
+    nabla_x L(x, lambda, mu) = nabla f(x) + sum_(i=1)^m lambda_i nabla g_i (x) + sum^p_(j=1) mu_j nabla h_j (x)
   $
 ]
 
