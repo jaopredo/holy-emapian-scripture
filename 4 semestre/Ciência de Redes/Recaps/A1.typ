@@ -161,7 +161,7 @@ Essa sessão será apenas algumas definições que não foram passadas no curso 
   $
     C(v) := (2 E_v) / (delta(v) ( delta(v)-1 ))
   $
-  onde $E_v$ é a quantidade de arestas ligadas aos nós vizinhos
+  onde $E_v$ é a quantidade de arestas que ligam os *vizinhos* de $v$ entre si
 ]
 
 #pagebreak()
@@ -226,7 +226,7 @@ $
 $
 Para alguma escolha apropriada de $c_j$. Então temos:
 $
-  x^((k)) = A^k sum_(j=1)^n c_j w_j = sum^n_(j=1) c_j lambda_j v_j = lambda_1^k sum_(j=1)^n c_j (lambda_j/lambda_1)^k w_j
+  x^((k)) = A^k sum_(j=1)^n c_j w_j = sum^n_(j=1) c_j lambda_j w_j = lambda_1^k sum_(j=1)^n c_j (lambda_j/lambda_1)^k w_j
 $
 
 De forma que $lambda_j$ são os autovalores de $A$ e $lambda_1$ pode ser, sem perca de generalização, o maior de todos em módulo. Como $lambda_i\/lambda_1 < 1 space forall lambda_i "com" i!=j$, então:
@@ -943,3 +943,62 @@ $
 $
 
 E isso daria uma relação de quantos nós precisamos para que começássemos a registrar a propriedade da rede livre de escala. Por exemplo, vamos supor que queremos saber quantos nós precisamos para começar a ver essa propriedade em redes de $gamma = 5$ (E, por exemplo, $k_min=1$ e $k_max = 10^2$), então deveríamos ter $N>10^8$, e são poucas as redes, na prática, com um tamanho absurdo desses!
+
+
+#pagebreak()
+
+#align(center+horizon)[
+  = Modelo Biaconi-Barabási
+]
+
+#pagebreak()
+
+Nesse capítulo vamos trabalhar no contexto de redes de negócios. No nosso modelo anterior, o de anexação preferencial (Ou Barabási-Albert), nós tinhamos que o primeiro nó *sempre* seria o nó com maior grau (Ou na maioria das vezes), mas os nós mais antigos sempre teriam mais links que os mais novos. Porém, em redes de negócio isso não é bem verdade. Basta olharmos a Netflix por exemplo, que chegou bem depois da Blockbuster e quem está de pé até hoje? (Mesmo que com pernas bambas). Pois é, então temos que desenvolver um modelo melhor para esse tipo de situações.
+
+Aqui nós vamos fazer uma definição mais intuitiva e depois introduzí-la no nosso modelo matemático. Vamos chamar a *chance* de uma *empresa* criar um vínculo *permanente* com um cliente a partir de um encontro aleatório desse cliente com a empresa de *fitness* (Ou aptidão). E dependendo do contexto analisado essa fitness pode ser mensurada de formas diferentes
+
+Se o contexto de negócios não parece muito intuitivo, basta pensar também no contexto social, onde cada pessoa vai ser amiga de outra dependendo de um encontro aleatório baseado em seus costumes, suas crenças, seus preconceitos, etc. Agora vamos definir melhor o nosso novo modelo.
+
+Começamos com uma rede inicial $G(V,E)$, e introduzimos um novo vértice $v_j$ onde $v_j$ vai se ligar a $m$ outros vértices ($delta(v_j) = m$) e meu vértice $v_j$ tem uma aptidão $eta_j$. Essa aptidão pode ser escolhida da forma que bem entender, por enquanto, vamos assumir que ela é escolhida aleatoriamente a partir de uma distribuição $p(eta)$ (Também assuma que todos os nós em $V$ também tem uma aptidão de antemão)
+
+A probabilidade de que um link do meu novo nó $v_j$ se conecte com algum nó $v_i in V$ é proporcional a sua aptidão. Podemos fazer isso definindo:
+$
+  p_i = PP({v_j,v_i} in E) = (eta_i delta(v_i)) / (sum_(v_k in V) eta_k delta(v_k))
+$
+
+Perceba que a dependência de $p_i$ em $delta(v_i)$ mostra essencialmente que quanto maior o grau de $v_i$ maior a chance de $v_j$ se conectar a ele (Pense naquele amigo que conhece várias pessoas, ele costuma ser alguém agradável para que tanta gente goste dele, então você tende a gostar dele também)
+
+== Dinâmica
+Imagine o vértice $v_i$ fixamente, ele está presente desde o começo (No grafo inicial). A cada passo $t$ um novo nó é inserido. Vamos então definir o grau do nosso vértice $v_i$ em função do tempo:
+$
+  k_i = delta_t (v_i) := "Grau do vértice" v_i "no momento" t
+$
+
+Temos que a variação de $k_i$ em relação ao tempo é:
+$
+  (dif k_i) / (dif t) = m (eta_i k_i) / (sum_j eta_j k_j)
+$
+
+Isso ocorre pois, a cada unidade de tempo, eu vou adicionar $m$ links no meu grafo. Então minha mudança média no grau do meu nó é $m$ (Número de nós adicionados) ponderado pela probabilidade de cada link se ligar a $v_i$ que é como definimos antes
+
+A gente vai assumir que o tempo de evolução de $delta(v_i)$ segue uma lei de potência dependente da aptidão (Ou seja, cresce exponencialmente em relação a $eta_i$). Então:
+$
+  k(t,t_i,eta_i) = m (t / t_i)^beta(eta_i)
+$
+
+Onde $t$ é o momento atual e $t_i$ é o momento de chegada de $v_i$ na rede. Fazendo alguns cálculos especificados no livro do Barabási, chegamos que:
+$
+  beta(eta) = eta / C
+$
+de forma que:
+$
+  C = integral rho(eta) eta / (1 - beta(eta)) d eta
+$
+
+== Distribuição dos Graus
+Também involve cálculos mais complicados, então vou apenas mostrar a fórmula. Quando houver tempo, colocarei os cálculos nesse resumo:
+$
+  p_k approx C integral rho(eta) / eta (m / k)^(C/eta + 1) dif eta
+$
+
+
