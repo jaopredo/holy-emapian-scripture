@@ -573,7 +573,9 @@ Podemos ter algumas abordagens *arbitrárias* para identificar os fatos. Por exe
 )
 
 == Detalhamento de Fatos
-Se refere ao quão bem detalhado (O que cada linha representa) no meu fato
+Antes disso, precisamos entender melhor sobre a *granularidade* da tabela. A granularidade e refere a o que uma única linha de uma tabela se refere. Tabelas de fato com um refinamento alto de granularidade expressam um único fato, enquanto tabelas com granularidade maior expressam, em suma, um conjunto de fatos agrupado. Por conta desse detalhamento v.s agrupamento, ambas possuem suas vantagens e desvantagens
+
+Com base na granularidade da tabela, podemos classificá-la em duas:
 
 - *Line-item detailed fact table*: Cada linha representa uma linha de item de uma transação em particular
 - *Transaction-level detailed fact table*: Cada linha representa uma transação em particular
