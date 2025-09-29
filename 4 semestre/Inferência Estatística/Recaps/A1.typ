@@ -735,3 +735,14 @@ Nós vimos anteriormente que, ao calcular a posteriori, ela era proporcional ún
 #corollary[
   Uma estatística $T = r(underline(X))$ é suficiente *se, e somente se,* não importa qual seja a distribuição a priori, a distribuição a posteriori de $theta$ depende dos dados única e exclusivamente através do valor de $T$
 ]
+
+
+#pagebreak()
+
+#align(center+horizon)[
+  = Melhorando um Estimador
+]
+
+#pagebreak()
+
+
