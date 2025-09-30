@@ -719,7 +719,7 @@ Agora nos é apresentado um método de identificar estatísticas suficientes (Um
 
   Agora para fazer a ida, vamos supor que $T$ é uma estatística suficiente. Então para todo valor dado $t$ de $T$, todo ponto $underline(x) in A(t)$ e todo valor $theta in Omega$ a probabiidade condicional $PP(underline(X)=underline(x)|T=t,theta)$ não vai depender de $theta$ (Como vimos anteriormente), então vai ser da forma:
   $
-    PP(underline(X)=underline(x)|T=t,theta) = u(underline(x))
+    PP(underline(X)=underline(x)|T=t,theta) = h(underline(x))
   $
   Se chamarmos $PP(T=t|theta) = v(t,theta)$, então temos:
   $
@@ -745,4 +745,93 @@ Nós vimos anteriormente que, ao calcular a posteriori, ela era proporcional ún
 
 #pagebreak()
 
+Como diz o título, nesse capítulo a gente tem como objetivo aprender a dizer quando um estimador é "bom". Eu coloquei bom entre aspas pois, dando um certo spoiler, as vezes um estimador pode ser relativamente bom, e podemos nos contentar com ele, porém podem existir estimadores melhores
 
+Primeiro de tudo, vamos definir nossa amostra $underline(X) = (X_1,...,X_n)$ e ela tem uma pdf ou uma pmf $f(underline(x)|theta)$. Também vamos definir a esperança em $theta$ como:
+$
+  EE_theta [Z] = integral_(-infinity)^(infinity) ... integral_(-infinity)^(infinity) g(underline(x)) f(underline(x)|theta) dif x_1 ... dif x_n
+$
+Onde, nesse caso, $Z = g(X_1,...,X_n)$ (E $f(underline(x)|theta)$ é uma pdf). Vale ressaltar também que, se $theta$ é uma variável aleatória, $EE_theta [Z] = EE[Z|theta]$. Essas informações que eu dei foram apenas para contextualizar o nosso próximo objetivo (Ué, vai falar o próximo objetivo sem nem terminar o principal? É que a gente vai entender o principal a partir desse daqui)
+
+O nosso objetivo agora (A partir dele a gente vai entender o principal que citei antes) é tentar estimar o valor de $h(theta)$ (Estimar uma função qualquer de $theta$). Show! Então a gente quer um estimador que seja bem próximo e o erro dele em relação a $h(theta)$ é baixo. Vamos então tomar uma função de perca pra comparar eles dois! Vamos usar a clássima:
+$
+  L(theta, a) = (theta - a)^2
+$
+A *perca quadrática*. Então a gente quer um estimador que, ao longo prazo, faça com que essa perca seja pequena. Então faz sentido a gente ver a esperança desse erro com relação ao valor do $theta$
+$
+  R(theta, delta) = EE_theta [L(h(theta), delta(underline(X)))] = EE_theta [(h(theta) - delta(underline(X)))^2]
+$
+Macho, o que diabos isso significa? Só pra refrescar, tirar a esperança de uma variável é tipo saber qual valor ela mais vai retornar ao longo prazo. Então faz sentido a gente pegar o valor que esse erro vai me retornar ao longo prazo (Dado um valor de $theta$) pra poder fazer comparações depois com outros estimadores.
+
+#definition("Risco")[
+  Dada uma variável aleatória $X$ com uma distribuição indexada pelo parâmetro $theta$ e uma amostra dela $underline(X) = (X_1,...,X_n)$, o risco de um estimador $delta(underline(X))$ de $h(theta)$ é:
+  $
+    R(h(theta), delta(underline(X))) = EE_theta [L(h(theta), delta(underline(X)))]
+  $
+  Onde $L(x, y)$ é uma função de perca arbitrária
+]
+
+Se a gente não sabe uma distribuição priori de $theta$, então a gente quer encontrar um estimador que faça com que a perca $L(theta, delta)$ seja pequena para todo valor de $theta$ ou pelo menos para uma grande parte.
+
+Dado esse contexto, a gente vai mostrar que, se um estátistico $A$ tem acesso a $X_1,...,X_n$ e o $B$ tem acesso a uma estatística $T$, se $A$ tenta estimar $h(theta)$ usando $delta(underline(X))$, então o nosso mano $B$ consegue encontrar um outro estimador $delta_0 (underline(X))$ usando somente a estatística $T$ que ele é melhor ou tão bom quanto o estimador do $A$, ou em termos matemáticos:
+$
+  R(theta, delta_0) <= R(theta, delta)
+$
+
+A gente vai definir o estimador do mano $B$ como:
+$
+  delta_0 (underline(T)) = EE_theta [delta(underline(X))|T]
+$
+
+Eu sei que parece que eu to colocando a carroça na frente dos bois ja entregando de bandeja qual é o estimador, mas a gente vai mostrar que esse carinha bate a descrição que eu comentei antes. Mas antes de tudo, a gente tem que saber se esse cara ao menos pode ser usado como estimador de $theta$. Pra isso, ele não pode depender de $theta$ (Afinal, não faz sentido estimar uma coisa usando ela mesma).
+
+A gente sabe que $f(x_1,...,x_n|T,theta) = f(x_1,...,x_n|T)$, então pra qualquer valor de $T$, eu vou ter que:
+$
+  EE_theta [delta(underline(X))|T] &= integral_(-infinity)^(infinity) ... integral_(-infinity)^(infinity) delta(underline(x)) f(underline(x)|T,theta) dif x_1 ... dif x_n    \
+
+  &= integral_(-infinity)^(infinity) ... integral_(-infinity)^(infinity) delta(underline(x)) f(underline(x)|T) dif x_1 ... dif x_n
+$
+
+Ou seja, $delta_0 (T)$ não depende de $theta$, então eu posso usar ele como estimador de $theta$
+
+Uma coisa que vale ressaltar, eu vou fazer um teorema que mostra essa propriedade, porém eu vou denotar a estatística suficiente como $underline(T) = (T_1,...,T_n)$, de forma que $T_i$ são estatísticas conjuntamente suficientes (Elas sozinhas não dizem nada, porém, a união de todas elas forma uma estatística suficiente. Todos os teoremas que vimos anteriormente que usam estatísticas suficientes valem também para esse caso vetorial)
+
+#theorem[
+  Se $delta(underline(X))$ é um estimador e $underline(T)$ uma estatística conjuntamente suficiente para $theta$ e $delta_0 (underline(T)) = EE_theta [delta(underline(X))|underline(T)]$, então vale que:
+  $
+    R(theta, delta_0) <= R(theta, delta) wide forall theta in Omega
+  $
+]<best-estimator-theorem>
+#proof[
+  Se $R(theta, delta)$ é infinito pra algum $theta$, então a condição já é satisfeita ($infinity <= infinity$)
+
+  Então vamos considerar que $R(theta, delta)$ é finito. Pela definição de variância, temos que:
+  $
+    EE_(theta) [(delta(underline(X)) - theta)^2|underline(T)] >= (EE_(theta) [delta(underline(X)) - theta|underline(T)])^2
+  $
+  Se esse passo deixou confusa, use a propriedade $VV[X] = EE[X^2] + (EE[X])^2$ em
+  $
+    VV_theta [delta(underline(X))-theta|underline(T)]
+  $
+  Continuando, vamos ter que:
+  $
+    EE_(theta) [(delta(underline(X)) - theta)^2|underline(T)] >= (EE_(theta) [delta(underline(X))|underline(T)] - theta)^2
+  $
+  Aplicando a esperança em relação a $theta$ novamente em ambos os lados, pela Lei de Adão ($EE[EE[X|Y]] = EE[X]$), temos que:
+  $
+    EE_(theta) [(delta(underline(X)) - theta)^2] >= EE_(theta)[(delta(underline(X))|underline(T)] - theta)^2]   \
+
+    EE_(theta) [(delta(underline(X)) - theta)^2] >= EE_(theta)[delta_0 (underline(T)) - theta)^2]
+  $
+]
+
+Podemos criar uma definição interessante também:
+
+#definition("Estimador Admissível, Inadmissível e Dominante")[
+  Suponha que $R(theta, delta)$ é definida utilizando a função de perca quadrática. Então dizemos que um estimador $delta$ é *inadmissível* se existe um outro estimador $delta_0$ tal que $R(theta, delta_0) <= R(theta, delta)$ para todo valor $theta in Omega$ e *existe a relação de desigualdade pra pelo menos 1 valor de $theta$*. Se essas condições são satisfeitas, dizemos que o estimador $delta_0$ *domina* o estimador $delta$. Um estimador é *admissível* quando nenhum outro estimador o domina
+]
+
+Essa definição parece meio complicadinha, mas ela traz uma implicação bem fácil de entender. Um estimador $delta$ que *não é* uma função de uma estatística suficiente $T$ apenas *deve ser inadmissível*. Além do fato que o teorema @best-estimator-theorem mostra explicitamente um estimador melhor que $delta$. Na prática isso costuma ser menos útil já que nem sempre calcular $delta_0$ é uma tarefa fácil
+
+== Limitações de uma Estatística Suficiente
+Vimos que as estatísticas suficientes são muito úteis, porém, nem sempre é fácil achá-las. Sua existência e formato depende criticamente de como é a estrutura de $f(x|theta)$. Então pode acabar que estamos em dúvida entre duas funções de verossimilhança para aplicar ao nosso problema, dependendo da que escolhermos, pode ser muito complicado achar uma estatística suficiente! Além de que podemos nos interessar em montar um estimador que se aplique bem em ambas as minhas verossimilhanças, mesmo que ele não seja o melhor (Esse estimador é chamado de *estimador robusto*)
