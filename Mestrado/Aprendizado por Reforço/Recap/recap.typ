@@ -432,7 +432,7 @@ Foi apresentado várias formas de balancear exploration e exploitation, com o $e
 
 Nesse novo capítulo introduziremos Processos de Decisão de Markov Finitos, ou MDPs, que envolve uma clássica formalização de tomada de decisão, onde ações não influenciam somente recompensas imediatas, mas também situações subsequentes, estados e recompensas futuras.
 
-== 3.1 A interface do agente-ambiente
+== 3.1 A  interface do agente-ambiente
 
 MDPs são uma formulação direta do problema de aprender de interações para alcançar um objetivo. O tomador de decisão é chamado de agente. A coisa que interage com ele, compreendendo tudo de fora do agente, é chamado de ambiente. Eles
 interagem continuamente, com o agente selecionando ações e o ambiente reagindo a essas ações e retornando outras situações e retornando recompensas.
@@ -443,7 +443,7 @@ interagem continuamente, com o agente selecionando ações e o ambiente reagindo
     caption: [O agente e o ambiente interagindo em um Processo de Decisão de Markov.]
 )  
 
-Mais especificamente, o agente e o ambiente interage a cada sequência de passos discreta, $t = 1, 2, dots $(restringindo a uma quantidade discreta para entendermos  melhor). A cada passo $t$, o agente recebe alguma representação sobre o $"estado"$ do ambiente, $S_t in cal(S)$, e com base nisso seleciona uma ação, $A_t in cal(A)(s)$. Após a ação selecionada, o agente recebe uma recompensa numérica $R_(t+1) in cal(R) subset RR$ e acha para si mesmo um novo estado, $S_(t+1)$. O agente e o ambiente numa MDP faz uma trajetória desse tipo:
+Mais especificamente, o agente e o ambiente interagem a cada sequência de passos discreta, $t = 1, 2, dots $(restringindo a uma quantidade discreta para entendermos  melhor). A cada passo $t$, o agente recebe alguma representação sobre o $"estado"$ do ambiente, $S_t in cal(S)$, e com base nisso seleciona uma ação, $A_t in cal(A)(s)$. Após a ação selecionada, o agente recebe uma recompensa numérica $R_(t+1) in cal(R) subset RR$ e acha para si mesmo um novo estado, $S_(t+1)$. O agente e o ambiente numa MDP faz uma trajetória desse tipo:
 
 $ S_0, A_0, R_1, S_1, A_1, R_2, S_2, A_2, R_3, dots $
 
@@ -453,10 +453,149 @@ $
   p(s', r | s, a) dot(eq) Pr{S_t = s', R_t = r | S_(t-1) = s, A_(t-1) = a}
 $
 
-para todo $s', s in cal(S), r in cal(R)$ e $a in cal(A)(s)$. Lembre-se que $p$ especifica uma distribuição de probabilidade para cada escolha de $s$ e $a$, ou seja
+para todo $s', s in cal(S), r in cal(R)$ e $a in cal(A)(s)$. Essa probabilidade significa basicamente: depois de estar no estado $s$ e tomar a ação $a$, o ambiente responda com a recompensa $r$ e transite para o estado $s'$. 
+Lembre-se que $p$ especifica uma distribuição de probabilidade para cada escolha de $s$ e $a$, ou seja
 
 $
   sum_(s' in cal(S)) sum_(r in cal(R)) p(s', r | s, a) = 1, "  para todo" s in cal(S), a in cal(A)(s)
 $
 
-Em MDPs, a probabilidade caracteriza completamente a dinâmica do ambiente. 
+Em MDPs, a probabilidade caracteriza completamente a dinâmica do ambiente. Ou seja, a probabilidade de cada valor possível para $R_t$ e $S_t$ depende apenas no estado e ação imediatamente anterior $S_(t-1)$ e $R_(t-1)$. Note então que o estado deve incluir todas as informações relevantes sobre as interações passadas entre o agente e o ambiente que possam influenciar no futuro. Dizemos que, se isso acontece, o estado tem a propriedade de Markov, e assumiremos essa propriedade durante o resumo.
+
+Podemos calcular outras quantidades válidas baseado nessa probabilidade geral, como a probabilidade de transição de estado(como uma função de 3 arguentos $ p : cal(S)$ x $cal(S)$ x $cal(A) -> [0,1]$):
+
+$
+p(s'|s,a) dot(eq) Pr{S_t = s' | S_(t-1) = s, A_(t-1) = a} =  sum_(r in cal(R)) p(s', r | s, a)
+$
+
+Nós também podemos podemos calcular as recompensas esperadas para pares estado-ação, definido como $r: cal(S)$ x $cal(A) -> RR$:
+
+
+$
+  r(s,a) dot(eq) EE[R_t | S_(t-1) = s, A_(t-1) = a] =  sum_(r in cal(R) ) r sum_(s' in cal(S)) p(s', r | s,a)
+
+$
+
+E as recompensas esperadas condicionadas também ao próximo estado, como uma função de três argumentos $r : cal(S)$ x $cal(A)$ x $cal(S) -> RR$:
+
+$
+  r(s,a,s') dot(eq) EE[R_t | S_(t-1) = s, A_(t-1) = a, S_t = s'] =  sum_(r in cal(R)) r (p(s', r | s,a))/(p(s'| s,a))
+$
+
+O MDP pode ser um pouco abstrato e flexível às vezes, e pode ser aplicado a muitos tipos de maneiras diferentes. Os passos de tempo($t, t+1$, etc.) não precisam corresponder a intervalos fixos de tempo real, eles podem se referir a estágios arbitrários e sucessivos de tomada de decisão e ação. 
+
+Por exemplo, as ações podem ser de baixo nível, como controles de voltagem de um braço robótico, ou alto nível, como decidir ou não se deve almoçar. A mesma coisa acontece para os estados, que podem ser de baixo nível, como leituras de sensores, ou podem ser mais abstratos e de alto nível, como descrições simbólicas de elementos numa sala. Ou seja, cada "time step" representa apenas uma unidade lógica de decisão e consequência.
+
+Em geral, seguimos uma regra que diz o seguinte: tudo que não pode ser alterado arbitrariamente pelo agente é considerado parte do ambiente. Não assumimos que tudo no ambiente é desconhecido pelo agente, mas sempre consideramos o cálculo das recompensas como algo externo do agente. Por fim, em alguns casos o agente pode saber tudo sobre como o ambiente funciona e ainda assim enfrentar uma tarefa de aprendizado por reforço difícil, assim como podemos conhecer exatamente as regras de um cubo mágico e ainda assim não conseguir resolvê-lo.
+
+A fronteira entre o agente e o ambiente pode ser localizado de diferentes lugares, para diferentes propósitos. Por exemplo, um agente pode tomar decisões de alto nível que formam parte dos estados enfrentados por um agente de nível mais baixo, que implementa as decisões de alto nível.
+
+Um quadro de MDP é uma abstração considerável do problema de aprender com o objetivo de atingir metas a partir da interação. Esse modelo propõe que, qualquer problema de aprendizado de comportamento orientado a objetivos pode ser reduzido a três sinais trocados entre um agente e seu ambiente:
+
+- Um sinal para representar as escolhas feitas pelo agente (as ações),
+- Um sinal para representar a base sobre a qual as escolhas são feitas (os estados), e
+
+- Um sinal para definir o objetivo do agente (as recompensas).
+
+#example[ *Biorreator*
+
+Suponha que o aprendizado por reforço esteja sendo aplicado para determinar, momento a momento, as temperaturas e taxas de agitação de um biorreator (um grande tanque de nutrientes e bactérias usado para produzir substâncias químicas úteis).
+
+As ações, nesse tipo de aplicação, podem ser temperaturas-alvo e taxas de agitação-alvo que são passadas para sistemas de controle de baixo nível que, por sua vez, ativam diretamente elementos de aquecimento e motores para atingir esses valores.
+
+Os estados provavelmente consistem em leituras de sensores (como termopares), possivelmente filtradas e atrasadas, além de entradas simbólicas representando os ingredientes no tanque e o produto químico desejado.
+
+As recompensas podem ser medidas momento a momento da taxa de produção da substância útil pelo biorreator.
+
+Note que aqui cada estado é uma lista (ou vetor) de leituras de sensores e entradas simbólicas, e cada ação é um vetor consistindo de uma temperatura-alvo e uma taxa de agitação.
+É típico em tarefas de aprendizado por reforço que estados e ações tenham representações estruturadas desse tipo.
+As recompensas, por outro lado, são sempre números únicos (escalares).
+]
+
+#example[
+*Robô de Pegar e Colocar (Pick-and-Place)*
+
+Considere o uso de aprendizado por reforço para controlar o movimento do braço de um robô em uma tarefa repetitiva de pegar e colocar objetos.
+Se quisermos aprender movimentos rápidos e suaves, o agente de aprendizado precisará controlar diretamente os motores e ter informações de baixa latência sobre as posições e velocidades atuais das articulações mecânicas.
+
+As ações, nesse caso, podem ser as tensões elétricas aplicadas a cada motor em cada articulação, e os estados podem ser as leituras mais recentes dos ângulos e velocidades das juntas.
+
+A recompensa pode ser +1 para cada objeto que o robô pegar e colocar com sucesso.
+Para encorajar movimentos suaves, a cada passo de tempo pode ser dada uma pequena recompensa negativa, em função da “tremedeira” (ou irregularidade) do movimento no momento.
+]
+
+== 3.2 Metas e recompensas
+
+Em teoria, o objetivo do agente é maximizar o total de recompensas que recebe. Como mostrado em seções anteriores, isso não significa maximizar apenas a recompensa imediata, mas a recompensa acumulada ao longo do tempo.
+
+O autor diz: “Tudo o que entendemos por metas e propósitos pode ser considerado como a maximização do valor esperado da soma cumulativa de um sinal escalar recebido (chamado recompensa."
+
+Em particular, o sinal de recompensa não deve ser usado para transmitir ao agente conhecimento prévio sobre como alcançar um objetivo. Por exemplo, um agente que joga xadrez deve ser recompensado apenas por vencer o jogo, e não por sub-objetivos intermediários como capturar peças ou controlar o centro do tabuleiro.
+Se esses sub-objetivos fossem recompensados separadamente, o agente poderia encontrar uma maneira de atingi-los sem alcançar o verdadeiro objetivo — por exemplo, capturar várias peças, mas ainda assim perder a partida, o que não traria o resultado esperado.
+
+== 3.3 Retornos e episódios 
+
+Como explicado até agora, a meta do agente é maximizar a recompensa cumulativa do agente ao longo da execução. Mas como definir isso formalmente? O retorno esperado, denominado $G_t$, após o tempo $t$, pode ser definido no caso simples como:
+
+$
+G_t dot(eq) R_(t+1) + R_(t+2) + R_(t+3) + dots + R_T
+$
+
+Onde $T$ é o passo final. Essa formulação faz sentido em aplicações nas quais existe uma noção natural de término, ou seja, quando a interação entre o agente e o ambiente se divide em subsequências, que chamamos de episódios — como partidas de um jogo, travessias de um labirinto ou qualquer tipo de interação repetida. Cada episódio termina em um estado especial chamado estado terminal, seguido de um reinício para um estado inicial padrão.
+
+Mesmo que os episódios terminem de formas diferentes (por exemplo, vitória ou derrota em um jogo), o próximo episódio começa independentemente de como o anterior terminou.
+Assim, podemos considerar que todos os episódios terminam em um mesmo estado terminal, apenas com recompensas diferentes para os diferentes resultados.
+
+Tarefas com episódios desse tipo são chamadas de tarefas episódicas.
+Em tarefas episódicas, às vezes precisamos distinguir o conjunto de todos os estados não terminais, denotado por 
+$cal(S)$, do conjunto de todos os estados incluindo o terminal, denotado por $cal(S^+)$.O tempo de término $T$
+é uma variável aleatória, que normalmente varia de episódio para episódio.
+
+Por outro lado, em muitos casos, a interação entre o agente e o ambiente não se divide naturalmente em episódios identificáveis, mas continua indefinidamente, sem limite de tempo.
+Por exemplo, isso seria o modo natural de formular uma tarefa de controle de processo contínuo, ou uma aplicação em um robô de longa duração. Chamamos essas de tarefas contínuas (continuing tasks).
+
+Note que no caso de tarefas contínuas teríamos uma soma infinita de termos de valores de recompensas, o que poderia causar $G_t = infinity$. Mas não é exatamente isso que queremos. Assim, adicionamos um novo conceito que precisamos, chamado de desconto, da forma:
+
+$
+  G_t dot(eq) R_(t+1) + gamma R_(t+2) + gamma^2 R_(t+3) + dots = sum_(k=0)^infinity gamma^k R_(t + k + 1)
+$
+
+onde $0 <= gamma <= 1$, chamado de taxa de desconto. Esse parâmetro faz com que recompensas futuras valham menos, mantendo $G_(t+1)$ finito mesmo em tarefas infinitas e expressa a ideia intuitiva que recompensas imediatas valem mais do que futuras.
+
+Ainda, note que, se $gamma < 1$, a soma infinita tem um valor finito, desde que a sequência de recompensas seja limitada. Se $gamma = 0$, o agente é chamado de míope, pois se preocupa apenas em maximizar recompensas imediatas, seu objetivo então se torna apenas escolher $A_t$ de modo a maximizar $R_(t+1)$.
+
+Por fim, note que 
+$
+   G_t & = R_(t+1) + gamma R_(t+2) + gamma^2 R_(t+3) + gamma^3 R_(t+4) + dots\
+  & = R_(t+1) + gamma (R_(t+2) + gamma _(t+3) + gamma^2 R_(t+4) + dots)\
+  & = R_(t+1) + gamma G_(t+1)
+$
+
+e isso funciona para todos os instantes de tempo $t < T$, mesmo que a terminação ocorra em $t+1$, se definirmos $G_T = 0$.
+
+#example[ Equilíbrio de um Pêndulo (Pole-Balancing)
+
+O objetivo nesta tarefa é aplicar forças a um carrinho que se move ao longo de um trilho,
+de modo a manter uma haste presa ao carrinho sem cair. Considera-se que ocorre falha quando a haste ultrapassa um certo ângulo limite a partir da vertical
+ou quando o carrinho sai dos trilhos.
+Após cada falha, a haste é reposta na posição vertical.
+
+Esta tarefa pode ser tratada como episódica, em que os episódios naturais são as tentativas repetidas de equilibrar a haste. A recompensa neste caso poderia ser +1 a cada passo de tempo em que não ocorre falha,
+de modo que o retorno em cada instante seria igual ao número de passos até a falha.
+Nesse caso, conseguir equilibrar a haste para sempre implicaria em um retorno infinito.
+
+Alternativamente, poderíamos tratar o equilíbrio da haste como uma tarefa contínua,
+usando desconto. Nesse caso, a recompensa seria $−1$ a cada falha e zero nos outros momentos.
+O retorno em cada instante seria então relacionado a $-gamma^K$,
+onde $K$ é o número de passos de tempo antes da falha.
+
+Em qualquer dos casos, o retorno é maximizado mantendo a haste equilibrada pelo maior tempo possível.
+#show figure.caption: set align(left)
+#figure(
+    image("../Img/carlininsano.png", width:70%),
+    caption: [Imagem representativa do exemplo]
+)]
+
+== 3.4 Notação Unificada para Tarefas Contínuas e episódicas
+
+saas
