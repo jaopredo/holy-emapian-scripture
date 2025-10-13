@@ -598,4 +598,98 @@ Em qualquer dos casos, o retorno é maximizado mantendo a haste equilibrada pelo
 
 == 3.4 Notação Unificada para Tarefas Contínuas e episódicas
 
-saas
+Para conseguirmos nos referir não só a Tarefas Contínuas mas também 
+Episódicas sem perda de generalidade e na mesma notação, precisamos nos
+referir não apenas a $S_t$, a representação no tempo $t$, mas sim a $S_(t,i)$, a representação do estado $t$ no episódio $i$(Análogo para $A_(t,i)$, $R_(t,i)$, etc.).
+
+Agora, precisamos apenas de mais uma convenção de notação única que cubra tanto as tarefas episódicas quanto as contínuas. Os dois casos podem ser unificados se considerarmos que a terminação de um episódio corresponde à entrada de um estado especial absorvente, que faz transição apenas para si mesmo e gera recompensas iguais a zero.
+
+#show figure.caption: set align(left)
+#figure(
+    image("../Img/unifinotation.png", width:70%),
+    caption: [Exemplo de unificação dos casos]
+)
+
+No exemplo acima, vemos que o quadrado é exatamente o estado que descrevemos, e que ao somar as recompensas, obtemos o mesmo retorno se somarmos até $T = 3$ ou se somarmos a sequência infinita completa.
+
+Assim, podemos definir o retorno em geral da forma:
+
+$
+  G_t dot(eq) sum_(k = t +1)^T gamma^(k - t - 1) R_(k)
+$
+
+Incluindo a probabilidade de $T = infinity$ ou $gamma = 1$.
+
+== 3.5 Políticas e Funções de valor
+
+Quase todos os algoritmos de Aprendizado por Reforço envolvem a estimação de funções de valor -  funções de estados (ou de pares estado-ação) -  que estimam o quão bom é para o agente estar em um determinado estado. Essa noção de "quão bom" é definida em termos de recmpensas futuras que podem ser esperadas, ou em termos de retorno esperado.
+
+Assim, as funções de valor são definidas com respeito a modos particulares de agir, chamados políticas. Uma política é um mapeamento de estados para probabilidades de selecionar cada ação possível. Se o agente está seguindo a política $pi$ no tempo $t$, então $pi(a|s)$ é a probabilidade de que $A_t = a$ e $S_t = s$.
+
+A função de valor de um estado $s$ em uma política $pi$, denotado $v_pi (s)$ é o valor esperado quando começamos em $s$ e seguindo $pi$ depois disso. Para MDPs, conseguimos definir $v_pi$ formalmente como:
+
+$
+v_pi (s) dot(eq) EE_pi [G_t | S_t = s] = EE_pi [sum_(k=0)^infinity gamma^k R_(t + k + 1) mid(|) S_t = s], " para todo" s in cal(S)
+$ 
+
+onde $EE_pi [.]$ denota a esperança de uma variável aleatória dado que o agente segue uma política $pi$, e $t$ é qualquer passo. Nós chamamos a função $v_pi$ de função de valor de estado para a política $pi$.
+
+Similarmente, podemos definir o valor de tomar a ação $a$ no estado $s$ sobre a política $pi$, denotada $q_pi (s,a)$, como a esperança partindo de $s$, tomando a ação $a$, e depois disso seguir a política $pi$ como: 
+
+$
+q_pi (s,a) dot(eq) EE_pi [G_t | S_t = s, A_t = a] = EE_pi [sum_(k=0)^infinity gamma^k R_(t + k + 1) mid(|) S_t = s, A_t = a]
+$
+
+e chamamos $q_pi$ de função de valor da ação para a política $pi$.
+
+Como as funções de valor são esperanças, entçao elas podem ser estimadas a partir de experiência, ou seja, se um agente segua a política $pi$ e mantém uma média, então essa média convergirá para o valor do estado, à medida que o número de vezes em que o estado é encontrado tende ao infinito (claro uso da Lei dos Grandes Números).
+
+O único problema é que, se houverem muitos estados, pode não ser muito prático manter médias separadas para cada estado individualmente. Nesse caso, o agente deveria representar $v_pi " e " q_pi $ como funções parametrizadas(menos parâmetros do que estados) e ajustar os parâmetros de modo a corresponder melhor aos retornos observados.
+
+Uma propriedade legal das funções de valor são que elas mantém relações recursivas, o que sempre traz benefícios computacionalmente. Especificamente, para qualquer política $pi$ e qualquer estado $s$, vale que:
+
+$
+v_pi (s) & dot(eq) EE_pi [G_t | S_t = s] \
+& = EE_pi [R_(t+1) + gamma G_(t+1) | S_t = s]\
+& = sum_a pi(a|s) sum_s' sum_r p(s',r | s,a)[r + gamma EE[G_(t+1) | S_(t+1) = s']]\
+& = sum_a pi(a|s)sum_(r,s') p(s',r | s,a) [r + gamma v_pi (s')], " para todo "s in cal(S)
+$<belman>
+
+=== de onde vem isso kkkk
+
+Note que na última equação não juntamos duas somas, de todos os valores de $s'$ e de todos os valores $r$. Note ainda que a expressão final pode ser facilmente lida como um valor esperado. Ela é, na verdade, uma soma sobre todos os valores das três variáveis, $a, s' " e " r$.
+
+A equação @belman é chamada de Equação de Bellman para $v_pi$. Pense em olhar para frente a partir de um estado até seus possíveis estados sucessores (olhe a imagem). 
+
+
+#show figure.caption: set align(left)
+#figure(
+    image("../Img/bellmantree.png", width:50%),
+    caption: [Diagrama intuitivo da Equação de Bellman.]
+)
+
+Cada círculo aberto representa um estado, e cada círculo preenchido representa um par estado-ação.
+Começando do estado $s$, o agente pode tomar qualquer uma dentre várias ações (de acordo com a política $pi$). A partir dessas ações, o ambiente  pode responder com um de vários possíveis estados $s'$, junto com uma recompensa $r$, dependendo de sua dinâmica, que é dada pela função $p$.
+
+A equação de Bellman faz a média sobre todas as probabilidades, ponderando cada uma pela chance de ocorrer, e ela afirma que o valor do estado inicial deve ser igual ao valo esperado (descontado) do próximo estado esperado, mais a recompensa esperada ao longo do caminho. Existe apenas uma solução $v_pi$ que satisfaz a equação.
+
+#example[ GridWorld - Mundo ganancioso
+
+A figura abaixo (esquerda) mostra um GridWorld de um MDP simples e finito. O objetivo do desafio é partir do espaço A' ou B' e chegar em suas respectivas recompensas A e B. Logo, podemos definir que cada estado é cada quadrado (posição da matriz), e que a cada estado temos 4 escolhas de ação: Esquerda, direita, cima, baixo. 
+
+Ainda, se o agente chegar a A, ele recebe +10 de recompensa e é teletransportado a A'. O mesmo acontece para B e B' com recompensa +5. Qualquer outra ação que o leve no quadriculado mas não no objetivo recompensa 0. Caso a ação o faça sair do quadriculado, ele permanece no quadriculado anterior, e recebe uma recompensa -1.
+
+Na figura à direita, temos a tabela de valores de estado $v_pi (s)$ para uma política equiprovável - o agente escolhe qualquer ação com probabilidade $1/4$ (isso significa que $pi(a|s) = 1/4$). A figura mostra o retorno médio esperado se o estado começar naquele estado e seguir uma política aleatória.
+
+
+#show figure.caption: set align(left)
+#figure(
+    image("../Img/gridworld.png", width:90%),
+    caption: [Exemplo do algoritmo GridWorld.]
+)
+]
+
+#example[
+
+  
+]
