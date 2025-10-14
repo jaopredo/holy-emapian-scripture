@@ -30,10 +30,6 @@
 #let example = thmplain("example", "Exemplo").with(numbering: none)
 #let proof = thmproof("proof", "Demonstração")
 
-#set text(
-  size: 12pt,
-)
-
 #set math.equation(
   numbering: "(1)",
   supplement: none,
@@ -47,6 +43,11 @@
     it
   }
 }
+
+#set text(
+  font: "Atkinson Hyperlegible",
+  size: 12pt,
+)
 
 #show heading: it => {
   if it.level == 1 {
@@ -1074,11 +1075,13 @@ Esse teorema nos da motivação para uma definição
 
 #pagebreak()
 
-Agora queremos minimizar problemas do tipo:
+Aqui nós vamos introduzir um teorema muito importamte no ramo da otimização, o *teorema das condições KKT*. Esse teorema generaliza as condições *necessárias* para um problema de minimização *genérico*, porém, vamos começar por baixo, em vez de ja ir para o caso geral, vamos começar a passos pequenos
+
+Primeiramente, queremos minimizar problemas do tipo:
 $
   min_x f(x) \
   x "sujeito a restrições do tipo" a_i^T x <= b_i, space i = 1,...,m
-$
+$<optimization-with-linear-conditions>
 
 onde $f$ é continuamente diferenciável em $RR^n, space {a_i}_(i=1)^m subset RR^n, {b_i}_(i=1)^m subset RR$. Ou seja, o conjunto viável $C$ é o poliédro:
 $
@@ -1090,16 +1093,380 @@ Há um exemplo nas anotaçẽos sobre convexidade do Phillip que mostram que $C$
 == Condições KKT
 
 #theorem("Condições KKT para restrições lineares: condições necessárias de otimalidade")[
-  Considere o problema de minimização
-  $
-    min_x f (x)   \
-    "sujeito à" a_i^T x <= b_i , i = 1, ... , m
-  $
-  onde $f$ é uma função continuamente diferenciável em $RR^n$ ${a_i}^m_(i=1) subset RR and {b_i}_(i=1)^m subset R$. Então, se $x^*$ é um ponto de mínimo local do problema, existem $lambda_1 , . . . , lambda_m >= 0$ tais que
+  Considere o problema de minimização @optimization-with-linear-conditions onde $f$ é uma função continuamente diferenciável em $RR^n$, ${a_i}^m_(i=1) subset RR$ e ${b_i}_(i=1)^m subset R$. Então, *se* $x^*$ é um ponto de *mínimo local* do problema, $exists lambda_1 , . . . , lambda_m >= 0$ tais que
   $
     nabla f (x^*) + sum_(i=1)^m lambda_i a_i = 0, \
     
     lambda_i (a_i^T x^* - b_i) = 0, wide i = 1,...,m  \
     a_i^T x^* - b_i <= 0, wide i = 1,...,m
+  $
+]<kkt-linear-conditions>
+
+Como esse teorema necessita de vários outros resultados, não vou escrever a sua demonstração aqui. Se estiver curioso para saber a demonstração, confira o apêndice das anotações do Phillip
+
+== Condições KKT: Problema convexo
+#theorem("Condições KKT para restrições lineares: condições necessárias de otimalidade com função convexa")[
+  Considere o problema de minimização
+  $
+    min_x f (x)   \
+    "sujeito à" a_i^T x <= b_i , i = 1, ... , m
+  $
+  onde $f$ é uma função continuamente diferenciável *convexa* em $RR^n$ ${a_i}^m_(i=1) subset RR and {b_i}_(i=1)^m subset R$. Então, se $x^*$ é um ponto de mínimo local do problema $<=> exists lambda_1 , . . . , lambda_m >= 0$ tais que
+  $
+    nabla f (x^*) + sum_(i=1)^m lambda_i a_i = 0, \
+    
+    lambda_i (a_i^T x^* - b_i) = 0, wide i = 1,...,m  \
+    a_i^T x^* - b_i <= 0, wide i = 1,...,m
+  $
+]<kkt-convex-conditions>
+#proof[
+  $(==>)$ Segue do @kkt-linear-conditions
+
+  $(<==)$ Definamos a função:
+  $
+    h(x) := f(x) + sum_(i=1)^m lambda_i (a_i^T x - b_i)
+  $
+  Temos que:
+  $
+    nabla h(x^*) = nabla f(x^*) + sum^m_(i=1) lambda_i a_i
+  $
+  Como $h$ é convexa (Soma de funções convexas), segue que $x^*$ é ponto mínimo de $h$ em $RR^n$. Em particular, dado qualquer $x in RR^n$ tal que:
+  $
+    a_i^T x <= b_i, space i=1,...,m
+  $
+  Tem-se que:
+  $
+    f(x^*) = f(x^*) + sum_(i=1)^m lambda_i (a_i^T x - b_i)    \
+
+    <= f(x^*) + sum_(i=1)^m lambda_i (a_i^T x - b_i)    \
+
+    <= f(x)
+  $
+  Na primeira equação utilizamos a segunda condição e na segunda desigualdade usamos o fato que $lambda_i >= 0$. Concluímos então que $x^*$ é solução do sistema
+]
+
+== Condições KKT com restrições lineares de igualdade
+Show! Vimos as restrições afins de *desigualdade*, porém, em alguns casos, é possível que tenhamos restrições de igualdade:
+$
+  min_x f(x) \
+
+  x "sujeito a restrições do tipo":   \
+  
+  a_i^T x <= b_i, space i = 1,...,m   \
+  c_j^T x = d_j, space j = 1,...,p
+$<optimization-with-linear-equality-conditions>
+
+onde $f$ é continuamente diferenciável em $RR^n, space {a_i}_(i=1)^m subset RR^n, {b_i}_(i=1)^m subset RR, {c_j}_(j=1)^p subset RR^n$
+
+Esse caso é o que costumamos aprender em cálculo dois como o *método de Lagrange*, porém vamos ver que esse método é *bem* mais geral do que viamos antes. Do problema que estabelecemos antes, segue um teorema bem parecido com @kkt-linear-conditions
+
+#theorem[
+  Considere o problema @optimization-with-linear-equality-conditions, onde $f$ é continuamente diferenciável em $RR^n, space {a_i}_(i=1)^m subset RR^n, {b_i}_(i=1)^m subset RR, {c_j}_(j=1)^p subset RR^n$. Então:
+
+  a) Se $x^*$ é um ponto de mínimo local do problema, então existem $lambda_1,...,lambda_m >= 0$ e $mu_1,...,mu_p in RR$ tais que
+  $
+    gradient f(x^*) + sum^m_(i=1) lambda_i a_i + sum^p_(j=1) mu_j c_j = 0   \
+    
+    lambda_i (a_i^T x^* - b_i) = 0, space i = 1,...,m   \
+
+    a_i^T x^* - b_i <= 0, space i = 1,...,m   \
+
+    mu_j (c_j^T x^* - d_j) = 0, space j=1,...,p
+  $<kkt-with-linear-equalities-conditions>
+
+  b) Suponha adicionalmente que $f$ é convexa, então $x^*$ é um mínimo global do problema $<=>$ existem $lambda_1,...,lambda_m >= 0$ e $mu_1,...,mu_p in RR$ tais que as condições @kkt-with-linear-equalities-conditions ainda valem
+]
+#proof[
+  Primeiro demonstraremos o (a). Demonstrar essa parte é equivalente a resolver o problema:
+  $
+    min_x f(x) \
+
+    x "sujeito a restrições do tipo" a_i^T x <= b_i, space i = 1,...,m   \
+    space c_j^T x <= d_j and -c_j^T x <= -d_j, space j = 1,...,p
+  $
+  onde $f$ é continuamente diferenciável em $RR^n, space {a_i}_(i=1)^m subset RR^n, {b_i}_(i=1)^m subset RR, {c_j}_(j=1)^p subset RR^n$
+
+  Sendo $x^*$ uma solução do problema descrito anteriormente, pelo @kkt-linear-conditions, temos:
+  $
+    nabla f(x^*) + sum^m_(i=1) lambda_i a_i + sum_(j=1)^p mu^+_j c_j - sum_(j=1)^p mu^-_j c_j = 0   \
+
+    lambda_i (a_i^T x^* - b_i) = 0    \
+    mu^+_j (c_j^T x^* - d_j) = 0    \
+    mu^-_j (-c_j^T x^* + d_j) = 0
+  $<kkt-equality-gradient-equivalent>
+
+  Como $x^*$ é viável, então as segundas e terceiras condições mencionadas na reformulação anterior são satisfeitas. Definindo então $mu_j = mu^+_j - mu^-_j$, então temos que $ sum^p_(j=1) mu^+_j c_j - sum^p_(j=1) mu^-_j c_j = sum^p_(j=1) mu_j c_j$. Então segue que as condições estabelecidas originalmente no teorema são satisfeitas
+
+  Para a demonstração de (b), Suponha que $x^*$ viável e existem $lambda_1 , ... , lambda_m >= 0$ e $mu_1 , ... , mu_p in RR$ tais que as condições do teorema sejam satisfeitas. Defina
+  $
+    mu^+_j := (mu_j)_+ = max{mu_j , 0}, wide mu^-_j := (mu_j)_- = max{-μ_j , 0}
+  $
+  Como $mu_j = mu_j^+ - mu_j^-$ e $c_j^T x^* - d_j = 0$ para $j in [p]$, segue em particular que @kkt-equality-gradient-equivalent é satisfeito. Sendo $f$ convexa, segue do @kkt-convex-conditions que $x^*$ é solução do problema reformulado e, em particular, do problema original do teorema
+]
+
+#pagebreak()
+
+#align(center+horizon)[
+  = Otimização com restrições genéricas
+]
+
+#pagebreak()
+
+Vimos minimizações para condições lineares e convexas, mas nem sempre isso acontece, muitas vezes temos conjuntos de restrições completamente genéricas. Nesse capítulo vamos ver como as condições KKT podem ser generalizadas para esses tipos de problemas (Vão perceber que elas ainda se aplicam ao que foi estabelecido anteriormente nas condições lineares). Vamos, então, redefinir o problema que tinhamos anteriormente:
+$
+  min_(x) f(x)    \
+
+  g_i (x) <= 0, space forall i = 1,...,m    \
+  h_j (x) = 0, space forall j = 1,...,p
+$<optimization-with-generic-restrictions>
+
+== Lagrangeano
+O lagrangeando é uma função que será de grande importância, ela pode parecer meio confusa (Pois ela é), mas, a partir de agora, ela será nossa definição de "Derivar e igualar a $0$". Como assim? Sempre que queríamos minimizar/maximizar uma função, derivávamos e igualávamos a $0$, só que vimos que, com restrições, isso não funciona mais, porém, essa função ainda se aplica (Com algumas ressalvas) no lagrangeano (Como veremos)
+
+#definition("Lagrangeano")[
+  O *Lagrangeano* associado à função $f$ é a função $L: RR^n times RR^m times RR^p -> RR$ tal que:
+  $
+    L(x, lambda, mu) = f(x) + lambda^T g(x) + mu^T h(x)
+  $
+  Onde:
+  $
+    lambda = mat(lambda_1;dots.v;lambda_m), space mu = mat(mu_1;dots.v;mu_p), space g(x) = mat(g_1 (x);dots.v; g_m (x)), space h(x) = mat(h_1 (x);dots.v;h_p (x))
+  $
+]<lagrange-function>
+
+#theorem("Gradiente Lagrangeano")[
+  Dado o Lagrangeano de uma função $f$, temos que o gradiente do lagrangeano *somente em relação a $x$* se da por:
+  $
+    nabla_x L(x, lambda, mu) = nabla f(x) + sum_(i=1)^m lambda_i nabla g_i (x) + sum^p_(j=1) mu_j nabla h_j (x)
+  $
+]
+
+== As generalizações do KKT
+Agora queremos generalizar totalmente o KKT, então vamos aos poucos. Lembre que, até que falemos o contrário, estamos considerando o problema @optimization-with-generic-restrictions
+
+Antes de entrarmos diretamente no teorema KKT generalizado, vamos agora fazer uma definição que tem uma razão matemática, mas acaba por nos ajudar em alguns casos. Essa definição evita condições redundantes no nosso problema, ja que elas podem acabar nos atrapalhando. Faremos um exemplo para mostrar essa ajuda
+
+#definition("Condições de qualificação de independência linear")[
+  Sejam $g_1,...,g_m: RR^n -> RR$ e $h_1,...,h_p: RR^n -> RR$ continuamente diferenciáveis e $x^* in RR^n$, defina:
+  $
+    I(x^*) := {i in [m]: g_i (x^*) = 0}
+  $
+  Dizemos que LICQ (Linear Independent Condition Qualification) é satisfeita em $x^*$ para as funções $g_1,...,g_m$ e $h_1,...,h_p$ se
+  $
+    { nabla g_i (x^*) : i in I(x^*) } union { nabla h_j (x^*) : j in [p] } "é linearmente independente"
+  $
+]<licq>
+
+Definição feita, vamos enunciar o novo teorema KKT
+
+#theorem("KKT")[
+  Se $x^*$ é um ponto de mínimo local de $f(x)$ no problema @optimization-with-generic-restrictions e a @licq é satisfeita em $x^*$, isso implica que:
+  $
+    exists lambda_1,...,lambda_m >= 0, space exists mu_1,...,mu_p in RR   \
+    
+    nabla f(x^*) + sum^m_(i=1)lambda_i nabla g_i (x^*) + sum^p_(j=1)mu_j nabla h_j (x^*) =0   \
+    
+    lambda_i g_i (x^*) = 0 wide i in [m]    \
+
+    g_i (x^*) <= 0 wide i in [m]    \
+
+    h_j (x^*) = 0 wide j in [p]
+  $
+]<generic-kkt>
+
+#example("Utilidade da LICQ")[
+  aaaaaaaaaaa preencher aqui aaaaaaaaaaaaa
+]
+
+Agora que vimos esses teoremas e condições, vamos fazer uma definição para facilitar em algumas terminologias:
+
+#definition("Ponto KKT")[
+  Considere o problema @optimization-with-generic-restrictions, onde $f$, $g_1$, ..., $g_m$, $h_1$, ..., $h_p$ são continuamente diferenciáveis no $RR^n$. Um ponto $x^*$ viável, ou seja, que satisfaz as condições do cojunto viável, é chamado de *ponto KKT* quando $exists lambda_1,...,lambda_m >= 0$ e $exists mu_1,...,mu_p in RR$ tais que:
+  $
+    nabla f(x^*) + sum^m_(i=1) lambda_i nabla g_i (x^*) + sum^p_(j=1) mu_j nabla h_j (x^*) &= 0   \
+
+    lambda_i g_i(x^*) &= 0 wide i in [m]
+  $
+]
+
+Isso facilita um pouco a terminologia pois podemos resumir o @generic-kkt em dizer que um ponto de LICQ não pode ser um ponto de mínimo se ele não for KKT
+
+== Caso Convexo
+Claro, não poderíamos de falar do caso convexo aqui, sempre tem algo de especial nele, vamos então enunciar novamente o nosso problema mudando ele um pouco
+$
+  min_(x) f(x)    \
+
+  g_i (x) <= 0, space forall i = 1,...,m    \
+  h_j (x) = 0, space forall j = 1,...,p   \
+
+  "onde" f, space g_i " e " h_j "são convexas" forall i " e " forall j
+$<optimization-with-generic-convex-restrictions>
+
+Vale ressaltar também que $h_j$ são *afins*
+
+#theorem("KKT Convexo")[
+  Se $x^*$ é um ponto de mínimo local de $f$ dado o problema @optimization-with-generic-convex-restrictions e a @licq é satisfeita em $x^*$, então $x^*$ é uma solução do problema se, e somente se:
+  $
+    exists lambda_1,...,lambda_m >= 0, space exists mu_1,...,mu_p in RR   \
+    
+    nabla f(x^*) + sum^m_(i=1)lambda_i nabla g_i (x^*) + sum^p_(j=1)mu_j nabla h_j (x^*) =0   \
+    
+    lambda_i g_i (x^*) = 0 wide i in [m]    \
+
+    g_i (x^*) <= 0 wide i in [m]    \
+
+    h_j (x^*) = 0 wide j in [p]
+  $
+]
+
+Show! Inclusive, por conta que o nosso problema é convexo, podemos trocar a necessidade do LICQ (@licq) por uma condição um pouco mais fácil
+
+#definition("Condição de Slater")[
+  Dizemos que a condição de Slater é satisfeita para as funções $g_1,...,g_m$ (convexas) se
+  $
+    exists accent(x, \^) in RR^n space \/ space g_i (accent(x, \^)) < 0, space forall i in [m]
+  $
+]<slater-condition>
+
+Ou seja, essa condição é satisfeita quando $x^*$ é um ponto viável (Dentro do conjunto viável). Agora podemos refazer o teorema utilizando dessa condição
+
+#theorem("KKT e Slater")[
+  Se $x^*$ é mínimo local de $f(x)$ (Nas restrições $g_i (x) <= 0$ e $h_j (x) = 0$ sendo funções continuamente diferenciáveis e convexas) e $x^*$ satisfaz @slater-condition, então $x^*$ é ponto KKT (A volta não vale)
+]<kkt-and-slater>
+
+Porém, como falei anteriormente, não faz sentido falarmos de funções convexas de igualdade ($h_j (x) = 0$) que *não são afins*, isso nos permite reescrever o problema de uma forma interessante:
+$
+  min_(x) f(x)    \
+  g_i (x) <= 0 wide i in [m]   \
+  h_j (x) = 0 wide j in [p]   \
+  s_k (x) = 0 wide k in [q]    \
+
+  "Onde" f, space g_i "são convexas e" h_j, space s_k "são afins"
+$<optimization-with-linear-and-generic-conditions>
+
+Então podemos adaptar a condição de slater:
+
+#theorem("Condição de Slater")[
+  Dizemos que a condição de Slater é satisfeita para as funções $g_1,...,g_m$ (convexas) e $h_1,...,h_p$ e $s_1,...,s_q$ (afins) quando:
+  $
+    exists accent(x, \^) in RR^n "tal que"    \
+
+    g_i (accent(x,\^)) < 0, space forall i in [m]    \
+    h_j (accent(x,\^)) <= 0, space forall j in [p]   \
+    s_k (accent(x,\^)) = 0, space forall k in [q]
+  $
+]
+
+De forma que o @kkt-and-slater continua valendo. Vimos 3 tipos de condições diferentes! Que tal a gente refazer o nosso teorema de uma forma geral?
+
+#theorem("Final KKT")[
+  Dado o problema @optimization-with-generic-restrictions, e seja $x^* in C$ (Conjunto viável), temos 3 caracterizações:
+  
+  + As restrições em $x^*$ são LICQ
+  + Problema convexo @optimization-with-generic-convex-restrictions + Condição de slater (@slater-condition)
+
+  Se $x^*$ ou o problema satisfaz qualquer uma dessas condições, então eu posso dividir meu problema em algumas condições:
+
+  - (Necessidade com qualificação de restrições)
+    - Se $x^*$ é um mínimo local e as restrições ativas em $x^*$ satisfazem LICQ $=>$ $x^*$ é um ponto KKT
+  
+  - (Convexidade $+$ Slater)
+    - $x^*$ é KKT (Ser mínimo $=>$ KKT)
+    - Reciprocamente, se $x^*$ é viável e é KKT, então $x^*$ é ótimo global
+]
+
+#pagebreak()
+
+#align(center+horizon)[
+  = Algoritmos de Otimização
+]
+
+#pagebreak()
+
+Agora que vimos bastante da teoria por trás da otimização, precisamos viabilizar isso para problemas enormes! Não faz sentido, por exemplo, um ser humano comum resolver um sistema KKT para uma função no $RR^(1000)$ por exemplo, né? Então vamos utilizar dos *computadores*. Temos algumas famílias de métodos para otimização:
+
+- Métodos de ordem-zero
+- Métodos de primeira-ordem
+  - Método do gradiente (Cauchy)
+  - Método do subgradiente
+  - ...
+- Método de segunda-ordem
+  - Método de Newton
+  - Métodos Quasi-Newton
+  - Método de pontos-interiores
+  - ...
+- Método de confiança
+
+Esse são apenas alguns exemplos, mas existem *inúmeros* algoritmos nesse ramo
+
+== Método Gradiente
+Vamos definir o algoritmo do gradiente
+
+#pseudocode-list[
+  + $x_1$ inicial
+  + *for* $t=1,...,n$ *do*:
+    + $x_(t+1) = x_t - alpha_t nabla f(x_t)$
+]
+
+Onde $alpha_t>0$ é o "passo" ou learning rate. Vamos agora fazer algumas definições para mostrar o porquê do método do gradiente funcionar
+
+#definition("Suavidade")[
+  Dizemos que $f: RR^n -> RR$ é uma função $L$-suave se $exists L > 0$ tal que:
+  $
+    forall x, y, space ||nabla f(x) - nabla f(y)|| <= L ||x-y||
+  $
+  Ou, equivalentemente
+  $
+    ||nabla f(x) - nabla f(y)|| <= O(||x-y||)
+  $
+]
+
+#definition("Direção de Descida")[
+  Dizemos que $d in RR^n$ é de "descida" a partir de um ponto $x in RR^n$ se:
+  $
+    (nabla f(x))^T d < 0
+  $
+]
+
+#theorem("Suavidade")[
+  $forall x,y in RR^n$ vale que:
+  $
+    f: RR^n -> RR "é L-suave" <=> f(y) <= f(x) + nabla f(x)^T (y - x) + L/2 ||y-x||^2
+  $
+]
+
+Se $d$ é a direção de descida em $x$, então
+$
+  x^+ := x + alpha d
+$
+
+tem que, por suavidade de f:
+$
+  f(x^+) - f(x) &<= nabla f(x)^T (x^+ - x) + L/2 ||x^+ - x||^2    \
+
+  &= alpha nabla f(x)^T d + (L alpha^2)/2 ||d||^2   \
+
+  &= alpha (nabla f(x)^T d + (L alpha)/2 ||d||^2) < 0
+$
+
+E temos que
+$
+  lim_(alpha -> 0^+) (nabla f(x)^T d + (L alpha)/2 ||d||^2) = nabla f(x)^T d < 0    \
+  
+  => exists hat(alpha) > 0 "tal que" nabla f(x)^T d + (L hat(alpha))/2 ||d||^2 < 0
+$
+
+#theorem[
+  $forall t in NN$ e supondo que $0 < alpha_t <= 2/L$, então (Considerando que a direção de descida é $-nabla f(x)$:
+  $
+    alpha_t (1 - (L alpha_t)/2) ||nabla f(x_t)||^2 <= f(x_t) - f(x_(t+1))
+  $
+]
+#proof[
+  $f$ é suave:
+  $
+    f(x_(t+1)) &<= f(x_t) + nabla f(x_t)^T (x_(t+1) - x_t) + L/2 ||x_(t+1) - x_t||^2   \
+
+    &= f(x_t) - alpha_t ||f(x_t)||^2 + (L alpha_t^2)/2 ||nabla f(x_t)||^2
   $
 ]

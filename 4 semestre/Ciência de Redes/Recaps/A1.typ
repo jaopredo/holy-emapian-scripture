@@ -2,6 +2,7 @@
 #import "@preview/lovelace:0.3.0": *
 #show: thmrules.with(qed-symbol: $square$)
 
+#import "@preview/wrap-it:0.1.1"
 #import "@preview/codly:1.3.0": *
 #import "@preview/codly-languages:0.1.1": *
 #show: codly-init.with()
@@ -160,7 +161,7 @@ Essa sessão será apenas algumas definições que não foram passadas no curso 
   $
     C(v) := (2 E_v) / (delta(v) ( delta(v)-1 ))
   $
-  onde $E_v$ é a quantidade de arestas ligadas aos nós vizinhos
+  onde $E_v$ é a quantidade de arestas que ligam os *vizinhos* de $v$ entre si
 ]
 
 #pagebreak()
@@ -225,7 +226,7 @@ $
 $
 Para alguma escolha apropriada de $c_j$. Então temos:
 $
-  x^((k)) = A^k sum_(j=1)^n c_j w_j = sum^n_(j=1) c_j lambda_j v_j = lambda_1^k sum_(j=1)^n c_j (lambda_j/lambda_1)^k w_j
+  x^((k)) = A^k sum_(j=1)^n c_j w_j = sum^n_(j=1) c_j lambda_j w_j = lambda_1^k sum_(j=1)^n c_j (lambda_j/lambda_1)^k w_j
 $
 
 De forma que $lambda_j$ são os autovalores de $A$ e $lambda_1$ pode ser, sem perca de generalização, o maior de todos em módulo. Como $lambda_i\/lambda_1 < 1 space forall lambda_i "com" i!=j$, então:
@@ -268,11 +269,11 @@ $
 Perceba que eu quero que $A - 1/alpha I$ seja invertível, e isso acontece quando $1/alpha != lambda_j$ onde $lambda_j$ são os autovalores de $A$. Ou seja, o meu $alpha$ não é completamente arbitrário, eu vou ter que analisar o contexto da minha aplicação. Porém, muito comumente, se é utilizado $alpha = 1/lambda_1$ com $lambda_1$ sendo o maior autovalor
 
 #definition("Centralidade de Katz")[
-  Dado uma rede $G(V,E)$ e duas contantes $alpha, beta > 0$, a centralidade de katz do nó $v_i$ é:
+  Dado uma rede $G(V,E)$ e duas contantes $alpha, beta > 0$, o vetor de centralidades de katz de todos os nós em $V$ é:
   $
-    K(v_i) = alpha sum_j A_(i j) v_j + beta
+    K(V) = beta (I - alpha A)^(-1) bb(1)
   $
-  Onde $A$ é a matriz de adjacência de $G$
+  Onde $A$ é a matriz de adjacência de $G$. ($K(V) in RR^(|V|)$)
 ]
 
 Um outro tipo de medida surge quando queremos responder a questão: "Se eu estou navegando entre meus nós, ao longo prazo, qual é o nó que eu mais vou percorrer/parar nele?". Um exemplo são páginas na internet que referenciam entre si, daí surge o nome da medida: *PageRank*. O que fazemos essencialmente é transformar a rede em uma cadeia de markov. Por exemplo:
@@ -336,7 +337,8 @@ $
 
 #pagebreak()
 
-São tipos de redes que vão se montando aleatoriamente. Por exemplo, imagine que você está em uma festa e o anfitrião está fornecendo um vinho da melhor qualidade, mas ele não avisou ninguém. Um convidado curioso, por acidente, provou desse vinho e *adorou*, então ele vai contar para as pessoas da festa. A pergunta é, para quem ele vai falar? Ele vai falar para todos? Vai sobrar vinho para você?
+== Ideia Inicial
+Também chamadas de *Redes Erdös-Renyi* ou *Redes de Poisson*, são tipos de redes que vão se montando aleatoriamente. Por exemplo, imagine que você está em uma festa e o anfitrião está fornecendo um vinho da melhor qualidade, mas ele não avisou ninguém. Um convidado curioso, por acidente, provou desse vinho e *adorou*, então ele vai contar para as pessoas da festa. A pergunta é, para quem ele vai falar? Ele vai falar para todos? Vai sobrar vinho para você?
 
 Em cima disso conseguimos montar as redes aleatórias, onde cada par de nós (Aresta) é formado de acordo com uma *probabilidade*
 
@@ -344,37 +346,659 @@ Em cima disso conseguimos montar as redes aleatórias, onde cada par de nós (Ar
   Uma rede aleatória é um grafo $G(V,E)$ de $|V| = N$ nós onde cada par de nós é conectado por uma probabilidade *$p$*
 ]
 
-Como cada aresta tem uma probabilidade $p$ de aparecer, podemos interpretar ela como ela aparecer ou não sendo uma variável indicadora, de forma que o número total de arestas segue uma distribuição binomial. Ou seja, a probabilidade a quantidade de arestas ser $L=l$ é:
+Considere, agora, uma rede aleatória $G(V,E)$ com $|V| = N$. Sendo $L$ a variável aleatória que representa a quantidade de arestas em $E$, queremos descobrir sua distribuição. Como cada aresta tem uma probabilidade $p$ de aparecer, podemos interpretar como ela aparecer ou não sendo uma variável indicadora, de forma que o número total de arestas segue uma distribuição binomial (Soma de variáveis de bernoulli independentes). Ou seja, a probabilidade a quantidade de arestas ser $L=l$ é:
 $
-  PP(L=l) =  mat(mat(N;2);l) p^l (1-p)^(N(N-1)/2 l)
+  PP(L=l) =  mat(mat(N;2);l) p^l (1-p)^(N(N-1)/2 - l)
 $
-Podemos aplicar a mesma ideia para o grau de um vértice também:
+Podemos aplicar a mesma ideia para o grau de um vértice também. Vamos definir que $K$ é a variável aleatória que representa o *grau de um vértice arbitrário*, então:
 $
-  PP(delta(v) = k) = mat(N-1;k) p^k (1-p)^(N-1-k)
+  PP(K = k) = mat(N-1;k) p^k (1-p)^(N-1-k)
 $
-Já que meu vértice pode se ligar a $N-1$ vértices com probabilidade $k$, então isso vira a soma das variáveis indicadores que são $1$ quando o meu vértice se liga com outro vértice, de forma que eu tenho a soma de $N-1$ variáveis de bernoulli
+Já que meu vértice pode se ligar a $N-1$ vértices com probabilidade $p$, então isso vira a soma das variáveis indicadores que são $1$ quando o meu vértice se liga com outro vértice ($PP(II = 1) = p$), de forma que eu tenho a soma de $N-1$ variáveis de bernoulli independentes
 
-Com isso, nós temos:
+Com isso, nós podemos definir o grau médio de $G$ como $EE[K]$:
 $
-  delta_"med" (G) = (N-1)p
+  delta_"med" (G) = EE[K] = (N-1)p
 $
 
 E podemos obter também a variância dos graus
 $
-  VV(delta(v)) = (N-1)p(1-p)
+  VV(K) = (N-1)p(1-p)
 $
 
 Então, apenas para resumir, temo que:
 $
-  "Número de arestas" L ~ "Bin"(mat(N;2), p)    \
-  "Grau do vértice" delta(v) ~ "Bin"(N-1, p)
+  L ~ "Bin"(mat(N;2), p)    \
+  K ~ "Bin"(N-1, p)
 $
 
-Porém, em redes reais, elas são *esparsas*, ou seja, eu tenho *muitos* nós e graus pequenos. E lembra qual é a distribuição que é a binomial com $n$ muito grande? Exato, a *Poisson*! Essas redes aleatórias também são chamadas de *redes de poisson*
+Porém, em redes reais, elas são *esparsas*, ou seja, eu tenho *muitos* nós e graus pequenos ($N >> EE[K]$ notação que diz que $N$ é *muito maior* que $EE[K]$). E lembra qual é a distribuição que é a binomial com $n$ muito grande? Exato, a *Poisson*! Essas redes aleatórias também são chamadas de *redes de poisson*. Vamos, a partir de agora, denotar $delta_"med" (G) = EE[K] = hat(k)$
 $
-  PP(delta(v)=k) = e^(-delta_"med" (G)) ( delta_"med" (G)^k )/k!
+  PP(delta(v)=k) = e^(-hat(k)) ( hat(k)^k )/k!
 $
 Ou seja, para $N$ muito grande e $k$ pequeno com relação a $N$, podemos estimar de forma que:
 $
-  "Grau do vértice" delta(v) ~ "Poisson"(delta_"med" (G))
+  K ~ "Poisson"(hat(k))
 $
+
+E isso tudo nos dá um resultado bem condizente e intuitivo, que é que, conforme nós aumentamos a probabilidade $p$ de uma aresta existir, então a rede vai ficando cada vez mais densa
+
+== Evolução das Redes Aleatórias
+Conforme iniciamos um grafo com um grau médio $0$ e vamos aumentando ele aos poucos, nós percebemos que a partir de um ponto chave, os nós começam a se agrupar em algo que chamamos de *componente gigante*, que seria a maior componente conexa da rede.
+
+#figure(
+  caption: [Gráfico que mostra a fração de nós dentro de uma grande componente conexa em função do grau médio],
+  image("images/mean-degree-and-big-component-fraction.png")
+)
+
+Quanto $hat(k) < 1$, então a quantidade de nós na componente gigante é desprezível em relação à quantidade de nós na rede, porém, a partir de $hat(k) = 1$, isso indica que temos, pelo menos, $n/2$ componentes conexas, o que já começa a fazer uma diferença no gráfico. Esse é um argumento utilizado por Erdös e Renyi em um paper por eles publicado
+
+#theorem("Ponto Crítico")[
+  Temos uma componente gigante $<=>$ $EE[K] >= 1$
+]
+#proof[
+  Dado uma rede $G(V,E)$, vamos definir a fração de nós que *não está* na componente gigante como:
+  $
+    u = 1 - N_G / (|V|)
+  $
+
+  De forma que $N_G$ é a quantidade de nós dentro dessa componente gigante, vamos definir essa componente como $Psi subset.eq V$. Se um nó $v_i in Psi$, então ele deve estar interligado com outro nó $v_j$, que também deve satisfazer $v_j in Psi$. Por isso, se $v_i in.not Psi$, então isso pode ocorrer por duas razões:
+
+  - ${v_i, v_j} in.not E$. A probabilidade de isso acontecer é $1-p$
+  - ${v_i, v_j} in E$, porém $v_j in.not Psi$. A probabilidade de isso acontecer é $p u$
+
+  Então temos:
+  $
+    PP(v_i in.not Psi) = 1 - p + p u
+  $
+
+  Então a probabilidade de que $v_i$ não esteja linkado a $Psi$ por qualquer nó é de $(1 - p + p u)^(|V| - 1)$, já que temos outros $|V|-1$ nós que poderiam fazer com que $v_i$ se interligasse a componente gigante.
+
+  Sabemos que $u$ é a fração de nós que não está em $Psi$, para qualquer $p$ e $|V|$, a solução da equação
+  $
+  $
+  $
+    u = (1 - p + p u)^(|V| - 1)
+  $
+
+  nos dá o tamanho da componente gigante por meio de $N_G = |V|(1-u)$. Usando $p = (hat(k)) / (|V|-1)$ e tirando $log$ de ambos os lados, para $hat(k) << |V|$ (Grau médio *muito* menor que $|V|$), obtemos:
+  $
+    ln(u) approx (|V|-1) ln[ 1 - (hat(k)) / (|V|-1) (1 - u) ]    \
+
+    "Tiramos exponencial e obtemos:"    \
+
+    u approx exp { - ( hat(k) ) / (1-u) }
+  $
+
+  Se denotarmos $S = N_G / (|V|)$, obtemos que:
+  $
+    S = 1 - e^(-hat(k) dot S)
+  $
+
+  Agora obtemos o tamanho da componente gigante em função do *grau médio*. O ponto crítico ocorre na mudança de fase do sistema (Tópico mais complicado que não compreendo, estou apenas falando o que o livro do Barabas fala), que é quando os dois lados da igualdade tem a mesma derivada, então:
+  $
+    dif / (dif S) (1 - e^(hat(k) S)) &= 1    \
+    hat(k) e^(-hat(k) S) = 1
+  $
+  Onde, colocando $S=0$, descobrimos que o ponto crítico é $hat(k) = 1$
+]
+
+Na verdade esse resultado é bem intuitivo. Faz sentido dizer que para que uma componente gigante exista, todos os nós precisam ter pelo menos grau 1, já que eles precisam estar conectados com algum outro nó, porém, o que não é muito intuitivo, é que todos eles terem grau 1 é *suficiente* para que a componente gigante apareça
+
+A gente pode reescrever $EE[K] = 1$ como:
+$
+  EE[K] = 1 <=> p(N-1) = 1 <=> p = 1/(N-1) approx N
+$
+E o que isso significa? Isso mostra outro resultado intuitivo. Quanto maior é minha rede, *menos probabilidade eu preciso para que uma componente gigante apareça*
+
+Algo interessante que podemos fazer é analisar como a proporção $N_G / N$ (Porcentagem de nós dentro da componente gigante) se comporta conforme nós aumentamos $EE[K]$. Nós fazemos isso dividindo esse processo em 4 fases (Ou 4 *regimes*), veja a imagem abaixo:
+
+#figure(
+  caption: [Crescimento da compoente conexa em função do grau médio],
+  image("images/network-evolution.png")
+)
+
+=== Regime Subcrítico ($0 < hat(k) < 1$)
+Quando $hat(k) = 0$, temos $N$ nós soltos na rede e conforme aumentamos $hat(k)$, mas mantemos ele menor que $1$, temos a formação de vários nós soltos e pequenos agrupamentos (Coisa pouca mesmo). Dessa forma, mesmo escolhendo a componente gigante como o maior desses agrupamentos, a proporção $N_G \/ N$ ainda vai ser muito baixa. O Barabás aproxima essa relação como
+$
+  N_G / N approx ln(N) / N -> 0 "quando" N -> infinity
+$
+Pois podemos considerar essas componentes menores como várias árvores (Também pequenas)
+
+=== Ponto Crítico
+É a transição do momento onde não há uma componente gigante para o momento que há uma. Porém o tamanho relativo dela ($N_G\/N$) ainda é muito próximo de $0$. O livro do Barabás afirma que $N_G approx N^(2/3)$, então $N_G$ cresce muito mais devagar se comparado a $N$, logo:
+$
+  N_G / N approx N^(-1/3) = O(N)
+$
+
+Porém, perceba que o salto de diferença de tamanho pode ser enorme dependendo da rede. Se pegarmos uma rede de tamanho $N = 7 times 10^9$ (Parecido com a rede mundial), para $hat(k) < 1$, a gente teria que o tamanho da componente gigante era de ordem:
+$
+  N_G approx ln(N) approx 22.7
+$
+Em contraste, se $hat(k) = 1$, então teriamos que
+$
+  N_G approx N^(2/3) approx 3 times 10^6
+$
+Que é uma diferença notável no tamanho das componentes gigantes
+
+=== Regime Supercrítico ($hat(k) > 1$)
+Esse regime tem mais relevância para redes reais, já que a componente gigante começa a se parecer realmente com uma rede. Aqui, o tamanho $N_G$ pode ser dado como:
+$
+  N_G = (p - p_c)N
+$
+Onde $p_c = 1\/(N)$. Ou seja, conforme eu aumentar meu grau médio, menor vai ficar meu $p$ e maior será a fração de nós que pertencem à componente gigante. Em resumo, nesse regime, várias componentes conexas coexistem junto da componente gigante, onde a componente gigante é uma rede comum, enquanto as outras componentes conexas são mais prováveis de serem árvores
+
+=== Regime Conexo ($hat(k) > ln(N)$)
+Agora, nesse regime, temos que o grafo é (ou quase) conexo, logo, todos os nós fazem parte da componente conexa (Ou a maioria, logo $N_G approx N$)
+
+#theorem[
+  Se $N_G approx N$, o valor de $hat(k)$ que satisfaz a propriedade de *a maior parte dos nós estarem na componente gigante* é:
+  $
+    hat(k) = ln(N) => p = ln(N) / N
+  $
+]
+#proof[
+  Para determinar o valor de $hat(k)$ no qual a maior parte dos nós fazem parte da componente gigante, temos que saber a probabilidade de que um *nó aleatório não tenha um link para a componente gigante*, e isso é:
+  $
+    (1-p)^(N_G) approx (1-p)^N
+  $
+  Já que eu tenho exatamente $N_G$ nós na componente gigante e eu não quer me ligar com nenhum deles. Novamente, tomando $II_k$ sendo a variável indicadora de que um nó $k$ *não* na componente gigante ($1$ quando ele não está), temos que a *quantidade de nós que não estão na componente gigante* tem uma distribuição *binomial* com parâmetros $N$, $(1-p)^N$, então, se considerarmos $L_G$ sendo essa quantidade, temos que:
+  $
+    EE[L_G] = N(1-p)^N = N(1 - (N p) / N)^N approx N e^(-N p)
+  $
+  Queremos então chegar no ponto em que temos, para um $p$ suficientemente próximo de $1$, que apenas 1 único nó esteja fora da componente conexa, então gostaríamos de analisar em que ponto:
+  $
+    EE[L_G] = 1 <=> N e^(-N p) = 1
+  $
+  Logo, tirando $ln$ em ambos os lados, chegamos que:
+  $
+    p = ln(N) / N
+  $
+  Ou seja
+  $
+    hat(k) = ln(N)
+  $
+]
+
+Esse resultado é de grande impacto! Quando analisamos muitas das redes reais, a maioria segue esse padrão de $hat(k) = ln(N)$, logo, as *redes reais são supercríticas*. Veja a tabela presente no livro do Barabás:
+
+#figure(
+  caption: [ Tabela de redes no Barabás ],
+  table(
+    columns: (auto, 1fr, 1fr, 1fr, 1fr),
+    inset: 10pt,
+    align: horizon,
+    table.header(
+      [*Rede*], [*N*], [*L*], [$EE[K]$], [$ln(N)$]
+    ),
+
+    [Internet],	$192244$,	$609066$,	$6.34$,	$12.17$,
+    
+    [Power Grid], [$4,941$], [$6,594$], [$2.67$], [$8.51$],
+
+    [Science Collaboration], [$23,133$], [$94,437$], [$8.08$], [$10.05$],
+
+    [Actor Network], [$702,388$], [$29,397,908$], [$83.71$], [$13.46$],
+
+    [Protein Interactions], [$2,018$], [$2,930$], [$2.90$], [$7.61$]
+  )
+)
+
+
+
+== Distribuição de tamanhos de Cluster
+Queremos também ter uma noção da probabilidade de um nó $v_i$ qualquer estar em um cluster (Grupo de nós na rede) de tamanho $s$. No livro do Newman, ele nos mostra que essa probabilidade é:
+$
+  PP(v_i in Psi_(|Psi|=s)) = e^( - delta_"med" (G) dot s ) (delta_"med" (G) dot s)^(s-1) / s!
+$
+
+== Mundos pequenos
+Mundos pequenos (Small worlds) são grafos em que, independente da quantidade de vértices, a distância entre dois nós aleatórios costuma ser muito pequeno. Um exemplo é um modelo que cada nó representa todas as pessoas do mundo e as arestas indicam se elas já interagiram e se conhecem ou não (Impressionantemente), tanto que existe a teoria dos 6 graus de distância entre as pessoas
+
+#link("https://youtu.be/TcxZSmzPw8k?si=jXPDJE_SWwNys4YM")[_Vídeo sobre o assunto (Clique aqui)_]
+
+E se quisermos ter uma noção de o quão *não-relacionadas* duas pessoas são em uma rede social? Podemos calcular sua distância, obviamente, mas alguns algoritmos ficam computacionalmente inviáveis. Podemos então estimar uma distância média entre dois nós selecionados aleatoriamente no grafo.
+
+Tendo uma rede $G(V,E)$ com grau médio $hat(k) = EE[K]$, é intuitivo pensar que cada nó tem, em média:
+$
+  &hat(k) "nós a" 1 "unidade de distância"    \
+  &hat(k)^2 "nós a" 2 "unidades de distância"    \
+  &dots.v  \
+  &hat(k)^d "nós a" d "unidades de distância"    \
+$
+Então é plausível dizer que a quantidade média de nós presentes até uma distância $d$ de um nó qualquer é expresso como:
+$
+  N(d) = sum_(i=0)^d hat(k)^i = ( hat(k)^(d+1) - 1 ) / ( hat(k) - 1 )
+$
+
+Sabemos que esse valor não pode ter valores arbitrários, ele não passa de $|V| = N$, então podemos encontrar o grau médio que satisfaz esse o valor. Assim, fazemos:
+$
+  ( hat(k)^(d+1) - 1 ) / ( hat(k) - 1 ) approx N
+$
+
+Assumindo que $hat(k) >> 1$, podemos desprezar os termos $-1$, assim vamo obter que:
+$
+  d_"max" approx ln(N) / ln(hat(k))
+$
+
+Que é a representação matemática do problema dos minimundos. Porém, isso também traz uma interpretação muito interessante.
+
+Porém, aqui a gente ta vendo o *diâmetro* da rede, e nós comentamos anteriormente sobre *a distância entre dois nós aleatórios*. Impressionantemente, essa aproximação também é válida para essa ocasião. Denotando essa distância média, temos que a característica dos minimundos é:
+$
+  hat(d) approx ln(N) / ln(hat(k))
+$
+
+Mas por que isso acontece? Falando de um jeito mais intuitivo, essa aproximação de $d_"max"$ costuma funcionar mais para a média do caminho entre dois nós aleatórios pois, em redes reais, o $d_"max"$ é dado por um único caminho ou pouquissimos caminhos daquele tamanho, enquanto $hat(d)$ é ponderado em todos os nós. Além de que essa fórmula traz algumas intuições interessantes. Ela mostra que a distância média entre os nós aumenta conforme aumentamos o tamanho da rede, mesmo que não linearmente ou exponencialmente. E mostra também com o termo $1\/ln(hat(k))$ que, quanto mais densa é minha rede, menor vai ser a distância média
+
+== Coeficiente de Clustering
+Indica o quão agrupado um nó está dentro de uma rede. O grau de um nó não fala nada sobre a relação entre seus vizinhos, e é aí que o coeficiente de clustering entra
+
+#definition("Coeficiente de Clustering")[
+  Dado uma rede $G(V,E)$, o coeficiente de clustering de um nó $v_i in V$ é definido como:
+  $
+    "Cluster"(v_i) := ( 2 dot LL(v_i) )/(delta(v_i) (delta(v_i) - 1))
+  $
+  Onde $LL(v_i)$ é quantas arestas *entre si* os *vizinhos* de $v_i$ possuem e $(delta(v_i)(delta(v_i)-1))/2$ é a quantidade *máxima* de arestas que poderiam estar interligando os vizinhos de $v_i$ (Quantidade de arestas em um grafo completo $K_(delta(v_i))$)
+]
+
+Vamos tomar $LL(v_i)$ como sendo a variável aleatória que indica quantas arestas os vizinhos de $v_i$ tem entre si. Novamente, como sempre, tomamos a variável indicadora $II_k$ como sendo a variável indicadora que diz se a aresta $k$ faz parte desse grupo de links entre os vizinhos do nó $v_i$. Sabemos que $PP(I_k=1)=p$, então $LL(v_i)$ seria uma binomial, mas qual seria o parâmetro da quantidade? Quantas variáveis indicadoras $II_k$ eu tenho que somar? Se pararmos para pensar, o *máximo* de links que podem existir entre os vizinhos de $v_i$ é o grafo completo formado por todos eles, então, no final, temos que:
+$
+  LL(v_i) ~ "Bin"(mat(hat(k);2), p)
+$
+Então, no final, vamos ter que:
+$
+  EE[LL(v_i)] approx p (delta(v_i) (delta(v_i) - 1))/2   =>   "Cluster"(v_i) = p = ( EE[K] ) / ( |V| )
+$
+
+Só que sabemos que, em redes aleatórias, para que esse número seja alto, a probabilidade em si das arestas tem que ser alto, porém, se $p$ é alto, então a rede aleatória em si será um grande aglomerado, seria um único cluster enorme. Essa característica é um forte indicativo, por exemplo, de que redes como as *redes sociais* *não são* redes aleatórias. O livro do Barabás mostra um experimento e mostra que, em redes reais, o coeficiente de clustering é muito maior do que o esperado em redes aleatórias, de forma que, em redes reais, esse coeficiente costuma ser bastante independente de $N$, diferente do que encontramos agora há pouco
+
+== Grau Máximo e Grau Mínimo
+Dependendo do contexto analisado, pode ser de grande interesse saber os valores esperados do *maior grau* de uma rede e do *menor grau*. Para descobrir o *maior grau*, precisamos que, na rede, tenhamos *no máximo* um nó com grau maior que $k_"max"$. Isso significa que a área do gráfico da distribuição *em frente* a $k_max$ é aproximadamente 1:
+$
+  N dot PP(K >= k_max) approx 1   \
+
+  N dot (1 - PP(K < k_max)) approx 1
+$
+
+E podemos usar um argumento análogo, afirmando que deveríamos ter, no máximo, apenas um nó com grau menor que $k_min$, então teríamos:
+$
+  N dot PP(K <= k_min - 1) = 1
+$
+Assim resolvemos as duas equações para achar $k_min$ e $k_max$
+
+
+== Conclusão
+Como conclusão, temos que redes aleatórias *não representam bem as redes da vida real*. Não existem redes na natureza que são corretamente descritas como *redes aleatórias*. Então por que estudar elas? Na verdade, veremos posterioremente que, mesmo elas sendo erradas e irrelevantes, elas são *muito úteis*
+
+#pagebreak()
+
+#align(center+horizon)[
+  = Evoluções de Redes
+]
+
+#pagebreak()
+
+Vimos as redes aleatórias onde os graus dos nós tinham distribução de Poisson. Mas e se eu quisesse fazer uma rede com distribuição diferente? Muitos pacotes de grafos e redes utilizam de *configuration models*, que são funções que recebem a quantidade de nós da rede e um *vetor* que representa a *função de distribuição* dos graus dos nós
+
+Voltando ao assunto sobre *evoluções*, eu estou interessado em pensar um jeito intuitivo/natural de como as redes vão evoluir com o passar do tempo.
+
+Então vamos imaginar o seguinte cenário. Eu tenho uma rede inicial $G_0(V_0,E_0)$ e a cada unidade de tempo $t$ eu vou ter uma nova rede $G_t (V_t,E_t)$, de forma que a cada unidade de tempo, eu vou adicionar um novo nó em $V_(t-1)$ e novas arestas em $E_(t-1)$. Qual é a distribuição do grau médio desses nós? O que podemos inferir dessa rede?
+
+== Anexação Uniforme
+Vamos imaginar uma *anexação uniforme*. Nesse caso, cada nó inserido sempre terá um grau de $m$. Ou seja, a *probabilidade* de um link do meu novo nó inserido se interligar ao vértice $v_i$ é igual a $m\/i$ (A chance de ele se ligar com uma das arestas é $1\/i$, logo, como eu posso me ligar com $m$ arestas diferentes, todas independentes entre si, a probabilidade total vai ser $m\/i$), logo:
+$
+  delta(v_j, t=i) := "Grau de" v_j "no momento" i   \
+$
+Com isso, podemos interpretar esse grau como uma *variável aleatória*. Temos que o grau de $v_i$ no momento inicial $i$ é fixa como $m$. Então a quantidade de arestas no momento $i+1$ pode ser escrita como:
+$
+  delta(v_i, i+1) = m + II_(i+1)(1) + II_(i+1)(2) + ... + II_(i+1)(m)
+$
+Onde $II_j (k)$ é a variável indicadora que diz se, no momento $j$, a aresta $k$ do *novo nó que está sendo adicionado na rede* foi adicionado ou não no nosso nó. Podemos reescrever como a soma de uma única variável aleatória de distribuição binomial também. Você pode ter reparado que eu utilizei $i$ tanto no $v_i$ quanto no $i$. Vou utilizar isso pois eu estou supondo que, na nossa análise, estamos saindo do último nó adiconado (Uma aproximação razoável do modelo real, obviamente que nem todos os nós vão ser adicionados com essa anexação, já que antes de eu iniciar essa abordagem, já vai ter uma rede "preexistente")
+
+Porém, queremos ter uma *noção* de como isso vai ser ao longo prazo, podemos então tirar a esperança disso.
+$
+  EE[delta(v_i, i+1)] = m + m/i
+$
+Porém, isso é apenas para um único passo, queremos generalizar para vários passos. Vamos supor então que estamos saindo do $i$-ésimo nó adiconado e estamos no momento $t$:
+$
+  delta(v_i, t) = m + sum_(k=i+1)^t sum_(j=1)^m II_(k)(j)
+$
+$
+  EE[delta(v_i, t)] &= m + sum_(k=i+1)^t sum_(j=1)^m EE[II_(k)(j)]  \
+  
+  &= m + sum_(k=i+1)^t sum_(j=1)^m j/(k-1)    \
+$
+
+$
+  EE[delta(v_i, t)] = m dot sum^t_(k=i+1) 1/(k-1)   \
+
+  EE[delta(v_i, t)] approx m + m ln((t-1)/(i-1))   \
+
+  EE[delta(v_i, t)] / m - 1 approx ln((t-1)/(i-1))   \
+
+  exp( ( EE[delta(v_i, t)]-m ) / m ) approx (t-1)/(i-1)   \
+
+  exp( -( EE[delta(v_i, t)]-m ) / m ) approx (i-1)/(t-1)   \
+
+  exp(-( EE[delta(v_i, t)]-m ) / m ) approx i/t
+$
+
+No intervalo $[0,t]$, temos a seguinte estruturação:
+#figure(
+  caption: [Intervalo de $i\/t$],
+  image("images/01-interval.png")
+)
+
+Então, o que encontramos foi a fração de nós que tem grau maior que $v_i$. Então temos que:
+$
+  PP(delta_t (v_i) <= k) = 1 - e^( -(k - m)/m )
+$
+Logo, temos uma distribuição *Exponencial*
+
+== Anexação Preferencial
+Na anexação *uniforme*, cada novo nó podia se ligar com um dos nós anteriores com mesma probabilidade. Nessa abordagem, os nós de *maior grau* terão uma *maior preferência* para serem escolhidos (Não é uma obrigatoriedade). Podemos expressar, então da seguinte forma. Antes, vamos fazer duas definições rápidas:
+
+#definition[
+  Dada uma rede $G(V,E)$, o conjunto $E_t$ é definido como o conjunto de arestas da rede no momento $t$
+]
+
+#definition[
+  Dado uma rede $G(V,E)$, a função $delta_t : V -> NN$ é a função que retorna o grau de um vértice em um momento $t$ do tempo
+]
+
+Voltando, queremos então, antes de tudo, saber qual que é a probabilidade do nó que vai ser adicionado se ligar com um vértice $v_i$, então:
+$
+  PP({v_i, v_(t+1)} in E_(t+1)) = ( delta_t (v_i) ) / ( sum_(j=1)^t delta_t (v_j) )
+$
+
+Queremos achar uma distribuição para os graus dos nós. Vamos tentar achar, então, uma taxa de crescimento do grau dos nós:
+$
+  (delta_(t+1) (v_i) - delta_t (v_i)) / (Delta t) = m dot ( delta_t (v_i) ) / ( sum_(j=1)^t delta_t (v_j) ) approx (dif (delta_t (v_i))) / (dif t)
+$
+Porém, sabemos que $sum^(t)_(j=1) delta_t (v_j) = 2 |E_t|$, então vamos obter:
+$
+  (dif (delta_t (v_i))) / (dif t) = m dot ( delta_t (v_i) ) / ( 2 |E_t| ) = m dot (delta_t (v_i))/(2 t m) = (delta_t (v_i))/(2 t)
+$
+
+Logo, obtemos uma EDO para resolver. Vamos chamar $delta_t (v_i)$ de $k$ apenas para facilitar a visualização:
+$
+  (dif k)/(dif t) &= k / (2t) wide (delta_i (v_i) = m)   \
+  
+  (dif k) / k &= (dif t) / (2 t)    \
+
+  integral (dif k) / k &= integral (dif t) / (2 t)    \
+
+  ln k &= 1/2 ln t + C    \
+
+  delta_t (v_i) &= t^(1\/2) dot D
+$
+Resolvendo para o caso $delta_i (i) = m$, temos:
+$
+  m = i^(1\/2)D  =>  D = m dot i ^ (-1\/2)    \
+
+  => delta_t (v_i) = m (t/i)^(1\/2)
+$
+
+Queremos então calcular $PP(delta_t (v_i) <= k)$. Na média, todos os nós *posteriores* ao nó $v_i$ tem grau menor do que $k$, então precisamos apenas inverter aquela equação de antes, assim, vamos obter:
+$
+  delta_t (v_i)^2 = m^2 t/i   \
+
+  <=> i = (m^2 dot t)/(delta_t (v_i)^2)
+$
+
+Assim, conseguimos obter a *fração de nós com grau maior que $v_i$*, que são justamente os nós anteriores a ele ($i\/t$) que é $m^2 delta_t (v_1)^(-2)$. Temos então que:
+$
+  PP(delta_t (v_i) <= k) = 1 - m^2 k^(-2)
+$
+
+Temos também que a densidade vai ser:
+$
+  f_K (k) =  2m^2 k^(-3)
+$
+
+Percebemos, então, que a variável aleatória $K$, que representa o grau de um nó na rede, tem a distribuição *$"Paretto"(2, m)$*. O que, na verdade, faz bastante sentido. A distribuição de Paretto é bastante usada para descrever a concentração de riquezas e, como sabemos bem, o dinheiro costuma se concentrar sempre em quem tem mais dinheiro, então é só imaginar que o grau de um nó representa o quão rica uma pessoa é e bingo, faz todo sentido essa distribuição!
+
+#pagebreak()
+
+#align(center+horizon)[
+  = Redes Livres de Escala
+]
+
+#pagebreak()
+
+São as redes geradas após um processo de *Anexação Preferencial*. Um grande exemplo é a rede da internet (WWW). Quando olhamos ela de relance, ela aparenta ser uma rede aleatória, porém, é notável que certos nós ficam agrupados em regiões com outros nós de grau *muito grande*. Veja essa representação em rede dos documentos da Internet gerada por Hawoong Jeong na Universidade de Notre-Dame
+
+#figure(
+  caption: [Rede WWW],
+  image("images/www.png")
+)
+
+Se a rede WWW fosse uma rede aleatória, os graus teriam uma distribuição Poisson, porém, como a imagem a seguir mostra, isso não ocorre:
+
+#figure(
+  caption: [Distribuição dos graus em Log-Log],
+  image("images/scale-free-degree-distribution.png")
+)
+
+Como podemos ver, os graus, no gráfico log-log, são bem aproximados por uma reta. Isso é um indicativo de que a sua distribuição é algo parecido com:
+$
+  PP(K = k) = k^(-gamma)
+$
+
+Isso é chamado de *Distribuição de Lei de Potência*, e $gamma$ é o *expoente do grau*. A internet é uma rede direcionada, então todo documento tem um grau de entrada e de saída. Com esse contexto em mente, podemos finalmente definir:
+
+#definition("Redes livres de Escala")[
+  Uma rede é dita livre de escala quando a distribuição do grau de seus vértices segue uma forma exponencial
+]
+
+== Formalismo Discreto
+Para cálculos analíticos, é interessante deixar que os graus possam assumir qualquer tipo de valor real (Mesmo que apenas os naturais sejam possíveis). Seja $K$ a variável aleatória que indica o grau de um vértice escolhido aleatoriamente, temos que:
+$
+  PP(K=k) = C k^(-gamma)
+$
+
+Normalizando, temos:
+$
+  integral_(k_min)^(infinity) PP(K=k) dif k = 1   \
+
+  => C = (gamma-1)k_min ^(gamma-1)
+$
+
+Então temos que a distribuição segue a P.M.F:
+$
+  PP(K=k) = (gamma - 1) k_min ^(gamma-1) k^(-gamma)
+$
+
+== Centros
+Vamos analisar a seguinte imagem:
+
+#figure(
+  caption: [Distribuição de Poisson e Distribuição de Potência],
+  image("images/poisson-and-power-comparision.png", width: 58%)
+)
+
+A gente pode analisar em 3 pontos principais:
+
+- Antes de $hat(k)$ a rede livre de escala é maior, ou seja, há mais nós com grau pequeno nela do que na poisson
+- Na vizinhança de $hat(k)$, a poisson é maior, logo, existe um excesso de nós com grau $hat(k)$ na rede Poisson
+- Depois a rede livre de escala volta a ser maior
+
+Isso significa que, em redes livre de escala, temos altas chances, ou de obter *um nó com grau muito grande (Hub)* ou obter vários nós com grau pequeno
+
+=== Maior Centro
+Também chamados de *hubs*, são os nós mais centrais, aqueles que representam uma maior importância dependendo do contexto, aqui, sendo aqueles com o maior grau. Podemos querer saber como eles se comportam nessas redes livres de escala! Para isso, temos que calcular qual é o maior grau da distribuição $k_"max"$, também chamado de corte natural da distribuição. Representa o tamanho esperado do maior hub. Antes de partir para o caso complicado geral de $p(k) = C k^(-gamma)$, vamos primeiro fazer um caso mais simples, vamos fazer para a *exponencial*:
+$
+  p(k) = C e^(-lambda k)
+$
+Para uma rede com grau mínimo $k_min$, temos que a normalização vai ficar:
+$
+  integral_(k_min)^(infinity) p(k) dif k = 1  =>  C = lambda e^(lambda k_min)
+$
+Agora, para saber $k_max$, fazemos o mesmo processo que vimos antes, vamos supor que, em uma rede com $N$ nós, o valor esperado do grau para o regime $(k_max, infinity)$ seja $1$, ou seja:
+$
+  EE[K|k>k_max] = 1 => N dot PP(K>=k_max) = 1   \
+
+  <=> integral_(k_max)^(infinity) p(k) dif k = 1/N
+$<kmin-and-kmax-equation>
+
+Resolvendo a integral, vamos obter:
+$
+  k_max = k_min + ln(N) / lambda
+$
+
+Essa equação nos indica algo interessante. $ln(N)$ é uma função que cresce devagar conforme $N -> infinity$, já que a sua derivada tende a $0$, então quanto maior o $N$, mais devagar a função vai crescer. Ou seja, isso indica que, conforme o $N$ cresce, o grau máximo e mínimo não diferem tanto!
+
+Esse cálculo pra distribuição de Poisson é um pouquinho mais evoluído, mas a gente chega que o resultado é muito parecido e que $N$ cresce mais lentamente ainda
+
+Agora, para as redes livre de escala, resolvendo @kmin-and-kmax-equation, a gente obtém:
+$
+  k_max = k_min dot N^(1/(gamma-1))
+$<biggest-hub-relation>
+
+Ou seja, quanto maior é minha rede, maior vai ser o tamanho do meu centro (Maior é o grau do nó com mais graus). Isso é um resultado bem intuitivo, na verdade! Lembra que nós começamos dando o contexto da rede da internet (WWW)? Se pararmos para pensar, conforme as pessoas criam páginas na internet, elas tendem a colocar links para páginas famosas na internet, ou que tem alguma relevância em *comunidades*, ou seja, quanto mais links referenciando uma página, mais páginas vão referenciar ela, de forma que, quanto mais páginas vão sendo criadas, maior vai ser a quantidade de links referenciando páginas famosas ou reconhecidas!
+
+== Significado de Livre de Escala
+Antes de entender o significado desse termo, vamos nos familiarizar com alguns conceitos. Vimos em probabilidade o conceito de *momentos*. O $n$-ésimo momento da distribuição dos graus (Levando em conta a variável aleatória $K$ que é o grau de um vértice aleatório) é:
+$
+  EE[K^n] = sum_(i=k_min)^(infinity) k^n dot PP(K=k) = integral_(k_min)^(infinity) k^n p(k) dif k
+$
+
+Resolvendo a integral, vamos obter:
+$
+  EE[K^n] = C (k_max^(n-gamma+1) - k_min^(n-gamma+1)) / (n-gamma+1)
+$
+
+Sabemos que, normalmente, $k_min$ é fixo enquanto $k_max$ aumenta confirme $N->infinity$. Então vamos fazer uma análise mais detalhada sobre essa fórmula para o $n$-ésimo momento
+
+- Se $n - gamma + 1 <= 0$, então $k_max^(n-gamma+1) -> 0$ quando $N -> infinity$ (Ou $1$ quando a equação é igual a $0$). Então todos os momentos que satisfazem $n < gamma - 1$ são *finitos*
+
+- Do contrário, se $n - gamma + 1 > 0$, então $k_max^(n-gamma+1) -> infinity$ quando $N -> infinity$, então os momentos que satisfazem $n > gamma - 1$ *divergem*
+
+Agora a gente pode tentar entender melhor o que esse *sem escala* significa. Vamos pegar uma rede de Poisson, sabemos que $EE[K]=hat(k)$ e que $sigma_k = sqrt(hat(k))$ (Desvio padrão dos graus). Pela desigualdade de Chebyshev:
+$
+  PP(|K-hat(k)| >= h sigma_k) <= 1/h^2
+$
+
+Que que isso quer dizer? O que quero dizer é que, em redes de Poisson, a chance de os graus estárem a $h$ desvios padrões da média é *no máximo* $1\/h^2$. Isso é um indicativo grande de que a média dos graus serve como uma "escala", de forma que temos uma  noção do quão longe desse valor podemos estar caso escolhemos um nó aleatório.
+
+Porém, em redes livres de escala em que o segundo momento diverge? Isso significa que, quando eu pego um nó aleatoriamente nessa rede, eu não sei o que esperar, a diferença dele para a média pode ser arbitrariamente grande ou pequena, não temos como ter ideia, ou seja, *não há uma escala para comparação*
+
+É claro que a divergência de $EE[K^2]$ só acontece no limite $N->infinity$, mas isso ainda tem uma relevância para redes finitas. Vamos pegar o caso da rede de internet novamente, sabemos que a quantidade de documentos (Nós) está na casa dos bilhões ou trilhões, o que indica que temos uma variância MUITO GRANDE, ou seja, mesmo tendo uma variância finita e, no concreto, tenhamos uma escala, ela é quase irrelevante, já que, ao pegarmos um documento aleatório, ele pode estar sendo citado por apenas dois outros documentos, ou ser citado por bilhões de documentos (Como google, facebook, etc.)
+
+== Propriedade _Ultra Small_
+Essa propriedade dos centros faz levantar uma pergunta: Será que os centros afetam a propriedade dos minimundos? (Distância média). Se formos parar para tentar ter uma visão intuitiva, faz sentido dizer que elas afetam. Se eu tenho nós que se ligam em *MUITOS* outros nós (Os centros), então faz sentido dizer que a probabilidade de a distância entre dois outros nós quaisquer ser pequena é bem alta. Na verdade essa visão intuitiva está *correta*. As distâncias em uma rede *livre de escala* são menores do que em redes aleatórias equivalentes. Nós temos a seguinte relação: Seja D a variável aleatória que representa a distância entre dois nós aleatórios na rede
+$
+  EE[D] = cases(
+    "const" wide &gamma = 2,
+    ln(ln(N)) wide &2 < gamma < 3,
+    ln(N) / (ln(ln(N))) wide &gamma = 3,
+    ln(N) wide & gamma > 3
+  )
+$<average-path-distance-ultra-small-networks>
+
+Vamos falar um pouco sobre cada um desses _regimes_
+
+=== Regime Anômalo ($gamma = 2$)
+De acordo com a equação @biggest-hub-relation, quando $gamma=2$, o maior hub (Maior centro) vai crescer linearmente com relação a $N$, ou seja, o tamanho do caminho entre dois nós aleatórios não depende de $N$ já que essa relação linear indica que todos os nós vão estar conectados ao mesmo hub central
+
+=== Super minimundo ($2 < gamma < 3$)
+Nesse regmie, como previsto pela relação @average-path-distance-ultra-small-networks, a dsitância fica em relação a $ln(ln(N))$, que é um crescimento absurdamente lento comparado a $ln(N)$ obtido em redes aleatórias. Essas redes são chamadas de *Ultra Small* por que os hubs reduzem o tamanho dos caminhos *muito*, já que eles se ligam com milhares de nós com baixo grau
+
+=== Ponto Crítico ($gamma = 3$)
+Aqui o segundo momento já não diverge mais, então é um ponto teórico de bastante interesse. Aqui o termo $ln(N)$ encontrado nas redes aleatórias volta, mas tem uma correção com $ln(ln(N))$ ainda
+
+=== Minimundo ($gamma > 3$)
+Aqui o termo $ln(N)$ volta! Isso mostra um indicativo que para essas redes, mesmo a presença de hubs ainda existindo, eles não são grandes o suficiente para influenciar na distância entre os nós, sendo desprezíveis praticamente ao afetarem a distância
+
+#wrap-it.wrap-content(
+  figure(
+    caption: [Distância média em função da quantidade de nós e distribuição das distâncias para $N=10^2$, $N=10^4$ e $N=10^6$],
+    image("images/distance-distribution.png")
+  ),
+  [
+    Essa imagem presente no livro do barabasi mostra a prograssão das distâncias médias conforme aumentamos a quantidade de nós. Perceba que, para $N$ não muito grandes, como $N=10^4$, as distribuições (E a distância média) não tem tanta diferença assim, porém com $N=10^6$, ja da para notar diferenças atenuadas. Isso também é um indicativo de que, quanto maior o expoente da rede livre de escala, maior é a distância média entre dois nós
+  ]
+)
+
+== O Papél do Expoente do Grau
+Se pararmos para analisar redes na vida real, vamos perceber que $gamma$ varia de rede para rede, isso nos leva a intuitivamente querer saber como $gamma$ influencia nas redes reais. Na maioria das redes reais, temos que $gamma > 2$, o que também gera a pergunta: Por quê?
+
+#figure(
+  caption: [Regimes de $gamma$],
+  image("images/gamma-regimes.png")
+)
+
+=== Regime Anômalo ($gamma <= 2$)
+Nesse regime, o expoente $1\/(gamma-1)$ é maior que $1$, ou seja, o número de links conectados ao maior hub cresce *mais rápido que o próprio número de links em si*, além de que $EE[K]$, sendo K a variável aleatória do grau dos nós, também diverge. O que isso indica? Isso mostra que, redes livre de escala *sem links múltiplos*, ou seja, a existência de várias arestas que ligam os mesmos dois nós, *não podem existir*
+
+=== Regime Livre de Escala ($2 < gamma < 3$)
+Aqui, o primeiro momento converge enquanto o segundo diverge, o que faz a gente cair na situação que ja comentei anteriormente de os graus serem arbitrariamente grandes, porém, que a distância entre dois nós cresce *muito* devagar, os já mencionado *Ultra Small Worlds*
+
+=== Regime de Rede Aleatória ($gamma > 3$)
+Como indicado relação @average-path-distance-ultra-small-networks, e por motivos práticos também, nesse regime, as propriedades das redes livres de escala não são muito diferentes das propriedades das redes aleatórias. Isso pois, como ja comentado, o grau dos nós decaem rapido o suficiente para que os hubs, mesmo os maiores, não sejam tão numerosos ao ponto de que afetem muito a distância média entre os nós
+
+Na prática, costuma-se observar que, para que os hubs venham a influenciar na distância média, $k_max$ tem que ser, pelo menos, umas $10^2$, $10^3$ vezes maior que $k_min$. Na prática a gente pode reformular a relação @biggest-hub-relation como:
+$
+  N = (k_max / k_min)^(gamma - 1)
+$
+
+E isso daria uma relação de quantos nós precisamos para que começássemos a registrar a propriedade da rede livre de escala. Por exemplo, vamos supor que queremos saber quantos nós precisamos para começar a ver essa propriedade em redes de $gamma = 5$ (E, por exemplo, $k_min=1$ e $k_max = 10^2$), então deveríamos ter $N>10^8$, e são poucas as redes, na prática, com um tamanho absurdo desses!
+
+
+#pagebreak()
+
+#align(center+horizon)[
+  = Modelo Biaconi-Barabási
+]
+
+#pagebreak()
+
+Nesse capítulo vamos trabalhar no contexto de redes de negócios. No nosso modelo anterior, o de anexação preferencial (Ou Barabási-Albert), nós tinhamos que o primeiro nó *sempre* seria o nó com maior grau (Ou na maioria das vezes), mas os nós mais antigos sempre teriam mais links que os mais novos. Porém, em redes de negócio isso não é bem verdade. Basta olharmos a Netflix por exemplo, que chegou bem depois da Blockbuster e quem está de pé até hoje? (Mesmo que com pernas bambas). Pois é, então temos que desenvolver um modelo melhor para esse tipo de situações.
+
+Aqui nós vamos fazer uma definição mais intuitiva e depois introduzí-la no nosso modelo matemático. Vamos chamar a *chance* de uma *empresa* criar um vínculo *permanente* com um cliente a partir de um encontro aleatório desse cliente com a empresa de *fitness* (Ou aptidão). E dependendo do contexto analisado essa fitness pode ser mensurada de formas diferentes
+
+Se o contexto de negócios não parece muito intuitivo, basta pensar também no contexto social, onde cada pessoa vai ser amiga de outra dependendo de um encontro aleatório baseado em seus costumes, suas crenças, seus preconceitos, etc. Agora vamos definir melhor o nosso novo modelo.
+
+Começamos com uma rede inicial $G(V,E)$, e introduzimos um novo vértice $v_j$ onde $v_j$ vai se ligar a $m$ outros vértices ($delta(v_j) = m$) e meu vértice $v_j$ tem uma aptidão $eta_j$. Essa aptidão pode ser escolhida da forma que bem entender, por enquanto, vamos assumir que ela é escolhida aleatoriamente a partir de uma distribuição $p(eta)$ (Também assuma que todos os nós em $V$ também tem uma aptidão de antemão)
+
+A probabilidade de que um link do meu novo nó $v_j$ se conecte com algum nó $v_i in V$ é proporcional a sua aptidão. Podemos fazer isso definindo:
+$
+  p_i = PP({v_j,v_i} in E) = (eta_i delta(v_i)) / (sum_(v_k in V) eta_k delta(v_k))
+$
+
+Perceba que a dependência de $p_i$ em $delta(v_i)$ mostra essencialmente que quanto maior o grau de $v_i$ maior a chance de $v_j$ se conectar a ele (Pense naquele amigo que conhece várias pessoas, ele costuma ser alguém agradável para que tanta gente goste dele, então você tende a gostar dele também)
+
+== Dinâmica
+Imagine o vértice $v_i$ fixamente, ele está presente desde o começo (No grafo inicial). A cada passo $t$ um novo nó é inserido. Vamos então definir o grau do nosso vértice $v_i$ em função do tempo:
+$
+  k_i = delta_t (v_i) := "Grau do vértice" v_i "no momento" t
+$
+
+Temos que a variação de $k_i$ em relação ao tempo é:
+$
+  (dif k_i) / (dif t) = m (eta_i k_i) / (sum_j eta_j k_j)
+$
+
+Isso ocorre pois, a cada unidade de tempo, eu vou adicionar $m$ links no meu grafo. Então minha mudança média no grau do meu nó é $m$ (Número de nós adicionados) ponderado pela probabilidade de cada link se ligar a $v_i$ que é como definimos antes
+
+A gente vai assumir que o tempo de evolução de $delta(v_i)$ segue uma lei de potência dependente da aptidão (Ou seja, cresce exponencialmente em relação a $eta_i$). Então:
+$
+  k(t,t_i,eta_i) = m (t / t_i)^beta(eta_i)
+$
+
+Onde $t$ é o momento atual e $t_i$ é o momento de chegada de $v_i$ na rede. Fazendo alguns cálculos especificados no livro do Barabási, chegamos que:
+$
+  beta(eta) = eta / C
+$
+de forma que:
+$
+  C = integral rho(eta) eta / (1 - beta(eta)) d eta
+$
+
+== Distribuição dos Graus
+Também involve cálculos mais complicados, então vou apenas mostrar a fórmula. Quando houver tempo, colocarei os cálculos nesse resumo:
+$
+  p_k approx C integral rho(eta) / eta (m / k)^(C/eta + 1) dif eta
+$
+
+

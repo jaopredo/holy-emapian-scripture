@@ -27,7 +27,7 @@
   titlefmt: strong
 )
 #let definition = thmbox("definition", "Definição", inset: (x: 1.2em, top: 1em))
-#let example = thmplain("example", "Exemplo").with(numbering: none)
+#let example = thmplain("example", "Exemplo")
 #let proof = thmproof("proof", "Demonstração")
 
 #set text(
@@ -139,7 +139,7 @@ Há também uma discussão sobre se os parâmetros que estamos procurando serem 
 #pagebreak()
 
 #align(center + horizon)[
-  = $theta$ como uma Variável Aleatória
+  = Estatística Bayesiana
 ]
 
 #pagebreak()
@@ -373,3 +373,465 @@ Isso nos mostra que, conforme nossa amostra vai aumentando, o termo da direita r
 ]
 
 Um bom exemplo é utilizar a distribuição *beta* assumindo que $alpha = beta = 0$. Mesmo que isso viole a condição da distribuição beta, o resultado da posteriori ainda sim é uma distribuição beta. Porém, existem diversos métodos para se escolher uma distribuição imprópria para $theta$. O mais comum é se utilizar de uma família de conjugados para o modelo estatístico, e forma a adaptarmos seus parâmetros para obter uma distribuição imprópria.
+
+#pagebreak()
+
+#align(center + horizon)[
+  = Estimadores de Bayes
+]
+
+#pagebreak()
+
+== Estimador e Estimativa
+Com estimadores, queremos, a partir, puramente, de nossas observações dos dados gerar uma função que, ao longo prazo, converge para uma medida de nosso interesse (Um parâmetro de distribuição, por exemplo)
+
+#definition("Estimador/Estimativa")[
+  Seja $X_1,...,X_n$ os dados observados que a distribuição conjunta é indexada por um parâmetro $theta$ e assume valores em um conjunto $Omega$ na reta real (Cada observação $X_i$). Um estimador do parâmetro $theta$ é uma função $delta: Omega^n -> RR$ ($delta(X_1,...,X_n)$). Se $X_1=x_1,...,X_n=x_n$ são observados, então $delta(x_1,...,x_n)$ é uma estimativa de $theta$
+]
+
+Vale ressaltar a diferença entre *estimador* e *estimativa*. O *estimador* é uma função das variáveis aleatórias, ou seja, ele também é uma variável aleatória e pode ter sua distribuição derivada da distribuição conjunta de $X_1,...,X_n$. Já uma *estimativa* é o resultado de $delta(underline(X))$ após serem observado os valores $x_1,...,x_n$
+
+== Função de Perda
+Muito comumente, criamos um estimador $delta$ com o objetivo de aproximar um parâmetro $theta$, ou seja, um bom estimador é aquele que $delta(underline(x)) - theta approx 0$
+
+#definition("Função de perca")[
+  A função de perca é uma função real de duas variáveis $L(theta, a)$, onde $theta in Omega$ e $a in RR$. A interpretação é que $L(theta, a)$ decai conforme $a -> theta$
+]
+
+Queremos estimar $theta$ apenas com nossos valores observados, porém, vamos supor que não vimos nenhum ainda, então se escolhermos $a$ como uma estimativa, vamos ter:
+$
+  EE[L(theta, a)] = integral_Omega L(theta,a) xi(theta) dif theta wide "(LOTUS)"
+$
+
+== Estimador de Bayes
+Supondo agora que nós temos acesso as observações $underline(x)$. Então também temos acesso à distribuição posteriori $xi(theta|x_1,...,x_n)$, então podemos escolher uma estimativa $a$ tal que ela minimize:
+$
+  EE[L(theta, a)|underline(x)] = integral_Omega L(theta,a)xi(theta|underline(x)) dif theta
+$
+
+#definition("Estimador de Bayes")[
+  Seja $L(theta, a)$ uma função de perca. Para cada valor possível $underline(x)$ de $underline(X)$, deixe que $delta^*(underline(x))$ ser o valor de $a$ que minimiza $EE[L(theta,a)]$ é minimizado. Então $delta^*$ é chamado de *Estimador de Bayes* de $theta$. Uma vez que $underline(X) = underline(x)$ é observado, chamamos $delta^*(underline(x))$ de *estimativa bayesiana* de $theta$
+]
+
+Podemos também descrever como, para todos os valores possíveis de $underline(x)$, queremos:
+$
+  EE(L(theta, delta^*(underline(x))|underline(x))) = min_("Todos" a) EE(L(theta, a)|underline(x))
+$
+
+Algumas percas de função muito comum são:
+$
+  L(theta, a) = (theta-a)^2
+$<min-squared-error>
+$
+  L(theta, a) = |theta-a|
+$<median-error>
+
+#theorem[
+  Seja $L(theta, a) = (theta - a)^2$, então $delta^*(underline(x)) = EE(theta|underline(x))$
+]
+#proof[
+  Queremos provar que
+  $
+    EE[(X-mu)^2] <= EE[(X-d)^2] wide forall d in RR
+  $
+  E a igualdade só vale quando $mu = d$. Ou seja:
+  $
+    mu = "argmin"_(d in RR) EE[(X-d)^2]
+  $
+  Então:
+  $
+    EE[(X-d)^2] = EE[X^2 - 2X d + d^2]  \
+    
+    EE[X^2] - 2d EE[X] + d^2 = EE[X^2] - 2 d mu + d^2
+  $
+  Como queremos minimizar isso, com relação a $d$, vamos derivar:
+  $
+    diff / (diff d) (EE[X^2] - 2 d mu + d^2) = -2mu + 2d
+  $
+  E isso é igual a $0$ quando $d = mu$
+]
+
+#theorem[
+  Seja $L(theta, a) = |theta - a|$, então $delta^*(underline(x))$ é a mediana de $theta|underline(x)$
+]
+#proof[
+  $
+    EE|X-a| >= EE|X-m| wide forall a in RR
+  $
+  Então queremos provar que
+  $
+    EE|X-a| - EE|X-m| >= 0
+  $
+  Vamos assumir que $m < a$ ($m > a$ é análogo)
+
+  Se $X<=m$, então: $|X-a|-|X-m|=a-X-(m-X) = a - m$
+  
+  Se $X>m$, então: $|X-a|-|X-m|=X-a-X+m = m-a$
+
+  Defina então $Y = |X-a|-|X-m|$. Defina também:
+  $
+    II_X = cases(
+      1 "se" X <= m,
+      0 "se" X > m
+    )
+  $
+  Então teremos que:
+  $
+    EE(Y) &= EE(Y dot II_X) + EE(Y dot (1 - II_X)) \
+    
+    &>= (a-m)EE(II_X) + (m-a)EE(1-II_X)    \
+
+    &= (a - m)PP(X <= m) + (m - a)PP(X>m)    \
+
+    &= (a - m)PP(X <= m) - (a - m)(1 - PP(X<=m))   \
+
+    &= (a-m)(2 PP(X<=m) - 1) >= 0
+  $
+  Porém essa equação final é satisfeita pela definição de mediana!
+]
+
+Quando estamos tentando tentando estimar um parâmetro $theta$, queremos que, quanto mais amostras tivermos, ou seja, quando $n->infinity$, o nosso estimador vai convergindo para $theta$
+
+#definition("Consistência")[
+  Quando uma sequência $(delta_n)_(n>=1)$ converge para o valor verdadeiro do parâmetro $theta$, dizemos que $(delta_n)_(n>=1)$ é consistente para $theta$
+]
+
+Ou seja, com grandes quantidades de dados, a probabilidade do estimador $accent(theta, \^)$ estar *muito* próximo de $theta$ é alta
+
+== Estimadores para Parâmetros mais gerais
+Até agora nós vimos estimadores para os parâmetros em si, porém, as vezes podemos estar interessados em outras generalizações. Um exemplo de generalização é para estimar, por exemplo, dois parâmetros de uma só vez, como estimar uma média e uma variância (Saída multivariada) ou uma função do parâmetro em si, por exemplo, se $theta$ é a taxa de falha, então podemos querer estimar $1\/theta$ que é a média de falhas
+
+#definition("Estimador/Estimativa")[
+  Seja $X_1,...,X_n$ serem dados observados em que a distribuição conjunta é dado um parâmetro $theta in Omega subset RR^k$. Defina $h: Omega -> RR^d$. Defina $psi = h(theta)$. Um *estimador* de $psi$ é a função $delta(X_1,...,X_n): RR^n -> RR^d$. Se $X_1=x_1,...,X_n=x_n$ são observados, então $delta(x_1,...,x_n)$ é uma *estimativa* de $psi$
+]
+
+#pagebreak()
+
+#align(center + horizon)[
+  = Estatística Frequentista
+]
+
+#pagebreak()
+
+Até agora, tratamos o parâmetro $theta$ como uma variável com distribuição, onde ele poderia ter vários valores possíveis. Porém, agora vamos fazer uma abordagem diferente. Vamos imaginar que nosso valor de $theta$ é *fixo*, ele é um número pronto que *simplesmente não conhecemos*, então ele não tem distribuição nem nada do gênero
+
+== Estimadores/Estimações de Máxima Verossimilhança
+Já que estamos trabalhando com um valor fixo, sem distribuições nem nada do gênero, os métodos que vimos para a estimação de parâmetros não vai funcionar. Porém, tem algum método para que eu consiga fazer essa estimação sem ter uma distribuição priori/posteriori? *SIM*. Vamos pensar de uma maneira *intuitiva*, o que vou falar aqui é apenas uma aproximação intuitiva de como funciona o método, mas depois eu vou explicar o porquê de não ser exatamente o que estou dizendo
+
+Quando jogamos uma moeda, e observamos uma proporção de *caras* de $1\/20$, por exemplo, obviamente pensamos: "Essa moeda ta muito viciada". E então pensamos que a probabilidade de cair cara seja de *aproximadamente* $1\/20$. Essa intuição que temos é isso (Não exatamente) o que o método da *Estimação por Máxima Verossimilhança* faz
+
+#definition("Estimadores/Estimação de Máxima Verossimilhança")[
+  Seja $f(underline(X)|theta)$ a p.f ou a p.d.f de $X_1,...,X_n|theta$ e $theta in Omega subset RR^m$, a função $delta(underline(X)) = max_(theta) f(underline(X)|theta)$ é chamada de *Estimador de Máxima Verossimilhança*. Quando os valores $underline(x) = (x_1,...,x_n)$ são observados, então $delta(underline(x)) = max_(theta) f(underline(x)|theta)$ é chamado de *Estimativa de Máxima Verossimilhança*
+]
+
+Essa definição parece ser bem intuitiva, correto? Vamos ver um exemplo:
+
+#example[
+  Suponha que você tem $n$ variáveis de tal forma que:
+  $
+    X_1,...,X_n | theta ~ "Bern"(theta)
+  $
+  De forma que $theta$ é desconhecido. Para todos os valores $x_1,...,x_n$ observados, temos que a p.m.f conjunta é:
+  $
+    f(underline(x)|theta) = product_(i=1)^n theta^(x_i)(1-theta)^(1-x_i)
+  $
+  Em vez de maximizar esse troço, vamos maximizar o $log$ dele, já que, como ela é crescente, o máximo do $log$ também é o máximo da função em si. Tirando o log, temos:
+  $
+    ln(f(underline(x)|theta)) &= sum_(i=1)^n x_i ln(theta) + (1-x_i)ln(1-theta)    \
+
+    &= (sum^n_(i=1)x_i)ln(theta) + (n - sum^n_(i=1)x_i) ln(1-theta)
+  $
+  Derivando isso em relação a $theta$ e igualando a $0$, vamos ter que:
+  $
+    0 &= (sum^n_(i=1)x_i)1/theta - (n - sum^n_(i=1)x_i)1/(1-theta)    \
+
+    0 &= (n accent(x, -)_n) 1/theta - n(1 - accent(x, -)_n) 1/(1-theta)   \
+
+    0 &= accent(x, -)_n / theta - (1 - accent(x, -)_n) / (1 - theta)    \
+  $
+  $
+    0 &= (1 - theta)accent(x, -)_n - (1 - accent(x, -)_n) theta   \
+
+    0 &= accent(x, -)_n - theta accent(x, -)_n - theta + theta accent(x, -)_n   \
+
+    theta &= accent(x, -)_n
+  $
+
+  Ou seja, chegamos a uma conclusão razoável que o estimador que minimiza a verossimilhança é a média das variáveis de Bernoulli
+]
+
+Porém, nem sempre essa abordagem é viável, vamos ver um exemplo:
+
+#example[
+  Suponha que temos uma amostra $X_1,...,X_n|theta ~ "Unif"[0, theta]$, de forma que a distribuição é levemente alterada para ser da forma:
+  $
+    f(x|theta) = cases(
+      1/theta "para" 0 < x < theta,
+      0 "caso contrário"
+    )
+  $
+  Temos então que a máxima verossimilhança é:
+  $
+    f(underline(x)|theta) = cases(
+      1/theta^n "para" 0 < x_i < theta space (i=1,...,n),
+      0 "caso contrário"
+    )
+  $
+  Como $1\/theta^n$ é uma função decrescente, o valor de $theta$ que maximiza a função e ainda se encaixa na restrição $theta > max{x_1,...,x_n}$ seria $theta = max{x_1,...,x_n}$, porém, não podemos usar esse valor por conta da desigualdade *estrita* na função de verossimilhança. O que isso quer dizer? Que esse caso *não possui um Estimador de Máxima Verossimilhança*
+]
+
+O livro também aborda outros casos em que um mesmo caso pode ter *vários* estimadores ou casos em que um estimador, mesmo existindo, não demonstra ser um valor interessante/desejado.
+
+Mas eu falei antes que esses estimadores formalizavam a ideia de "O parâmetro $theta$ parece ser esse daqui", mas não é bem assim que funciona. A gente viu que ele é o parâmetro que *maximiza* a probabilidade daquela observação ocorrer. E qual é a diferença disso pro que falei antes? Simples, quando vemos os valores de observações, o fato de eles aparecerem daquela forma, não significa que o valor que $theta$ mais aparenta ser seja o real. Ué, como assim? Muitos fatores podem estar envolvidos, fatores que, logo de cara, não conseguimos observar apenas nos dados. Para que isso ocorresse, os dados deveriam conter muito mais informação do que tinhamos à priori (Antes das observações)
+
+== Propriedades
+#theorem[
+  Se $accent(theta, \^) in Omega$ é o Estimador de Máxima Verossimilhança (EMV) de $theta$ e $g$ é uma função bijetiva, então $g(accent(theta, \^))$ é o EMV de $g(theta)$
+]
+#proof[
+  Seja $Gamma$ o novo espaço paramétrico, ou seja, $g: Omega -> Gamma$. Vamos definir $h$ como sendo a função inversa, ou seja $theta = h(psi)$. Se expressarmos a p.d.f em função de $psi$, vamos obter $f(x|h(psi))$ e a função de verossimilhança será $f(underline(x)|h(psi))$.
+
+  Sabemos que o EMV $hat(psi)$ de $psi$ é vai ser o valor de $psi$ que maximiza $f(underline(x)|h(x))$. Como $f(x|theta)$ é maximizada quando $theta = hat(theta)$, então $h(psi) = hat(theta)$ maximiza a verossimilhança. Porém, aplicando $g$ em ambos os lados, obtemos que:
+  $
+    hat(psi) = g(hat(theta))
+  $
+]
+
+Essa propriedade é algo ótimo! Tendo em vista que no método anterior, o estimador de Bayes de $1\/theta$ podia ser diferente de $1\/hat(theta)$. Porém, podemos estender esse teorema para casos em que a função $g$ não é bijetiva. Vamos então definir o *estimador de uma função*
+
+#definition("MVE de uma Função")[
+  Seja $g(theta)$ uma função arbitrária do parâmetro com $g: Omega -> G$. Para cada $t in G$, defina $G_t := { theta : g(theta) = t }$ e $L^*(accent(t, \^)) := max_(theta in G_t) log f(underline(x)|theta)$, defina então o EMV de $g(theta)$ como $accent(t, \^)$ como:
+  $
+    L^*(accent(t,\^)) = max_(t in G_t) L^*(t)
+  $
+]
+
+#theorem[
+  Dado $accent(theta, \^)$ sendo o EMV de $theta$ e $g: Omega -> G$, então:
+  $
+    hat(g(theta)) = g(hat(theta))
+  $
+]
+#proof[
+  Como $L^*(t)$ é o máximo de $log f(underline(x)|theta)$ em $theta$ num subconjunto de $Omega$, e como $log f(underline(x)|hat(theta))$ é o máximo sob todos os $theta$, então sabemos que $L^*(t) <= log f(underline(x)|theta) space forall t in G$. Denote $hat(t) = g(hat(theta))$. Perceba que $hat(theta) in G_hat(t)$. Como $hat(theta)$ maximiza $f(underline(x)|theta)$ em todos $theta$, então ele também maximiza $f(underline(x)|theta)$ sob todos os $theta in G_hat(t)$. Por isso, $L^*(hat(t)) = log f(underline(x)|hat(theta))$ e $hat(t) = g(hat(theta))$ é um EVM de $g(theta)$
+]
+
+== Computação Numérica
+Muitos problemas possuem um EVM $hat(theta)$ de um parâmetro $theta$, porém esses não podem ser computados com fórmulas fechadas. Nesses casos, precisamos utilizar de métodos numéricos para aproximações. Existem *inúmeros* métodos de aproximação numérica de funções, porém, aqui vamos abordar brevemente apenas um
+
+#definition("Método de Newton")[
+  Seja $f(theta)$ uma função real de uma variável e suponha que nós desejamos resolver a equação $f(theta) = 0$. Seja $theta_0$ um chute inicial da solução e $theta_t$ o valor obtido na $t$-ésima iteração do programa. O método de Newton atualiza nossa resposta da seguinte forma:
+  $
+    theta_(t+1) = theta_t - f(theta_t) / (f'(theta_t))
+  $
+]
+
+Se pararmos para interpretar, o que o algoritmo faz é checar se eu tenho que mexer $theta_t$ para frente ou para trás dependendo do sinal e da inclinação de $f$. Quando $f(theta_t)$ é negativo e $f'(theta_t)$ é positivo, então eu preciso mover para a direita para poder chegar próximo a raíz, e aí vai
+
+
+#pagebreak()
+
+#align(center + horizon)[
+  = Método dos Momentos
+]
+
+#pagebreak()
+
+
+Lembra que estimamos o primeiro momento $EE[X] approx 1\/n dot sum^n_(i=1)X_i$? Será que da pra estimar os outros momentos de uma forma parecida? Na verdade sim! É bem intuitivo:
+
+#definition("Método dos Momentos")[
+  Suponha que $X_1, ..., X_n$ formam uma amostra aleatória de uma distribuição indexada por um parâmetro $k$-dimensional $theta$ e que tem, pelo menos, $k$ momentos finitos. Para $j=1,...,k$, deixe $mu_j (theta) = EE[X_1^j | theta]$. Suponha que a função $mu(theta) = (mu_1 (theta), ..., mu_k (theta))$ é uma função bijetiva de $theta$. Seja $M(mu_1, ..., mu_k)$ a função inversa, ou seja, para todo $theta$ é válido que:
+  $
+    theta = M(mu_1 (theta), ..., mu_k (theta))
+  $
+  Defina os _momentos amostrais_ como:
+  $
+    m_j = 1/n sum^n_(i=1) (X_i)^j
+  $
+  Para $j=1,...,k$. O _método do estimador de momentos_ de $theta$ é $M(m_1,...,m_j)$
+]<method-of-moments>
+
+O método mais usual de se implementar esse método é resolvendo todas as equações $m_j = mu_j (theta)$ e então resolver para $theta$
+
+#theorem("Consistência")[
+  Suponha que $X_1,X_2,...$ são i.i.d com uma distribuição indexada por um parâmetro $k$-dimensional $theta$. Suponha também que o os primeiros $k$ momentos da distribuição são finitos e existem para todo $theta$. Suponha também que a função inversa $M$ é definida como na @method-of-moments e é contínua. Então a sequência de estimadores pelo método dos momentos baseada em $X_1,...,X_n$ é uma sequência consistente de estimadores de $theta$
+]
+#proof[
+  A Lei dos Grandes Números diz que os momentos amostrais convergem em probabilidade para os momentos $mu_1 (theta), mu_2 (theta), ..., mu_k (theta)$. Isso implica que, ao generalizar isso para funções de $k$ variáveis isso implica que $M$, nos momentos amostrais, converge em probabilidade para $theta$
+]
+
+
+#pagebreak()
+
+#align(center+horizon)[
+  = Estatística Suficiente
+]
+
+#pagebreak()
+
+A gente viu alguns métodos para fazer estimativas que consistiam no uso de distribuições priori e posteriori. Porém, há alguns métodos que estimam dos parâmetros apenas utilizando de distribuições condicionais de funções dos dados.
+
+A gente viu antes que nem sempre os métodos de estimativa que a gente tem vão ser interessantes ou vão ser boas estimativas (Para melhor detalhes, pode conferir os exemplos do livro). Nesses casos, precisamos desenvolver métodos novos de estimativa para nossos parâmetros.
+
+Imagina que nós temos uma amostra elatória $X_1,...,X_n$ e temos dois estatísticos, o $A$ e o $B$. Vamos supor que $A$ tem acesso a todos os valores de $X_1,...,X_n$, enquanto $B$ só pode saber sobre uma estimativa específica $T = r(X_1,...,X_n)$. Qual deles vai poder fazer melhores estimativas para $theta$? Com certeza o mano estatístico $A$! Porém, entretudo, todavia, em alguns problemas, o estatístico $B$ pode fazer estimativas tão bem quanto o estatístico $A$, pois a função $T$ pode, de alguma forma, conter todas as informações relevantes e necessárias para que meu problema possa ser solucionado! Quando $T$ tem essa característica, chamamos ela de *estatística suficiente*
+
+#definition("Estatística Suficiente")[
+  Seja $X_1,...,X_n$ uma amostra aleatória de uma distribuição indexada pelo parâmetro $theta$ e $T$ uma estatística. Suponha também que, para todo $theta$ e todo valor possível $t$ de $T$, a distribuição conjunta de $X_1,...,X_n|T=t, theta$ depende apenas de $t$ e não de $theta$. Ou seja, para cada $t$, a distribuição conjunta de $X_1,...,X_n|T=t,theta$ é a mesma *para todo* $theta$. Então dizemos que $T$ é uma *estatística suficiente para o parâmetro $theta$*
+]
+
+A principal característica que separa estatísticas suficientes de não-suficientes é a dependência no valor de $theta$. O livro traz um processo chamado *randomização auxiliar*, que consiste em simular variáveis $X'_1,...,X'_n$ com mesma distribuição que $X_1,...,X_n|theta$, porém, essas variáveis simuladas são feitas baseando-se única e exclusivamente numa estatística suficiente $T$. Se a estatística $T$ não fosse suficiente, não conseguiriamos nem fazer a randomização auxiliar, pois necessariamente precisariamos saber qual seria o valor de $theta$
+
+Com esse processo fica fácil de ver agora o porquê de o estatístico $B$ conseguir se sair tão bem quanto o estatístico $A$. Se $A$ vai utilizar de um estimador $delta(X_1,...,X_n)$ para estimar $theta$, se $B$ tiver acesso a estatística suficiente $T$, então ele pode criar variáveis auxiliares $X'_1,...,X'_n$ que tem mesma distribuição que as originais, então de $B$ utilizar o estimador $delta$ porém aplicando as suas variáveis $delta(X'_1,...,X'_n)$, então a distribuição do estimador de $A$ é a mesma distribuição do estimador de $B$
+
+== Critério de Fatoração
+Agora nos é apresentado um método de identificar estatísticas suficientes (Um teorema bem interessante) desenvolvido por R. A. Fisher em 1922, J. Neyman em 1935 e P. R. Halmos e L. J. Savage em 1949
+
+#theorem("Critério da Fatoração")[
+  Sejam $X_1,...,X_n$ uma amostra aleatória de uma distribuição contínua ou discreta para qual a p.d.f ou a p.f é $f(x|theta)$, onde o valor de $theta$ é desconhecido e pertence a um espaço paramétrico $Omega$. Uma estatística $T = r(X_1,...,X_n)$ é *suficiente* para $theta$ *se, e somente se,* a função de densidade ou de massa conjunta $f(underline(x)|theta)$ de $X_1,...X_n$ pode ser fatorada, para todos os valores de $x=(x_1,...,x_n) in RR^n$ e para todos os valores de $theta in Omega$, da seguinte forma:
+  $
+    f(underline(x)|theta) = u(underline(x)) v(r(underline(x)), theta)
+  $
+  Onde $u$ e $v$ são não-negativas. $u$ pode depender em $underline(x)$ mas não em $theta$ e $v$ pode depende em $theta$ e na estatística $t$
+]
+#proof[
+  Vamos fazer a prova só para o caso que $X$ tem uma distribuição discreta, ou seja:
+  $
+    f(underline(x)|theta) = PP(X_1=x_1,...,X_n=x_n|theta)
+  $
+  Primeiro vamos fazer a volta. Então vamos supor que $f(underline(x)|theta)$ pode ser fatorado daquela forma. Para cada valor possível $t$ da estatística $T$, denote $A(t)$ como sendo o conjunto de todos os pontos $underline(x) in RR^n$ tal que $r(underline(x)) = t$. Para cada valor de $theta in Omega$, nós vamos determinar a distribuição condicional de $underline(X)$ dado $T=t$, então para todo ponto $underline(x) in A(t)$:
+  $
+    PP(underline(X)=underline(x)|T=t, theta) =
+    
+    PP(underline(X)=underline(x)|theta) / PP(T=t|theta) =
+    
+    f(underline(x)|theta) / ( sum_(underline(y) in A(t)) f(underline(y)|theta) )
+  $
+  Como $r(underline(y))=t$ para todo ponto $underline(y) in A(t)$ e como $underline(x) in A(t)$, então vamos ter que:
+  $
+    PP(underline(X)=underline(x)|T=t, theta) = u(underline(x)) / ( sum_(underline(y) in A(t)) u(underline(y)) )
+  $
+  Finalmente, para todo ponto $underline(x) in.not A(t)$:
+  $
+    PP(underline(X)=underline(x)|T=t, theta) = 0
+  $
+  Conseguimos ver, então, que a distribuição conjunta de $X$ não depende de $theta$, mas somente de $T$. Logo, por definição, $T$ é uma estatística suficiente
+
+  Agora para fazer a ida, vamos supor que $T$ é uma estatística suficiente. Então para todo valor dado $t$ de $T$, todo ponto $underline(x) in A(t)$ e todo valor $theta in Omega$ a probabiidade condicional $PP(underline(X)=underline(x)|T=t,theta)$ não vai depender de $theta$ (Como vimos anteriormente), então vai ser da forma:
+  $
+    PP(underline(X)=underline(x)|T=t,theta) = h(underline(x))
+  $
+  Se chamarmos $PP(T=t|theta) = v(t,theta)$, então temos:
+  $
+    PP(underline(X)=underline(x)|theta) &= PP(underline(X)=underline(x)|T=t,theta)PP(T=t|theta)   \
+
+    &= u(underline(x)) v(t, theta)
+  $
+  Assim, provamos (Para o caso discreto) que o teorema é válido (Também é válido para o caso contínuo, mas requer métodos diferentes e não será abordado)
+]
+
+Nós vimos anteriormente que, ao calcular a posteriori, ela era proporcional única e excluisivamente ao valor de $theta$, de forma que tudo que não era relacionado a $theta$ podia ser movido para a constante de proporcionalidade. Algo parecido ocorre aqui!
+
+#corollary[
+  Uma estatística $T = r(underline(X))$ é suficiente *se, e somente se,* não importa qual seja a distribuição a priori, a distribuição a posteriori de $theta$ depende dos dados única e exclusivamente através do valor de $T$
+]
+
+
+#pagebreak()
+
+#align(center+horizon)[
+  = Melhorando um Estimador
+]
+
+#pagebreak()
+
+Como diz o título, nesse capítulo a gente tem como objetivo aprender a dizer quando um estimador é "bom". Eu coloquei bom entre aspas pois, dando um certo spoiler, as vezes um estimador pode ser relativamente bom, e podemos nos contentar com ele, porém podem existir estimadores melhores
+
+Primeiro de tudo, vamos definir nossa amostra $underline(X) = (X_1,...,X_n)$ e ela tem uma pdf ou uma pmf $f(underline(x)|theta)$. Também vamos definir a esperança em $theta$ como:
+$
+  EE_theta [Z] = integral_(-infinity)^(infinity) ... integral_(-infinity)^(infinity) g(underline(x)) f(underline(x)|theta) dif x_1 ... dif x_n
+$
+Onde, nesse caso, $Z = g(X_1,...,X_n)$ (E $f(underline(x)|theta)$ é uma pdf). Vale ressaltar também que, se $theta$ é uma variável aleatória, $EE_theta [Z] = EE[Z|theta]$. Essas informações que eu dei foram apenas para contextualizar o nosso próximo objetivo (Ué, vai falar o próximo objetivo sem nem terminar o principal? É que a gente vai entender o principal a partir desse daqui)
+
+O nosso objetivo agora (A partir dele a gente vai entender o principal que citei antes) é tentar estimar o valor de $h(theta)$ (Estimar uma função qualquer de $theta$). Show! Então a gente quer um estimador que seja bem próximo e o erro dele em relação a $h(theta)$ é baixo. Vamos então tomar uma função de perca pra comparar eles dois! Vamos usar a clássima:
+$
+  L(theta, a) = (theta - a)^2
+$
+A *perca quadrática*. Então a gente quer um estimador que, ao longo prazo, faça com que essa perca seja pequena. Então faz sentido a gente ver a esperança desse erro com relação ao valor do $theta$
+$
+  R(theta, delta) = EE_theta [L(h(theta), delta(underline(X)))] = EE_theta [(h(theta) - delta(underline(X)))^2]
+$
+Macho, o que diabos isso significa? Só pra refrescar, tirar a esperança de uma variável é tipo saber qual valor ela mais vai retornar ao longo prazo. Então faz sentido a gente pegar o valor que esse erro vai me retornar ao longo prazo (Dado um valor de $theta$) pra poder fazer comparações depois com outros estimadores.
+
+#definition("Risco")[
+  Dada uma variável aleatória $X$ com uma distribuição indexada pelo parâmetro $theta$ e uma amostra dela $underline(X) = (X_1,...,X_n)$, o risco de um estimador $delta(underline(X))$ de $h(theta)$ é:
+  $
+    R(h(theta), delta(underline(X))) = EE_theta [L(h(theta), delta(underline(X)))]
+  $
+  Onde $L(x, y)$ é uma função de perca arbitrária
+]
+
+Se a gente não sabe uma distribuição priori de $theta$, então a gente quer encontrar um estimador que faça com que a perca $L(theta, delta)$ seja pequena para todo valor de $theta$ ou pelo menos para uma grande parte.
+
+Dado esse contexto, a gente vai mostrar que, se um estátistico $A$ tem acesso a $X_1,...,X_n$ e o $B$ tem acesso a uma estatística $T$, se $A$ tenta estimar $h(theta)$ usando $delta(underline(X))$, então o nosso mano $B$ consegue encontrar um outro estimador $delta_0 (underline(X))$ usando somente a estatística $T$ que ele é melhor ou tão bom quanto o estimador do $A$, ou em termos matemáticos:
+$
+  R(theta, delta_0) <= R(theta, delta)
+$
+
+A gente vai definir o estimador do mano $B$ como:
+$
+  delta_0 (underline(T)) = EE_theta [delta(underline(X))|T]
+$
+
+Eu sei que parece que eu to colocando a carroça na frente dos bois ja entregando de bandeja qual é o estimador, mas a gente vai mostrar que esse carinha bate a descrição que eu comentei antes. Mas antes de tudo, a gente tem que saber se esse cara ao menos pode ser usado como estimador de $theta$. Pra isso, ele não pode depender de $theta$ (Afinal, não faz sentido estimar uma coisa usando ela mesma).
+
+A gente sabe que $f(x_1,...,x_n|T,theta) = f(x_1,...,x_n|T)$, então pra qualquer valor de $T$, eu vou ter que:
+$
+  EE_theta [delta(underline(X))|T] &= integral_(-infinity)^(infinity) ... integral_(-infinity)^(infinity) delta(underline(x)) f(underline(x)|T,theta) dif x_1 ... dif x_n    \
+
+  &= integral_(-infinity)^(infinity) ... integral_(-infinity)^(infinity) delta(underline(x)) f(underline(x)|T) dif x_1 ... dif x_n
+$
+
+Ou seja, $delta_0 (T)$ não depende de $theta$, então eu posso usar ele como estimador de $theta$
+
+Uma coisa que vale ressaltar, eu vou fazer um teorema que mostra essa propriedade, porém eu vou denotar a estatística suficiente como $underline(T) = (T_1,...,T_n)$, de forma que $T_i$ são estatísticas conjuntamente suficientes (Elas sozinhas não dizem nada, porém, a união de todas elas forma uma estatística suficiente. Todos os teoremas que vimos anteriormente que usam estatísticas suficientes valem também para esse caso vetorial)
+
+#theorem[
+  Se $delta(underline(X))$ é um estimador e $underline(T)$ uma estatística conjuntamente suficiente para $theta$ e $delta_0 (underline(T)) = EE_theta [delta(underline(X))|underline(T)]$, então vale que:
+  $
+    R(theta, delta_0) <= R(theta, delta) wide forall theta in Omega
+  $
+]<best-estimator-theorem>
+#proof[
+  Se $R(theta, delta)$ é infinito pra algum $theta$, então a condição já é satisfeita ($infinity <= infinity$)
+
+  Então vamos considerar que $R(theta, delta)$ é finito. Pela definição de variância, temos que:
+  $
+    EE_(theta) [(delta(underline(X)) - theta)^2|underline(T)] >= (EE_(theta) [delta(underline(X)) - theta|underline(T)])^2
+  $
+  Se esse passo deixou confusa, use a propriedade $VV[X] = EE[X^2] + (EE[X])^2$ em
+  $
+    VV_theta [delta(underline(X))-theta|underline(T)]
+  $
+  Continuando, vamos ter que:
+  $
+    EE_(theta) [(delta(underline(X)) - theta)^2|underline(T)] >= (EE_(theta) [delta(underline(X))|underline(T)] - theta)^2
+  $
+  Aplicando a esperança em relação a $theta$ novamente em ambos os lados, pela Lei de Adão ($EE[EE[X|Y]] = EE[X]$), temos que:
+  $
+    EE_(theta) [(delta(underline(X)) - theta)^2] >= EE_(theta)[(delta(underline(X))|underline(T)] - theta)^2]   \
+
+    EE_(theta) [(delta(underline(X)) - theta)^2] >= EE_(theta)[delta_0 (underline(T)) - theta)^2]
+  $
+]
+
+Podemos criar uma definição interessante também:
+
+#definition("Estimador Admissível, Inadmissível e Dominante")[
+  Suponha que $R(theta, delta)$ é definida utilizando a função de perca quadrática. Então dizemos que um estimador $delta$ é *inadmissível* se existe um outro estimador $delta_0$ tal que $R(theta, delta_0) <= R(theta, delta)$ para todo valor $theta in Omega$ e *existe a relação de desigualdade pra pelo menos 1 valor de $theta$*. Se essas condições são satisfeitas, dizemos que o estimador $delta_0$ *domina* o estimador $delta$. Um estimador é *admissível* quando nenhum outro estimador o domina
+]
+
+Essa definição parece meio complicadinha, mas ela traz uma implicação bem fácil de entender. Um estimador $delta$ que *não é* uma função de uma estatística suficiente $T$ apenas *deve ser inadmissível*. Além do fato que o teorema @best-estimator-theorem mostra explicitamente um estimador melhor que $delta$. Na prática isso costuma ser menos útil já que nem sempre calcular $delta_0$ é uma tarefa fácil
+
+== Limitações de uma Estatística Suficiente
+Vimos que as estatísticas suficientes são muito úteis, porém, nem sempre é fácil achá-las. Sua existência e formato depende criticamente de como é a estrutura de $f(x|theta)$. Então pode acabar que estamos em dúvida entre duas funções de verossimilhança para aplicar ao nosso problema, dependendo da que escolhermos, pode ser muito complicado achar uma estatística suficiente! Além de que podemos nos interessar em montar um estimador que se aplique bem em ambas as minhas verossimilhanças, mesmo que ele não seja o melhor (Esse estimador é chamado de *estimador robusto*)

@@ -537,3 +537,169 @@ Os *Fact Measures* são informações dentro do fato que *não se aplicam em nen
 #example[
   Queremos criar o fato *venda*, ele engloba as dimensões de *produto*, *cliente*, *loja*, *calendário* e *vendedor*. Porém, não faz sentido, por exemplo, colocar a quantidade de produtos comprados em *nenhuma dimensão*, ou o *valor total da compra*, de forma que essas informações são localizadas única e exclusivamente no fato
 ]
+
+Vale ressaltar que, dado a dimensão $i$, a sua chave-primária *não é a mesma chave-primária do modelo relacional*, pois a repetição dos registros pode ocorrer sem problema nenhum. Como aplicar chaves-primária nas dimensões e nos fatos será visto posteriormente
+
+== Como um fato se organiza?
+Uma tabela de fatos tem:
+- Chaves-estrangeiras conectando a tabela de fato para as tabelas de dimensões
+- As medidas relacionadas ao sujeito da análise
+
+#figure(
+  caption: [Exemplo do Esquema Estrela nas lojas zagi],
+  image("images/zagi-stores-star-schema.png")
+)
+
+Os principais pontos a se destacar é que, no modelo estrela, nós não colocamos o *id* do modelo relacional como a chave-primária da dimensão. Por quê? Por conta que *não há normalização*, por conta disso, podem aparecer chaves-primárias repetidas, algo que *não pode acontecer*. Então criamos as *chaves substitutas* (Surrogate keys), que são chaves que não se repetem na tabela de dimensão (Não são as mesmas chaves do modelo transacional). Porém, o mesmo não acontece na tabela de fatos, ela não possui uma surrogate key, então o que diferencia um fato dos demais?
+
+#figure(
+  caption: [Exemplo correto do modelo dimensional das lojas zagi],
+  image("images/zagi-store-correct-star-schema.png")
+)
+
+Podemos ter algumas abordagens *arbitrárias* para identificar os fatos. Por exemplo, na imagem acima, nós diferenciamos dois fatos pelo *id da transação* e pela *surrogate key* do produto, já que um produto comprado só pode estar associado a *uma única transação*. Eu também poderia identificar um fato utilizando uma *chave composta* das *chaves-estrangeiras* das dimensões (Tem alguns problemas e questionamentos para esse exemplo em específico, mas vamos supor que não precisa de alterações a mais)
+
+== Galáxia de Estrelas
+É um modelo que contém *vários fatos* que compartilham *dimensões* entre si
+
+#figure(
+  caption: [Modelo ZAGI adaptado],
+  image("images/zagi-adapted.png")
+)
+
+#figure(
+  caption: [Galáxia ZAGI],
+  image("images/zagi-galaxy.png")
+)
+
+== Detalhamento de Fatos
+Antes disso, precisamos entender melhor sobre a *granularidade* da tabela. A granularidade e refere a o que uma única linha de uma tabela se refere. Tabelas de fato com um refinamento alto de granularidade expressam um único fato, enquanto tabelas com granularidade maior expressam, em suma, um conjunto de fatos agrupado. Por conta desse detalhamento v.s agrupamento, ambas possuem suas vantagens e desvantagens
+
+Com base na granularidade da tabela, podemos classificá-la em duas:
+
+- *Line-item detailed fact table*: Cada linha representa uma linha de item de uma transação em particular
+- *Transaction-level detailed fact table*: Cada linha representa uma transação em particular
+
+Um exemplo fica melhor de compreender
+
+#example[
+  Vamos imaginar que temos um negócio de aluguel de carro, e que nós alugamos o carro de forma que o nosso cliente pode escolher alguns acessórios a mais (Por exemplo, ele vai pagar $R\$40,00$ adicionais para colocar uma cadeirinha de bebê). Como cada transação pode ter características diferentes, faz sentido que cada fato de transação tenha uma especificação dizendo os itens específicos que foram juntos, então teríamos uma *line-item detailed fact table*.
+
+  Mas vamos supor que você não da essa opção aos clientes, e eles tenham que escolher baseado em categorias (Por exemplo, a categoria A é mais barata, não tem ar-condicionado, não tem gps, entre outras coisas e eu tenho outras categorias também), então não faz muito sentido adicionar *na tabela fatos* todas as coisas inclusas nas categorias, e sim adicionar isso na *dimensão* do fato, já que não é algo que varia de fato para fato. Nesse caso, teríamos uma *transaction-level detailed fact table*
+]
+
+== Dimensões Lentamente Alteráveis
+Normalmente as dimensões não conseguem mudar, porém, alguns casos elas podem. Por exemplo, o preço de um produto pode variar. O que fazemos nesses casos? Essas dimensões são chamadas de *dimensões lentamente alteráveis*. Então vamos temos 3 abordagens diferentes:
+
+=== Tipo 1
+Eu vou mudar o valor na própria tabela de dimensão, ou seja, o novo valor substitui o antigo. Não preserva uma história dessa dimensão
+
+#figure(
+  caption: [Exemplo onde o Imposto de Susan é alterado para *Alto*],
+  image("images/slowly-changing-dimensions-type-1.png", width: 60%)
+)
+
+=== Tipo 2
+Cria uma nova entrada na dimensão usando uma nova *surrogate key* toda vez que o valor muda. Usado em casos que eu quero preservar a história do meu sistema. Porém eu preciso de um método para indicar qual entrada está *vigente*, então utilizamos atributos como *timestamps*
+
+#figure(
+  caption: [Exemplo criando uma nova linha de Susan. Dependendo da situação que você se encontra, pode ser plausível *não utilizar* colunas de identificação temporal],
+  image("images/slowly-changing-dimensions-type-2.png", width: 70%)
+)
+
+=== Tipo 3
+Agora adicionamos uma nova coluna de "anterior" e de "atual" para cada coluna que pode ser alterada. Aplicável quando há uma quantidade limitada de alterações possíveis em uma coluna (Por exemplo, se eu tenho uma única coluna de "anterior" e uma única coluna de "novo", então sempre que eu atualizo a minha dimensão, eu eu vou perder a informação anterior à anterior da que eu atualizei agora, ou seja, se eu tinha que `anterior=1` e `atual=2` e eu atualizo novamente, então vou obter `anterior=2` e `atual=3`, de forma que eu perco o $1$)
+
+#figure(
+  caption: [Exemplo registrando apenas duas mudanças. Dependendo da situação, você também pode *não fazer* colunas de *identificação temporal*],
+  image("images/slowly-changing-dimensions-type-3.png", width: 80%)
+)
+
+== Modelo Floco de Neve (Snowflake)
+Como dito anteriormente, a grande diferença dele pro anterior (Modelo estrela) é a presença de *normalização*, já que é muito defendido que normalização não é algo muito necesário para análise de dados
+
+#figure(
+  caption: [Exemplo do Modelo Floco de Neve],
+  image("images/snowflake-example.png")
+)
+
+== Abordagens de Datawarehouses
+Vimos esse meio de se criar o Data Warehouse utilizando dos modelos estrela e floco de neve, porém, existem alguns métodos para abordar os Data Warehouses de formas diferentes. Porém, quando falamos de formas diferentes, não estamos dizendo que, por exemplo, se escolhermos uma dessas formas, automaticamente não podemos usar um modelo estrela, mas são algumas abordagens extras que podemos integrar dependendo do contexto
+
+=== Data Warehouses Normalizados
+Data warehouses utilizando de práticas-padrão de modelagem ER, de forma que ele mesmo serve como fonte para outros Data Warehouses que utilizam da modelagem dimensional e Data Marts dentro da empresa
+
+#figure(
+  caption: [Data Warehouse Normalizado],
+  image("images/normalized-data-warehouse.png")
+)
+
+=== Data Warehouse em Modelo Dimensional
+Foi o que vimos na criação de Data Warehouses até esse momento, dividido em tabelas de dimensões e tabelas de fatos, onde um fato representa um acontecimento de interesse dentro do contexto do negócio e as dimensões são informações externas ao fato, mas que tem participação interna à ele
+
+=== Data Marts Independentes
+É quando vários *Data Marts* são criados em instâncias e setores diferentes da empresa, todos independentes um do outro. Consequentemente, isso faz com que *vários ETL's* sejam criados
+
+#figure(
+  caption: [Data Marts Independentes],
+  image("images/independent-data-marts.png", width: 70%)
+)
+
+Essa abordagem é considerada inferior, já que inviabiliza uma análise *direto-ao-ponto* de toda a empresa e a existência de *vários* ETL's *não relacionados*
+
+#pagebreak()
+
+#align(center + horizon)[
+  = ETL e OLAP
+]
+
+#pagebreak()
+
+Ainda vamos trabalhar dentro do contexto de *Data Warehouses*, porém, mesmo estando nesse escopo, *ETL* ainda merece um capítulo só para ele.
+
+ETL é um script ou um cojunto de scripts com 3 objetivos principais:
+
+== Extrair
+O ETL vai recuperar os dados analíticos úteis das devidas fontes e, eventualmente, serão carregados no Data Warehouse. O que vai ser extraído é *determinado na etapa de requisitos*
+
+== Transformação
+Transformar a estrutura de dados coletada das fontes em estruturas compatíveis com o Data Warehouse modelado. O controle e melhoría da qualidade dos dados também estão inseridos nessa etapa.
+
+=== Transformações Ativas
+Após a transformação da estrutura de dados retornada pela *fonte*, a nova estrutura possui um número diferente de linhas (Quantidade de informações)
+
+#example[Remoção de duplicatas, agregação de linhas, dimensões de mudança lenta (Tipo 2), etc.]
+
+=== Transformações Passivas
+Após a transformação da estrutura de dados retornada pela *fonte*, a nova estrutura não possui alterações no número de linhas (Quantidade de informações)
+
+#example[Gerar surrogate keys, atributos derivados, etc.]
+
+== Load/Carga
+Insere (Carrega) os novos dados de qualidade garantida no Data Warehouse. É um processo automatico que deve ser idealizado para que o usuário não tenha que se preocupar com o processo
+
+Temos dois tipos de Load em um ETL:
+
+#definition("Carga Inicial")[
+  Preenche um Data Warehouse vazio. Pode envolver grandes quantidades de dados, dependendo de qual é o horizonte de tempo desejado dos dados no data warehouse recém-iniciado
+]
+
+#definition("Carga de Atualização")[
+  Atualiza um Data Warehouse já iniciado. Feito em um período pré-determinado pela empresa (*Ciclo de Atualização*). Em *Data Warehouses ativos*, essas cargas ocorrem continuamente (Em microlotes)
+]
+
+== Infraestrutura de um ETL
+Normalmente, o processo de criação da infraestrutura ETL inclui o uso de ferramentas de software ETL especializadas e/ou código salvos. Devido à quantidade de detalhes que deve ser considerada, a criação de infraestrutura ETL é muitas vezes a parte que mais consome tempo e recursos no processo de desenvolvimento do data warehouse. Embora trabalhoso, o processo de criação da infraestrutura ETL é essencialmente predeterminado pelos resultados dos processos de coleta de requisitos e modelagem de data warehouse que especificam as fontes e o destino
+
+== Processamentos
+Temos dois tipos de processamento de informações, na disciplina de Banco de Dados, analisamos os conceitos de OLTP, em Modelagem Informacional, estamos abordando a OLAP
+
+#definition("Online Transaction Processing (OLTP)")[
+  Atualização (Inserção, Remoção, Modificação), consultar e apresentar dados para fins operacionais
+]
+
+#definition("Online Analytical Processing (OLAP)")[
+  Consultar e apresentar dados de Data Warehouses e/ou Data Marts para fins analíticos
+]
+
+e temos os chamados *OLAB / BI Tools* que são ferramentas que permitem os usuários fazer alterações estruturais de forma intuitiva em um Data Warehouse, como apenas com cliques no mouse. Basicamente um frontend para mexer num Data Warehouse diretamente
