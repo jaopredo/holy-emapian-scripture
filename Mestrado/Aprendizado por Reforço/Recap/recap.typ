@@ -2,6 +2,7 @@
   #import "@preview/lovelace:0.3.0": *
   #show: thmrules.with(qed-symbol: $square$)
   
+  #import "@preview/wrap-it:0.1.1"
   #import "@preview/codly:1.3.0": *
   #import "@preview/codly-languages:0.1.1": *
   #show: codly-init.with()
@@ -689,7 +690,112 @@ Na figura à direita, temos a tabela de valores de estado $v_pi (s)$ para uma po
 )
 ]
 
-#example[
+Vamos para outro exemplo um pouco mais difícil:
 
+
+#example[ Golfe
+#wrap-it.wrap-content(
   
+  figure(
+    caption: [Exemplo do algoritmo para simular um jogo de golfe, imagem superior usa apenas a tacada putter, enquanto a imagem inferior usa $q_* (s,a)$, com $a$ sendo a tacada driver.],
+    image("../Img/golfexample.png", width: 118%),
+    
+  ),
+  [
+   Para formular o ato de jogar um buraco de golfe como uma tarefa de RL, contamos uma penalidade de -1 para cada tacada até que acertemos a bola no buraco, recebendo a recompensa 0. O estado é a localização da bola, e as ações são a forma como miramos e escolhemos o taco. 
+   
+   Vamos supor que a mira já está determinada, e consideremos apenas a escolha do taco, que pode ser putter (curta distância) ou driver (longa distância). A imagem superior ao lado mostra uma possível função de valor de estado $v_"putt" (s)$, para política que sempre usa o putter.
+
+  De qualquer ponto do green, supomos que podemos fazer um putt (acertar o buraco); esses estados têm valor −1. Fora do green, não conseguimos chegar ao buraco apenas no putter, então o valor é mais negativo.
+  ],
+)
+Como mostrado na primeira imagem do exemplo, o contorno da imagem mostra a distância do objetivo e, usando o taco putter, notamos que partindo do início, precisariamos de 6 tacadas até chegar ao buraco. Ainda, no segundo exemplo, notamos que usando a tacada driver, precisaríamos apenas de 3 tacadas para chegar ao buraco. Porém, note que temos a areia, que traz a recompensa negativa de $- infinity$. 
+
+Como a areia está apenas perto do buraco, e, sabendo que a tacada driver consegue jogar a bola mais longe mas com menos precisão, é esperado que o agente aprenda a melhor política $pi_*$ que combinaria as duas, usando o driver no começo e o putter no fim
 ]
+
+== 3.6 Políticas Ótimas e Funções de Valor Ótimas
+
+Uma política $pi$ é ótima se ela for melhor ou igual a qualquer outra política $pi'$. Enunciando melhor, $pi >= pi' <=> v_pi (s) >= v_pi' (s) $ para todo $s in cal(S)$. Sabendo que podem existir mais do que uma, as políticas ótimas são denotadas como $pi_*$. Elas compartilham a melhor função de estado-valor, chamada de função de estado-valor ótima e denotada como:
+
+$
+  v_* (s) dot(eq) max_pi v_pi (s), " para todo" s in cal(S)
+$
+
+
+Ainda, políticas ótimas compartilham as mesmas funções de ação-valor ótimos, definidas como:
+
+$
+  q_* (s,a) dot(eq) max_pi q_pi (s,a), " para todo" s in cal(S) " e " a in cal(A)
+$
+
+#example[Continuação do exemplo de golfe
+
+A imagem de baixo mostra uma possível função de valor-ótima, $q_*$. Como dito, o driver nos permite bater na bola mais longe, mas com menos precisão. Podemos alcançar o buraco em uma única tacada usando o driver apenas se estivermos bem perto, por isso, o contorno de valor $-1$ de $q_* (s, "driver")$ cobre apenas uma pequena região ao redor da área verde.
+
+Se tivermos duas tacadas, entretanto, podemos chegar ao buraco a partir de locais mais distantes, conforme mostrado pelo contorno de $−2$. Nesse caso, não precisamos atingir diretamente o buraco com o driver, basta chegar até a área verde, onde então podemos usar o putter.
+
+Da posição inicial (tee), o melhor conjunto de ações é duas tacadas com o driver e uma com o putter, totalizando três tacadas até o buraco.
+]
+
+Note que o valor de um estado sob a política ótima, deve ser igual ao retorno esperado de tomar a melhor ação possível a partir desse estado. Formalmente:
+
+$
+  v_* (s) &= max_(a in cal(A)(s)) q_pi_* (s,a)\
+  & = max_a EE_pi_* [G_t | S_t = s, A_t = a]\
+  & = max_a EE_pi_* [R_(t+1) + gamma G_(t+1) | S_t = s, A_t = a]\
+  & = max_a EE_pi_* [R_(t+1) + gamma v_* (S_(t+1)) | S_t = s, A_t = a]\
+  & = max_a sum_(s', r) p(s', r | s,a) [r + gamma v_* (s')] 
+$
+
+Essa é a chamada equação de Bellman de otimalidade. O mesmo raciocínio segue para a equação de Bellman de otimalidade para $q_*$:
+
+$
+  q_* (s,a) & = EE[R_(t+1) + gamma max_a' q_* (S_(t+1), a') | S_t = s, A_t = a]\
+  & =  sum_(s', r) p(s', r | s,a) [r + max_a' q_* (s',a')]
+$
+
+Os diagramas de backup são os mesmos usados anteriormente, exceto que os arcos nos pontos de escolha do agente tem um max.
+
+#show figure.caption: set align(left)
+#figure(
+    image("../Img/maxthebellman.png", width:80%),
+    caption: [Diagramas anteriores, representando a equação de Bellman de otimalidade para $v_pi$ e $q_pi$, respectivamente.]
+)
+
+Para MDPs finitos, a equação de otimalidade de Bellman tem uma única solução. Além disso, uma vez que se tenha $v_*$, é relativamente fácil determinar uma política ótima. 
+
+Para cada estado $s$, haverá uma ou mais ações nas quais o máximo é atingido na equação de otimalidade de Bellman.
+Qualquer política que atribua probabilidade diferente de zero a essas ações é uma política ótima.
+
+Podemos pensar nisso como uma busca de um passo.
+Se temos a função de valor ótima $v_*$, então as ações que parecem melhores após uma busca de um passo já são ações ótimas.
+
+Ter $q_*$ também torna a escolha das ações ótimas ainda mais fácil, pois, para qualquer estado $s$, o agente pode simplesmente encontrar a ação $a$ que maximiza $q_* (s,a)$. A função de valor-ação $q_*$ efetivamente armazena (faz cache) os resultados de todas as buscas de um passo à frente.
+
+#example[ Continuação do exemplo de GridWorld
+
+Suponha que resolvemos a equação de Bellman para $v_*$ para o grid simples introduzido no exemplo anterior. A figura do meio mostra a função ótima do valor, enquanto a função da direita mostra as políticas ótimas correspondentes.
+
+#show figure.caption: set align(left)
+#figure(
+    image("../Img/maxgridworld.png", width:70%),
+    caption: [Solução ótima para o problema GridWorld]
+)
+]
+
+
+=== faltou o exemplo 3.9
+
+== 3.7 Otimização e aproximação
+
+Um agente que aprende uma política ótima teve um excelente desempenho. Mas, na prática, isso só acontece com alto custo computacional. Mesmo que tenhamos um modelo completo e preciso das dinâmicas do ambiente, geralmente não é possível simplesmente calcular uma política ótima resolvendo a equação de otimalidade de Bellman.
+
+Por exemplo, jogos de tabuleiro como o xadrez representam apenas uma fração minúscula da experiência humana, e mesmo assim grandes computadores especialmente projetados ainda não conseguem calcular as jogadas ótimas. Os principais aspectos que limitam são o poder computacional de tempo e memória.
+
+Em casos tabulares(pequenos e finitos), é possível resolver e armazenas em arrays ou tabelas. Porém, em casos práticos, existem muitos mais estados do que os possíveis de armazenar.
+Nesses casos, as funções precisam ser aproximadas, usando alguma forma de representação funcional mais compacta e parametrizada.
+
+A natureza online(significa com atualização constante dos dados) do aprendizado por reforço torna possível aproximar políticas ótimas de forma que se dedique mais esforço a aprender boas decisões para estados frequentemente encontrados, à custa de menos esforço para estados raramente encontrados.
+
+== 3.8 Sumário
