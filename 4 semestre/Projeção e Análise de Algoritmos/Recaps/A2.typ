@@ -132,8 +132,36 @@ Perguntas:
 
 Vamos analisar cada critério tentando construir ao menos um cenário que demonstre que o critério gera um resultado não-ótimo.
 
+Que tal se colocarmos o critério de seleção como o tempo de início do agendamento?
+
 #figure(
   caption: [Exemplo do problema de agendamento],
   image("images/agendamentoexruim1.png",width: 80%)
 )
+
+Isso não daria certo, 
+=== pq
+
+E se escolhessemos pela menor duração?
+
+#figure(
+  caption: [Exemplo do problema de agendamento],
+  image("images/agendamento-ex-ruim-2.png",width: 80%)
+)
+
+Tudo deu errado... Mas e se nosso critério fosse o tempo do término?
+
+Ideia geral:
+
+- Ordene a lista pelo tempo de término em uma lista $T$.
+- Crie um conjunto $T_a$ para armazenar as tarefas a serem alocadas
+- Insira a primeira tarefa da lista $t_0$ em $T_a$ e defina $t_"prev" = t_0$
+- #pseudocode-list[
+  + *para* c = 1$ *até* $n$
+    + $x = A_(k:m,k)$
+    + $v_k = "sign"(x_1)||x||e_1 + x$
+    + $v_k = v_k / (||v_k||)$
+    + $A_(k:m,k:n) = A_(k:m,k:n) - 2v_k (v_k^*A_(k:m,k:n))$
+]
+ 
 
