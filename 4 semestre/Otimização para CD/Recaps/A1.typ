@@ -144,7 +144,7 @@ Nesse capítulo, vamos rever alguns conceitos de cálculo e introduzir a otimiza
   
   - $x^* in C$ é um *ponto de mínimo local estrito* de $f$ em $C <=>$
     $
-      exists r > 0 and forall x in C inter B(x^*, r) \\{x^*}, "     " f(x^*) <= f(x)
+      exists r > 0 and forall x in C inter B(x^*, r) \\{x^*}, "     " f(x^*) < f(x)
     $
 ]
 
@@ -528,7 +528,7 @@ Um conjunto interessante de funções com algumas propriedades convenientes são
   $
   Agora sim:
   $
-    (diff f)/(diff x_j) = x_1 (diff alpha_1)/(diff alpha_j) + ... + diff / (diff x_j) (alpha_j x_j) + ... + x_n (diff alpha_n)/(diff x_j) + 2b_j \
+    (diff f)/(diff x_j) = x_1 (diff alpha_1)/(diff x_j) + ... + diff / (diff x_j) (alpha_j x_j) + ... + x_n (diff alpha_n)/(diff x_j) + 2b_j \
 
     (diff f)/(diff x_j) = x_1 a_(1 j) + ... + (diff alpha_j) / (diff x_j)x_j + alpha_j + ... + x_n a_(n j) + 2b_j  \
 
