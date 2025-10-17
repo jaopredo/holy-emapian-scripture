@@ -156,12 +156,25 @@ Ideia geral:
 - Ordene a lista pelo tempo de término em uma lista $T$.
 - Crie um conjunto $T_a$ para armazenar as tarefas a serem alocadas
 - Insira a primeira tarefa da lista $t_0$ em $T_a$ e defina $t_"prev" = t_0$
-- #pseudocode-list[
-  + *para* c = 1$ *até* $n$
-    + $x = A_(k:m,k)$
-    + $v_k = "sign"(x_1)||x||e_1 + x$
-    + $v_k = v_k / (||v_k||)$
-    + $A_(k:m,k:n) = A_(k:m,k:n) - 2v_k (v_k^*A_(k:m,k:n))$
-]
- 
+- Para cada tarefa $t_k$ em $T$:
+  - se `start[`$t_k$`]` $>=$ `end[`$t_"prev"$`]:`
+    - adicione $t_k$ em $T_a$
+    - defina $t_"prev" = t_k$
+- retorne $T_a$.
 
+Essa ideia não é muito difícil. Como a lista é ordenada pelo horário de saída, então o primeiro elemento a ser adicionado é simplesmente o primeiro elemento. Note que, como o objetivo é apenas a quantidade máxima de tarefas, e não o tempo máximo que podemos otimizar para todas as tarefas que temos, então pegar o menor término *desde o início* é o que realmente faz o algoritmo funcionar (por exemplo, se tivéssemos os horários `[(5,10),(5,12)]`,
+pegar o menor tempo de saída nos ajudaria no caso de termos outra tarefa, coomo `(11,14)`).
+
+Após selecionarmos a primeira tarefa da lista, basta compararmos os tempos de entrada das próximas tarefas, já que, pelo mesmo raciocínio do porque escolher a menor saída, se a próxima tarefa não colidir com a saída passada, então podemos pegar nossa nova tarefa e atulizar com o tempo de saída da nova tarefa atual.
+
+Nosso pseudocódigo usa apenas um for sem nada demais dentro dele, mas precisamos ordenar a lista antes. Isso nos traz uma complexidade de $Theta(n log(n))$.
+
+#figure(
+  grid(
+  columns: 2,
+  column-gutter: 1em,
+  image("images/tarefa-example.png", width: 100%),
+  image("images/tarefa-example-correta.png", width: 100%),
+),
+  caption: []
+)
