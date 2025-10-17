@@ -176,5 +176,26 @@ Nosso pseudocódigo usa apenas um for sem nada demais dentro dele, mas precisamo
   image("images/tarefa-example.png", width: 100%),
   image("images/tarefa-example-correta.png", width: 100%),
 ),
-  caption: []
+  caption: [Solução para o problema de tarefas usando o algoritmo proposto]
 )
+
+=== explicar pq é ótima
+
+Vamos a um segundo problema:
+
+#example[ Mochila fracionária
+
+Dado um conjunto de itens $II = {1,2,3,...,n}$ em que cada item $i in II$ tem um peso $w_i$ e um valor $v_i$, e uma mochila com capacidade de peso $W$, encontre o subconjunto $S subset.eq II$ tal que $sum_(i in S)^(|S|) alpha_i w_i <= W $ e $sum_(i in S)^(|S|) alpha_i v_i $ seja máximo, considerando que $0 < alpha_k <= 1$.
+
+#figure(
+  caption: [Tabela de exemplo para o exemplo da mochila],
+  image("images/tabela-mochila.png",width: 40%)
+)
+
+Exemplo:
+  - W = 9
+    - A escolha ${1,2,3}$ tem peso 8, valor 12 e cabe na mochila;
+    - A escolha ${3,5}$ tem peso 11, valor 14 e *não* cabe na mochila 
+    - A escolha ${}$
+
+]
