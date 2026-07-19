@@ -93,16 +93,6 @@
 
 #pagebreak()
 
-#block(
-  width: 100%,
-  fill: rgb(255, 148, 162),
-  inset: 1em,
-  stroke: 1.5pt + rgb(117, 6, 21),
-  radius: 5pt
-)[
-  *Nota*: Esse resumo é uma adaptação das notas da disciplina disponibilizadas pelo veterano Eduardo Adame junto de adições feitas por João Pedro Jerônimo, para acessar as notas originais, acesse #link("https://drive.google.com/drive/folders/1Rg2rzPukCe4-IDpu6agLrJ-e1S7EwWQA?usp=share_link", "aqui"). Eu também estou fazendo um repositório contendo modelos de machine learning que estão sendo estudados nessa disciplina, para acessar o repositório, clique #link("https://github.com/jaopredo/machine-learning", "aqui")
-]
-
 // ============================ PÁGINAS POSTERIORES =========================
 #outline(title: "Conteúdo")
 
