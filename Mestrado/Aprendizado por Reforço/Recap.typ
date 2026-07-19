@@ -100,6 +100,8 @@ Rio de Janeiro
 #align(center+horizon)[
   = Introdução
 ]
+
+#pagebreak()
 == Reinforcement Learning
 
 Em vez de ser teórico, o livro gostaria de começar ensinando diretamente como simular o aprendizado computacionalmmente, sem ficar dando exemplos da vida real, como o aprendizado de bebês, etc.
@@ -172,7 +174,7 @@ onde $alpha$ é uma pequena fração positiva chamada de parâmetro de taxa de p
 #show figure.caption: set align(left)
 
 #figure(
-  image("../Img/jogodavelha.png", width: 80%),
+  image("images/jogodavelha.png", width: 80%),
   caption: [
   Uma sequência de movimentos no tic-tac-toe. As linhas pretas contínuas representam os movimentos feitos durante uma partida; as linhas tracejadas representam movimentos que nós (o agente) consideramos, mas não realizamos. Nosso segundo movimento foi um movimento exploratório, ou seja, foi realizado mesmo que outro movimento alternativo, aquele que leva a $e^*$ tivesse classificação mais alta. Movimentos exploratórios não resultam em aprendizado, mas cada um dos outros movimentos resulta, causando atualizações conforme sugerido pelas setas vermelhas, nas quais os valores estimados são propagados para cima na árvore, de nós posteriores para nós anteriores.
     ]
@@ -205,7 +207,7 @@ Nessa parte do livro iremos falar sobre a resolução de problemas que podem ser
 
 O primeiro capítulo dessa parte vai falar sobre problemas tabulares onde há apenas um único estado, chamado de bandit problems(ou bandidos de um braço só, ou multi-armed bandits). O segundo capítulo descreve problemas mais gerais onde iremos falar sobre processos de Markov finitos e suas principais ideias, etc.
 
-= Bandidos de muitos braços (Multi-armed bandits)
+== Bandidos de muitos braços (Multi-armed bandits)
 
 A característica mais importante do Aprendizado por Reforço que a difere de outros tipos de aprendizados é que ela utiliza informações de treino que avalia as ações já tomadas, ou seja, enquanto o Aprendizado Supervisionado dá um feedback instrutivo, isto é, o feedback não depende da ação tomada, no Aprendizado por Reforço, o feedback é instrutivo, ou seja, o feedback depende inteiramente da ação tomada.
 
@@ -221,7 +223,7 @@ Nota: o jogo da velha, explicado no capítulo passado, não é um problema que s
 #show figure.caption: set align(center)
 
 #figure(
-  image("../Img/caça-níquel.png",width: 60%),
+  image("images/caça-níquel.png",width: 60%),
   caption: [Caça-níquel]
 )
 
@@ -272,7 +274,7 @@ Para avaliar o efeito de um método totalmente ganancioso de um método $epsilon
 
 #show figure.caption: set align(left)
 #figure(
-    image("../Img/actions10karmed.png", width:85%),
+    image("images/actions10karmed.png", width:85%),
     caption: [Um exemplo do problema do bandido $10$-armado. O valor real $q_* (a)$ de
 cada uma das dez ações foi selecionado de acordo com uma distribuição normal com média zero e variância unitária e as recompensas reais foram selecionadas de acordo com uma distribuição normal de média $q_* (a)$ e variância unitária, conforme sugerido por essas distribuições em cinza.
 ]
@@ -284,7 +286,7 @@ A Figura 4 compara um método totalmente ganancioso com outros dois métodos $ep
 
 #show figure.caption: set align(left)
 #figure(
-    image("../Img/comparation10karmed.png", width:90%),
+    image("images/comparation10karmed.png", width:90%),
     caption: [
 ]
 )
@@ -364,7 +366,7 @@ Nós chamamos essa estratégia de Valores Iniciais Ótimos. Vamos comparar esse 
 
 #show figure.caption: set align(left)
 #figure(
-    image("../Img/acaootimista.png", width:90%),
+    image("images/acaootimista.png", width:90%),
     caption: [ Efeito da inicialização otimista do valor da ação no banco de teste de 10 braços. Ambos usaram o step-size $alpha = 0.1$]
 )
 
@@ -384,7 +386,7 @@ A ideia do UCB(Upper Confidence Bound), resumidamente, é que o termo da direita
 
 #show figure.caption: set align(left)
 #figure(
-    image("../Img/ucbmethod.png", width:90%),
+    image("images/ucbmethod.png", width:90%),
     caption: [ Performance média do método UCB para o problema do bandido 10-armado.]
 )
 
@@ -414,7 +416,7 @@ A Figura 7 mostra o resultados do algoritmo do gradiente ascendente em uma varia
 
 #show figure.caption: set align(left)
 #figure(
-    image("../Img/baseline.png", width:90%),
+    image("images/baseline.png", width:90%),
     caption: [Desempenho médio do algoritmo do bandido 10-armado de gradiente com e sem referência quando $q_*$(a) está perto de 4 e não perto de 0.]
 )
 
@@ -437,7 +439,7 @@ Foi apresentado várias formas de balancear exploration e exploitation, com o $e
 É natural se questionar qual é o melhor método. Por isso, o autor fez uma plotagem de um treinamento completo em um problema de bandido k-armado, testando a média dos vários valores dos parâmetros de cada método após mil passos. Olhe:
 #show figure.caption: set align(left)
 #figure(
-    image("../Img/comparationbanditmethods.png", width:90%),
+    image("images/comparationbanditmethods.png", width:90%),
     caption: [Desempenho médio da recompensa de todos os algoritmos do bandido k-armado após mil passos]
 )  
 
@@ -462,7 +464,7 @@ MDPs são uma formulação direta do problema de aprender de interações para a
 interagem continuamente, com o agente selecionando ações e o ambiente reagindo a essas ações e retornando outras situações e retornando recompensas.
 
 #figure(
-    image("../Img/mdpenvironment.png", width:90%),
+    image("images/mdpenvironment.png", width:90%),
     caption: [O agente e o ambiente interagindo em um Processo de Decisão de Markov.]
 )  
 
@@ -615,7 +617,7 @@ onde $K$ é o número de passos de tempo antes da falha.
 Em qualquer dos casos, o retorno é maximizado mantendo a haste equilibrada pelo maior tempo possível.
 #show figure.caption: set align(left)
 #figure(
-    image("../Img/carlininsano.png", width:70%),
+    image("images/carlininsano.png", width:70%),
     caption: [Imagem representativa do exemplo]
 )]
 
@@ -629,7 +631,7 @@ Agora, precisamos apenas de mais uma convenção de notação única que cubra t
 
 #show figure.caption: set align(left)
 #figure(
-    image("../Img/unifinotation.png", width:70%),
+    image("images/unifinotation.png", width:70%),
     caption: [Exemplo de unificação dos casos]
 )
 
@@ -685,7 +687,7 @@ A equação @belman é chamada de Equação de Bellman para $v_pi$. Pense em olh
 
 #show figure.caption: set align(left)
 #figure(
-    image("../Img/bellmantree.png", width:50%),
+    image("images/bellmantree.png", width:50%),
     caption: [Diagrama intuitivo da Equação de Bellman.]
 )
 
@@ -705,7 +707,7 @@ Na figura à direita, temos a tabela de valores de estado $v_pi (s)$ para uma po
 
 #show figure.caption: set align(left)
 #figure(
-    image("../Img/gridworld.png", width:90%),
+    image("images/gridworld.png", width:90%),
     caption: [Exemplo do algoritmo GridWorld.]
 )
 ]
@@ -718,7 +720,7 @@ Vamos para outro exemplo um pouco mais difícil:
   
   figure(
     caption: [Exemplo do algoritmo para simular um jogo de golfe, imagem superior usa apenas a tacada putter, enquanto a imagem inferior usa $q_* (s,a)$, com $a$ sendo a tacada driver.],
-    image("../Img/golfexample.png", width: 118%),
+    image("images/golfexample.png", width: 118%),
     
   ),
   [
@@ -779,7 +781,7 @@ Os diagramas de backup são os mesmos usados anteriormente, exceto que os arcos 
 
 #show figure.caption: set align(left)
 #figure(
-    image("../Img/maxthebellman.png", width:80%),
+    image("images/maxthebellman.png", width:80%),
     caption: [Diagramas anteriores, representando a equação de Bellman de otimalidade para $v_pi$ e $q_pi$, respectivamente.]
 )
 
@@ -799,7 +801,7 @@ Suponha que resolvemos a equação de Bellman para $v_*$ para o grid simples int
 
 #show figure.caption: set align(left)
 #figure(
-    image("../Img/maxgridworld.png", width:70%),
+    image("images/maxgridworld.png", width:70%),
     caption: [Solução ótima para o problema GridWorld]
 )
 ]

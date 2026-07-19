@@ -100,7 +100,7 @@
   stroke: 1.5pt + rgb(117, 6, 21),
   radius: 5pt
 )[
-  *Nota*: Esse resumo é uma adaptação das notas da disciplina disponibilizadas pelo veterano Eduardo Adame, para acessar as notas originais, acesse #link("https://drive.google.com/drive/folders/1Rg2rzPukCe4-IDpu6agLrJ-e1S7EwWQA?usp=share_link", "aqui")
+  *Nota*: Esse resumo é uma adaptação das notas da disciplina disponibilizadas pelo veterano Eduardo Adame junto de adições feitas por João Pedro Jerônimo, para acessar as notas originais, acesse #link("https://drive.google.com/drive/folders/1Rg2rzPukCe4-IDpu6agLrJ-e1S7EwWQA?usp=share_link", "aqui"). Eu também estou fazendo um repositório contendo modelos de machine learning que estão sendo estudados nessa disciplina, para acessar o repositório, clique #link("https://github.com/jaopredo/machine-learning", "aqui")
 ]
 
 // ============================ PÁGINAS POSTERIORES =========================
@@ -788,3 +788,445 @@ Finalmente, aplicamos a função Softmax para transformar $z$ em um vetor de pro
 $
   r_l = "Softmax"(z) = e^(z_l) / (sum_(l'=1)^L e^(z_(l')))
 $
+
+
+#pagebreak()
+
+#align(center+horizon)[
+  = Redes Neurais
+]
+
+#pagebreak()
+
+Redes Neurais são modelos de regressão linear com transformações não-lineares parametrizadas. De forma intuitiva, é como se fossemos aplicando diversas transformações não-lineares $Phi_1, Phi_2, ... , Phi_K$ em sequência até obtermos uma representação de $x$ que seja adequada para a predição de $y$ através de um modelo linear ou logístico. Nesse capítulo, vamos introduzir a ideia mais simples de redes neurais, generalizar para inúmeras camadas e introduzir o algoritmo de retropropagação, que é a técnica mais comum para treinar redes neurais (Além de provar ele matematicamente)
+
+== Estrutura Inicial
+As redes neurais são estruturadas com base em camadas de neurônios interconectados, de forma que cada camada tem sua própria quantidade de neurônios e cada neurônio é conectado a todos os neurônios da camada seguinte.
+
+#figure(
+  image("images/neuron.png", width: 70%),
+  caption: [Representação do neurônio $k$ da camada $j$. $"sum"(w,z) = b_k^((j)) + sum_(i=1)^D w^((j-1))_(i k) z^((j-1))_(i)$]
+)
+
+Na primeira camada, $Z = X$. Mas antes de continuarmos vendo isso, vamos definir as camadas em si:
+
+#figure(
+  image("images/layers.png", width: 70%),
+  caption: [Camadas de entrada, escondidas e de saída]
+)
+
+Então a estrutura de uma rede neural com $K$ camadas escondidas é, pegar o datapoint, joga na camada de entrada, ele é processado dentro de todas as camadas e finalmente chega na camada de saída, onde é feita a predição.
+
+== Estrutura Matemática
+Vamos agora formalizar a estrutura matemática das Redes Neurais. Pelo que você viu na imagem anterior, cada camada $j$ tem um número de neurônios $M_j$. O número de neurônios da camada de entrada é $M_0 = D$ e o número de neurônios da camada de saída é $M_(K+1) = L$. Para cada camada $j in {1, ... , K+1}$, temos uma matriz de pesos $W^((j))$ de tamanho $M_(j-1) times M_j$ e um vetor de bias $b^((j))$ de tamanho $M_j$. Podemos escrever o resultado da última camada $Z^(K+1)$ como:
+$
+  Z^((3)) = h^((3))(h^((2))(h^((1))(X W^((1)) + b^((1)) bb(1)^T) W^((2)) + b^((2))bb(1)^T) W^((3)) + b^((3))bb(1)^T)
+$
+
+(Exemplo com 3 camadas, 1 de entrada, 1 escondida e 1 de saída)
+
+De forma que a $i$-ésima coluna de $W^((j))$ representa os pesos de todas as conexões que chegam no neurônio $i$ da camada $j$ e a $i$-ésima entrada de $b^((j))$ é o bias do neurônio $i$ da camada $j$. A função $h^((j))$ é a função de ativação da camada $j$, que é aplicada elemento a elemento
+
+== Não-linearidade
+É importante ressaltar que, se as funções de ativação $h^((1)), ... , h^((K))$ forem todas lineares, então a rede neural é equivalente a um modelo de regressão linear sem camadas escondidas, pois, se $h$ é uma função linear:
+$
+  h(X) = A X
+$
+
+para algum $X$
+
+== Treinamento
+O treinamento da rede neural é divido em 3 passos:
+1. *Forward Pass*: Não é nada além de passar os dados pela rede neural e armazenas os resultados de cada camada, que serão usados no passo seguinte
+2. *Backward Pass*: Também conhecido como retropropagação, é o processo de calcular os gradientes de cada peso e bias da rede neural com respeito a função de custo, usando o algoritmo de retropropagação
+3. *Atualização dos pesos*: Depois de obter os gradientes, basta usar um método de otimização, como o SGD, para atualizar os pesos e bias da rede neural
+
+=== Forward Pass
+O forward pass é o processo de passar os dados pela rede neural e armazenar os resultados de cada camada. Para isso, basta seguir a estrutura matemática que vimos anteriormente
+
+#pseudocode-list[
+  + *function* forward_pass($X in RR^(N times D)$, $W$, $b$) {
+    + $Z^((0)) <- X$
+    + *for* $j=1, ... , K+1$ *do*
+      + $Z^((j)) <- h^((j))(Z^((j-1)) W^((j)) + b^((j)) bb(1)^T)$
+    + *end for*
+    + *return* $Z^((K+1))$
+  + }
+]
+
+=== Backpropagation
+O backward pass é o processo de calcular os gradientes de cada peso e bias da rede neural com respeito a função de custo, usando o algoritmo de retropropagação. Para isso, basta usar a regra da cadeia para calcular os gradientes de cada camada, começando pela última camada e indo para a primeira camada. Para calcular o gradiente das camadas, antes de tudo precisamos de uma função de perca, e isso vai variar dependendo do problema que estamos tentando resolver. Por exemplo, para um problema de regressão, podemos usar o MSE como função de perca, enquanto para um problema de classificação, podemos usar a entropia cruzada. Depois de escolher a função de perca, basta seguir o algoritmo de retropropagação para calcular os gradientes de cada camada.
+
+*Lembrando* que, nesse momento, nós temos armazenado/sabemos os valores de:
+- $Z^((j)) space forall j in {1, ... , K+1}$
+- $W^((j)) space forall j in {1, ... , K+1}$
+- $b^((j)) space forall j in {1, ... , K+1}$
+
+==== Regressão
+Em redes neurais, a regressão linear é obtida quando a função de ativação da última camada é a função identidade, ou seja, $h^((K+1))$ é a função identidade. Nesse caso, a saída da rede neural é dada por:
+$
+  Z^((K+1)) = Z^((K)) W^((K+1)) + b^((K+1)) bb(1)^T
+$
+ou seja, *não* é uma regressão linear na última camada como conhecemos, mas uma combinação linear dos valores da saída da camada anterior. Intuitivamente, é como se a rede neural aprendesse uma forma mais fácil dos dados, ao ponto que apenas uma combinação linear dos valores da última camada fosse suficiente para fazer uma boa predição
+
+Para demonstrar o algoritmo, vamos usar o MSE como função de perca. Então, antes de tudo, vamos ter $X in RR^(N times D)$ que são meus dados e $T in RR^(N times L)$ que é a matriz de resultados que quero prever. Ao aplicar o forward pass, obtemos $Y = Z^((K+1)) in RR^(N times L)$ que é a matriz de predições da minha rede neural. Com isso, podemos calcular a função de perca como:
+$
+  E_n (w) = 1/2 sum_k (y_(n k) - t_(n k))^2
+$
+
+Que é o erro quadrático médio para o $n$-ésimo exemplo de treinamento e o erro total é dado por:
+$
+  E(w) = sum_(n=1)^N E_n (w) = ||Y - T||^2_F
+$
+
+O gradiente do erro total com respeito a $Y$ é dado por:
+$
+  (partial E_n) / (partial y_(n k)) = y_(n k) - t_(n k)  =>  nabla_Y E(w) = Y - T
+$
+
+==== Camadas Escondidas
+Mostramos antes como calcular o gradiente da última camada na situação de uma *regressão linear*, mas saiba que pode variar dependendo das função de saída que você escolher. Agora vamos olhar como calcular a derivada das camadas escondidas.
+
+Pegando o erro total
+$
+  E(w) = sum_(n=1)^N E_n (w)
+$
+vamos tirar a derivada do erro de acordo com a entrada $w_(i j)^((p))$, vamos primeiro considerar o erro linha-a-linha, ou seja, $E_n$ e depois somar os resultados para obter o gradiente total:
+$
+  (partial E_n) / (partial w_(i j)^((p))) = (partial E_n) / (partial z_(n j)^((p))) (partial z_(n j)^((p))) / (partial a_(n j)^((p))) (partial a_(n j)^((p))) / (partial w_(i j)^((p)))
+$
+E eu posso fazer essa regra da cadeia pois nada anterior a $w_(i j)^((p))$ depende dele, porém, tudo que vem depois, tem uma influência que ele aplicou em sua camada. Agora vamos calcular cada um desses termos:
+$
+  a_(n j)^((p)) = sum_(k=1)^(M_(p-1)) z_(n k)^((p-1)) w_(k j)^((p)) + b_j^((p) )    \
+
+  (partial a_(n j)^((p))) / (partial w_(i j)^((p))) = z_(n i)^((p-1))
+$
+
+$
+  z_(n j)^((p)) = h^((p))(a_(n j)^((p)))    \
+
+  (partial z_(n j)^((p))) / (partial a_(n j)^((p))) = h'^((p))(a_(n j)^((p)))
+$
+
+Agora a parte mais delicada, qual é a derivada de $(partial E_n) \/ (partial z_(n j)^((p)))$? Por enquanto, vamos apenas atribuir um novo nome para ele:
+$
+  (partial E_n) / (partial z_(n j)^((p))) = delta_(n j)^((p))
+$
+perfeito! Jaja voltamos nele, agora vamos calcular o gradiente TOTAL em todas as linhas:
+$
+  (partial E) / (partial w_(i j)^((p))) = sum_(n=1)^N (partial E_n) / (partial w_(i j)^((p))) = sum_(n=1)^N delta_(n j)^((p)) h'^((p))(a_(n j)^((p))) z_(n i)^((p-1))
+$
+legal, obtemos uma fórmula para a derivada do erro total com respeito a $w_(i j)^((p))$, mas ainda não sabemos o que é $delta_(n j)^((p))$. Para isso, vamos usar a regra da cadeia para expressar $delta_(n j)^((p))$ em termos de $delta_(n k)^((p+1))$, como assim? Lembra que, quando eu calculo $z_(n j)^((p))$, eu vou mandar ele pra próxima camada, e a próxima camada vai usar ele para calcular $a_(n k)^((p+1))$ e depois $z_(n k)^((p+1))$. Então eu teria algo assim:
+$
+  z_(n k)^((p+1)) = h^((p+1))(a_(n k)^((p+1)))    \
+  a_(n k)^((p+1)) = sum_(j=1)^(M_p) z_(n j)^((p)) w_(j k)^((p+1)) + b_k^((p+1))
+$
+olha só, o meu $z_(n j)^((p))$ ta ali no meio do somatório, e porque diabos isso me é útil? Calma que ainda vai fazer sentido. Com essa estrutura, concorda comigo que meu $z_(n j)^((p))$ não ta só no neurônio $k$, mas também ta no neurônio $1$, $2$, ... , $M_(p+1)$ (ou seja, eu mando ele pra todos os neurônios da camada seguinte)? Então, quando eu calcular a derivada de $E_n$ com respeito a $z_(n j)^((p))$, eu vou ter que somar a contribuição de cada um desses neurônios, ou seja:
+$
+  (partial E_n) / (partial z_(n j)^((p))) = sum_(k=1)^(M_(p+1)) (partial E_n) / (partial z_(n k)^((p+1))) (partial z_(n k)^((p+1))) / (partial a_(n k)^((p+1))) (partial a_(n k)^((p+1))) / (partial z_(n j)^((p)))
+$
+mas perceba que:
+$
+  a_(n k)^((p+1)) = sum_(j=1)^(M_p) z_(n j)^((p)) w_(j k)^((p+1)) + b_k^((p+1))   \
+
+  => (partial a_(n k)^((p+1))) / (partial z_(n j)^((p))) = w_(j k)^((p+1))
+$
+$
+  (partial z_(n k)^((p+1))) / (partial a_(n k)^((p+1))) = h'^((p+1))(a_(n k)^((p+1)))
+$
+e pela definição de $delta$ que fizemos antes, temos que:
+$
+  (partial E_n) / (partial z_(n k)^((p+1))) = delta_(n k)^((p+1))
+$
+logo:
+$
+  (partial E_n) / (partial z_(n j)^((p))) = sum_(k=1)^(M_(p+1)) delta_(n k)^((p+1)) h'^((p+1))(a_(n k)^((p+1))) w_(j k)^((p+1))
+$
+beleza, e porque que isso é útil? Agora eu to escrevendo a derivada de $z_(n j)^((p))$ na camada $p$ em função da camada seguinte $p+1$. Por que isso ajudaria? Simples! Porque nós começamos já calculando o gradiente da última camada, lembra? Ou seja, nós calculamos $delta_(n k)^((K+1))$ para a última camada, e agora, usando a fórmula acima, podemos calcular $delta_(n j)^((K))$ para a camada anterior, e depois $delta_(n i)^((K-1))$ para a camada anterior a essa, e assim por diante, até chegar na primeira camada. Ou seja, nós conseguimos calcular o gradiente de todas as camadas usando apenas o gradiente da última camada e a estrutura da rede neural. E isso é o que chamamos de retropropagação! Mas antes de concluir, vamos reformular rapidinho de uma forma matricial, afinal, não vamos no computador fazer o cálculo de cada neurônio individualmente, mas sim de toda a camada de uma vez.
+
+Para entendermos bem como e porque essa mudança pra matriz funciona, é interessante fazermos um passo-a-passo. Primeiro, na abordagem igênua, nós atualizamos cada peso individualmente, ou seja:
+$
+  w_(i j)^((p)) <- w_(i j)^((p)) - eta (partial E) / (partial w_(i j)^((p)))
+$
+ou seja, olhando numa abordagem mais matricial, mas ainda ingênua, podemos escrever:
+$
+  W^((p)) <- W^((p)) - eta mat(
+    (partial E) / (partial w_(1 1)^((p))), (partial E) / (partial w_(1 2)^((p))), ..., (partial E) / (partial w_(1 M_p)^((p)));
+    (partial E) / (partial w_(2 1)^((p))), (partial E) / (partial w_(2 2)^((p))), ..., (partial E) / (partial w_(2 M_p)^((p)));
+    dots.v, dots.v,, dots.v;
+    (partial E) / (partial w_(M_(p-1) 1)^((p))), (partial E) / (partial w_(M_(p-1) 2)^((p))), ..., (partial E) / (partial w_(M_(p-1) M_p)^((p)))
+  )
+$
+Essa matriz maior, nós a chamamos de *jacobiana* de $E$ com respeito a $W^((p))$, ou seja, $J_(E, W^((p)))$. Agora, usando a fórmula que obtivemos para a derivada de cada peso, podemos escrever
+$
+  J_(E, W^((p))) = mat(
+    sum_(n=1)^N delta'_(n 1)^((p)) z_(n 1)^((p-1)), sum_(n=1)^N delta'_(n 2)^((p)) z_(n 1)^((p-1)), ..., sum_(n=1)^N delta'_(n M_p)^((p)) z_(n 1)^((p-1));
+    sum_(n=1)^N delta'_(n 1)^((p)) z_(n 2)^((p-1)), sum_(n=1)^N delta'_(n 2)^((p)) z_(n 2)^((p-1)), ..., sum_(n=1)^N delta'_(n M_p)^((p)) z_(n 2)^((p-1));
+    dots.v, dots.v,, dots.v;
+    sum_(n=1)^N delta'_(n 1)^((p)) z_(n M_(p-1))^((p-1)), sum_(n=1)^N delta'_(n 2)^((p)) z_(n M_(p-1))^((p-1)), ..., sum_(n=1)^N delta'_(n M_p)^((p)) z_(n M_(p-1))^((p-1))
+  )
+$
+aqui, por questão de leitura, mas não muda em nada as fórmulas, eu defini $delta'_(n j)^((p)) = delta_(n j)^((p)) h'^((p))(a_(n j)^((p)))$. Tirando o somatório para fora, temos:
+$
+  J_(E, W^((p))) = sum_(n=1)^N mat(
+    delta'_(n 1)^((p)) z_(n 1)^((p-1)), delta'_(n 2)^((p)) z_(n 1)^((p-1)), ..., delta'_(n M_p)^((p)) z_(n 1)^((p-1));
+    delta'_(n 1)^((p)) z_(n 2)^((p-1)), delta'_(n 2)^((p)) z_(n 2)^((p-1)), ..., delta'_(n M_p)^((p)) z_(n 2)^((p-1));
+    dots.v, dots.v,, dots.v;
+    delta'_(n 1)^((p)) z_(n M_(p-1))^((p-1)), delta'_(n 2)^((p)) z_(n M_(p-1))^((p-1)), ..., delta'_(n M_p)^((p)) z_(n M_(p-1))^((p-1))
+  )
+$
+reparem na matriz acima e nessa definição de produto externo:
+$
+  u = mat(u_1, u_2, ..., u_m)^T "e" v = mat(v_1, v_2, ..., v_n)^T   \
+  => u v^T = mat(
+    u_1 v_1, u_1 v_2, ..., u_1 v_n;
+    u_2 v_1, u_2 v_2, ..., u_2 v_n;
+    dots.v, dots.v,, dots.v;
+    u_m v_1, u_m v_2, ..., u_m v_n
+  )
+$
+então definindo $delta'_n^((p)) = mat(delta'_(n 1)^((p)), delta'_(n 2)^((p)), ..., delta'_(n M_p)^((p)))^T$ e $z_n^((p-1)) = mat(z_(n 1)^((p-1)), z_(n 2)^((p-1)), ..., z_(n M_(p-1))^((p-1)))^T$, temos que:
+$
+  J_(E, W^((p))) = sum_(n=1)^N delta'_n^((p)) (z_n^((p-1)))^T
+$
+agora, reparando melhor em $delta'_n^((p))$, vamos abrir sua definição:
+$
+  delta'_n^((p)) = mat(delta'_(n 1)^((p)), delta'_(n 2)^((p)), ..., delta'_(n M_p)^((p)))^T   \
+  = mat(delta_(n 1)^((p)) h'^((p))(a_(n 1)^((p))), delta_(n 2)^((p)) h'^((p))(a_(n 2)^((p))), ..., delta_(n M_p)^((p)) h'^((p))(a_(n M_p)^((p))))^T
+$
+então definindo $h'^((p))(a_n^((p))) = mat(h'_(n 1)^((p)), h'_(n 2)^((p)), ..., h'_(n M_p)^((p)))^T$ onde $h'_(n j)^((p)) = h'^((p)) (a_(n j))$, também podemos escrever assim:
+$
+  delta'_n^((p)) = delta_n^((p)) dot.o h'^((p))(a_n^((p)))
+$
+onde $dot.o$ é o produto de Hadamard, ou seja, o produto elemento a elemento. Então, finalmente, temos que:
+$
+  J_(E, W^((p))) = sum_(n=1)^N (delta_n^((p)) dot.o h'^((p))(a_n^((p)))) (z_n^((p-1)))^T
+$
+ok, mas tem como simplificar MAIS AINDA. Por questão de leitura, vamos escrever usando $delta'$ em vez de $delta dot h'$. Se vocês lembram, em álgebra linear, existe um teorema chamado *decomposição em soma de matrizes de rank 1*
+
+#theorem("Decomposição em soma de matrizes de posto 1")[
+  Dada uma matriz $A in RR^(m times n)$ com colunas $a_1, a_2, ..., a_n$ e $B in RR^(n times p)$ com linhas $b_1^T, b_2^T, ..., b_p^T$, então o produto $A B$ é dado por:
+  $
+    mat(
+      |,|,...,|;
+      a_1, a_2, ..., a_n;
+      |,|,...,|;
+    )
+    mat(
+      -,b_1^T,-;
+      -,b_2^T,-;
+      ,dots.v,;
+      -,b_p^T,-;
+    ) = sum_(i=1)^n a_i b_i^T
+  $
+]
+
+perceba como essa é a EXATA MESMA ESTRUTURA de $J_(E, W^((p)))$. Então, se definirmos $Delta'^((p))$ sendo a matriz com *linhas* $delta'_n^((p))$ e $Z^((p-1))$ sendo a matriz com *linhas* $z_n^((p-1))$, temos que:
+$
+  J_(E, W^((p))) = (Z^((p-1)))^T Delta'^((p))
+$
+não só isso, mas também, para calcular $Delta'^((p))$, vamos recaptular a fórmula de um $delta'_n^((p))$:
+$
+  delta'_n^((p)) = sum_(k=1)^(M_(p+1)) delta'_(n k)^((p+1)) w_(j k)^((p+1))
+$
+então, definindo $W^((p+1))$ como a matriz de pesos da camada seguinte onde cada *coluna* é o vetor de pesos de um neurônio da camada seguinte, temos que:
+$
+  delta'_n^((p)) = sum_(k=1)^(M_(p+1)) delta'_(n k)^((p+1)) w^((p+1))_j   \
+  => Delta'^((p)) = Delta'^((p+1)) (W^((p+1)))^T
+$
+e para finalizar, precisamos também do resultado do gradiente com respeito ao bias, que é dado por:
+$
+  (partial E) / (partial b_j^((p))) = sum_(n=1)^N (partial E_n) / (partial b_j^((p))) = sum_(n=1)^N (partial E_n) / (partial z_(n j)^((p))) (partial z_(n j)^((p))) / (partial a_(n j)^((p))) (partial a_(n j)^((p))) / (partial b_j^((p)))   \
+
+  a_(n j)^((p)) = sum_(k=1)^(M_(p-1)) z_(n k)^((p-1)) w_(k j)^((p)) + b_j^((p) ) => (partial a_(n j)^((p))) / (partial b_j^((p))) = 1  \
+
+  => (partial E) / (partial b_j^((p))) = sum_(n=1)^N delta'_(n j)^((p))
+$
+ou seja, definindo $Delta'^((p))$ como a matriz com *colunas* $delta'_(n j)^((p))$, temos que:
+$
+J_(E, b^((p))) = sum_(n=1)^N delta'_(n j)^((p)) = sum_(n=1)^N (delta_n^((p)) dot.o h'^((p))(a_n^((p))))
+$
+
+=== O Algoritmo Completo
+
+#figure(
+  kind: "algorithm",
+  supplement: [Multilayer Perceptron],
+  caption: [Multilayer Perceptron],
+
+  pseudocode-list(
+    title: [Multilayer Perceptron],
+    booktabs: true,
+  )[
+    + $bold(W) <- [W^((1)),...,W^((P+1))]$
+    + $bold(b) <- [b^((1)),...,b^((P+1))]$
+    + $bold(h) <- [h^((1)),...,h^((P+1))]$
+    + $bold(h') <- [h'^((1)),...,h'^((P+1))]$
+    + $bold(A) <- [A^((1))=0,...,A^((P+1))=0]$
+    + $bold(Z) <- [Z^((1))=0,...,Z^((P+1))=0]$
+    + \/\/ Forward pass
+    + *for* $j=1, ... , P+1$ *do*
+      + $A^((j)) <- Z^((j-1)) W^((j)) + b^((j)) bb(1)^T$
+      + $Z^((j)) <- h^((j))(A^((j)))$
+    + *end for*
+    + \/\/ Backward pass
+    + $Delta'^((P+1)) <- nabla_Z E dot.o h'^((P+1))(A^((P+1)))$
+    + *for* $j=P, P-1, ... , 1$ *do*
+      + $Delta'^((j)) <- Delta'^((j+1)) (W^((j+1)))^T dot.o h'^((j))(A^((j)))$
+    + *end for*
+  ]
+)
+
+=== Exemplo em código
+Para um exemplo em código, acesse #link("https://github.com/jaopredo/machine-learning/", "Machine Learning - João Pedro Jerônimo")
+
+
+#pagebreak()
+
+#align(center+horizon)[
+  = Inferência Variacional
+]
+
+#pagebreak()
+
+== Introdução
+Na inferência variacional, nosso objetivo é aproximar uma distribuição $p$ através de outra distribuição $q$ que conseguimos manipular mais facilmente. Fazemos isso minimizando alguma medida de discrepância entre as duas distribuições, a forma mais comum de fazer isso é através da divergência de Kullback-Leibler, que é dada por:
+$
+  "KL"(q||p) = integral q(x) ln {q(x) / p(x)} dif x = EE_(x ~ q)[ln {q(x) / p(x)}]
+$
+
+== Propriedades da divergência de Kullback-Leibler
+#theorem("Não-negatividade")[
+  A divergência de Kullback-Leibler é não-negativa, ou seja, $"KL"(q||p) >= 0$
+]
+#proof[
+  A desigualdade de Jensen fala que, para uma função convexa $f$ e uma variável aleatória $X$, temos que:
+  $
+    f(EE[X]) <= EE[f(X)]
+  $
+  sabemos que $-ln(x)$ é uma função convexa, então, aplicando a desigualdade de Jensen, temos que:
+  $
+    -ln(EE_(x ~ q)[p(x) / q(x)]) <= EE_(x ~ q)[-ln(p(x) / q(x))] = EE_(x ~ q)[ln(q(x) / p(x))] = "KL"(q||p)
+  $
+  porém:
+  $
+    EE_(x ~ q)[p(x) / q(x)] = integral q(x) {p(x) / q(x)} dif x = integral p(x) dif x = 1
+  $
+  logo:
+  $
+    -ln(EE_(x ~ q)[p(x) / q(x)]) = -ln(1) = 0
+  $
+  chegando à conclusão que:
+  $
+    0 <= "KL"(q||p)
+  $
+]
+
+#theorem("Identidade")[
+  $
+    "KL"(q||p) = 0 <=> q = p "quase certamente"
+  $
+  ou seja, a divergência de Kullback-Leibler é zero se, e somente se, $q$ e $p$ são iguais
+]
+#proof[
+  $==> )$ Se $q = p$, então:
+  $
+    "KL"(q||p) = integral q(x) ln {q(x) / p(x)} dif x = integral q(x) ln {1} dif x = integral q(x) 0 dif x = 0
+  $
+
+  $<== )$ Se $"KL"(q||p) = 0$, então:
+  $
+    EE_(x ~ q)[ln q(x)] = EE_(x ~ q)[ln p(x)]
+  $
+  como $-ln$ é uma função estritamente convexa, então, pela desigualdade de Jensen, temos que:
+  $
+    0 <= -EE_(x ~ q)[ln(p(x) / q(x))]
+  $
+  porém, a desiguldade de Jensen enuncia que:
+  $
+    EE[f(X)] = f(EE[X]) <=> X = c
+  $
+  ou seja, temos que
+  $
+    p(x) / q(x) = c
+  $
+  entretanto ambas são densidades, assim:
+  $
+    integral q(x) c dif x = c = integral p(x) dif x = 1 => c = 1 => p(x) / q(x) = 1 => p(x) = q(x)
+  $
+]
+
+#theorem("KL e Entropia Cruzada")[
+  A divergência de Kullback-Leibler pode ser escrita como a diferença entre a entropia cruzada e a entropia de $q$, ou seja:
+  $
+    "KL"(q||p) = H(q, p) - H(q)
+  $
+  onde $H(q, p) = -EE_(x ~ q)[ln p(x)]$ é a entropia cruzada entre $q$ e $p$ e $H(q) = -EE_(x ~ q)[ln q(x)]$ é a entropia de $q$. Um ótimo vídeo que fala sobre isso é o #link("https://youtu.be/KHVR587oW8I?si=HdtlJh1BHLMH7Has", "The Key Equation Behind Probability") do canal #link("https://www.youtube.com/@ArtemKirsanov", "Artem Kirsanov")
+]
+#proof[
+  $
+    "KL"(q||p) &= integral q(x) ln {q(x) / p(x)} dif x    \
+    &= integral q(x) ln {q(x)} dif x - integral q(x) ln {p(x)} dif x    \
+    &= -H(q) + H(q, p)    \
+    &= H(q, p) - H(q)
+  $
+]
+
+#block(
+  width: 100%,
+  fill: rgb("#c5f7fd"),
+  inset: 1em,
+  stroke: 1.5pt + rgb("#066875"),
+  radius: 5pt
+)[
+  *Divergência KL _forward_ vs _reverse_*: É importante notar que, de forma geral, a divergência KL não é simétrica — i.e., $"KL"(q||p) != "KL"(p||q)$. Na literatura de ML, é comum chamar $"KL"(q||p)$ de divergência KL reversa. Conversamente, $"KL"(p||q)$ é conhecida como a divergência forward. Empiricamente, é bem estabelecido que minimizar a divergência reversa costuma resultar em resultados que focam em alguma(s) modas. Por outro lado, minimizar a divergência forward costuma promover aproximações que cobrem melhor o suporte de $p$. A figura abaixo ilustra esse fenômeno com $p(theta) = 1/2 cal(N)(theta|3,1) + 1/2 cal(N)(theta| -3,(1/2)^2)$ e $q$ sendo Gaussiana univariada
+  
+  #figure(
+    image("images/kl_approximations.png")
+  )
+]
+
+== Cota Inferior (ELBO)
+Normalmente estamos realizando inferência bayesiana, ou seja, queremos calcular a distribuição posterior $p(theta|D)$, mas isso é difícil de fazer diretamente. Então, vamos usar a divergência KL para encontrar uma aproximação $q(theta)$ para $p(theta|D)$. Para isso, vamos minimizar a divergência KL reversa:
+$
+  "KL"(q(theta)||p(theta|D)) &= EE_(theta ~ q(theta))[ln {q(theta) / p(theta|D)}]   \
+  
+  &= EE_(theta ~ q(theta))[ln q(theta)] - EE_(theta ~ q(theta))[ln p(theta|D)]   \
+
+  &= EE_(theta ~ q(theta))[ln q(theta)] - EE_(theta ~ q(theta))[ln (p(D|theta) p(theta)) / p(D)]   \
+
+  &= EE_(theta ~ q(theta))[ln q(theta)] - EE_(theta ~ q(theta))[ln p(D,theta)] + ln p(D)   \
+$
+Vamos definir $L(q)$ como:
+$
+  L(q) = EE_(theta ~ q(theta))[ln p(D,theta)] - EE_(theta ~ q(theta))[ln q(theta)]
+$
+então temos que a distribuição $q$ que minimiza a divergência KL seria:
+$
+  hat(q) &= "argmin"_q "KL"(q(theta)||p(theta|D))    \
+  
+  &= "argmin"_q EE_(theta ~ q(theta))[ln q(theta)] - EE_(theta ~ q(theta))[ln p(D,theta)] + ln p(D)   \
+
+  &= "argmin"_q -L(q) + ln p(D)   \
+
+  &= "argmax"_q L(q)   \
+$
+
+algo interessante de se ressaltar é que, como $"KL" >= 0$, temos que:
+$
+  ln p(D) - L(q) = "KL" >= 0 => L(q) <= ln p(D)
+$
+logo, $ln p(D)$ (conhecido como evidência) é uma cota superior para $L(q)$, e como queremos maximizar $L(q)$, estamos na verdade tentando encontrar a melhor aproximação para a evidência. Por isso, chamamos $L(q)$ de *Evidence Lower Bound* (ELBO), ou cota inferior da evidência.
+
+== Lidando com ELBO intratável
+Com relação à escolha de $Q$, costuma-se adotar uma família de distribuições paramétricas. Deste modo, podemos maximizar $L$ sobre um espaço de parâmetros $Omega$. Por exemplo, se $Q$ é o conjunto das distribuições Gaussianas univariadas, $Omega = RR times R^+$ e $omega in Omega$ é um par média/variância. De maneira geral, os termos envolvidos no ELBO podem ser intratáveis e, até meados da década passada, desenvolver soluções customizadas para posterioris diferentes era considerado uma contribuição técnica em ML.
+
+Atualmente, existem metodologias genéricas, que viabilizam inferência variacional quase como uma tecnologia _off-the-shelf_. A mais famosa dentre essas, é o truque reparametrização. Essa técnica assume que é possível descrever a amostragem de $theta ~ q$ a partir de uma transformação g de uma variável aleatória auxiliar $epsilon$. Além disso, precisamos que g seja diferenciável com respeito aos parâmetros $omega$ de $q$. Por exemplo, se q é uma distribuição normal com parâmetros $omega = (mu,sigma^2)$, podemos obter uma amostra $theta ~ q$ definindo $theta = g(epsilon;omega) = sigma epsilon + mu$ e amostrando $epsilon$ de numa gaussiana padrão — i.e., com média zero e variância um.
+
+Com isso, podemos aproximar os termos do ELBO amostrando M variáveis auxiliares $epsilon(1), . . . , epsilon(M)$ e estimar o gradiente de $L(q)$ com respeito a $omega$ como:
+
+$
+  nabla_omega L(q) = nabla_omega 1/M sum_(m=1)^M ln p(D|theta^((m))) + ln p(theta^((m))) - ln q(theta^((m));omega)
+$
+
+Note que, na notação acima, $q$ também depende diretamente de $omega$. Em posse dessa estimativa, podemos utilizar nosso algoritmo de gradiente preferido para otimizar o ELBO. Naturalmente, essa aproximação deve ser refeita com novas amostras a cada passo de gradiente. Para evitar incluir restrições explícitas para garantir que parâmetros restritos sejam válidos (e.g., variâncias devem ser não-negativas), nós também as modelamos como a transformação de uma variável real. No caso citado acima, podemos ter $omega = (mu, sigma^2 = u(z))$ com $u(z) = e^z$ ou $u(z) = beta^(-1) ln(1+e^(beta z))$ para algum $beta > 0$.
