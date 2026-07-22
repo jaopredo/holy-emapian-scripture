@@ -391,7 +391,7 @@ $
 #proof[
   Lembrando: $Y~Chi^2_m$ e $Z ~ N(0,1)$. Vamos aplicar as transformações! Sabemos que:
   $
-    f_(X W) (x, w) = f_(Y Z) (y, z) | (diff (y, z))/(diff (x, w)) |
+    f_(X W) (x, w) = f_(Y Z) (y, z) | (partial (y, z))/(partial (x, w)) |
   $
   então denotando $W = Y$, temos:
   $
@@ -399,13 +399,13 @@ $
   $
   Então vamos ter que:
   $
-    (diff y) / (diff x) = 0 wide (diff y) / (diff w) = 1    \
+    (partial y) / (partial x) = 0 wide (partial y) / (partial w) = 1    \
 
-    (diff z) / (diff x) = (w/m)^(1/2)
+    (partial z) / (partial x) = (w/m)^(1/2)
   $
   então vamos ter que
   $
-    | (diff (y, z))/(diff (x, w)) | = -(w/m)^(1/2)
+    | (partial (y, z))/(partial (x, w)) | = -(w/m)^(1/2)
   $
   $
     f_(X W) (x, w) &= f_(W Z) (w, z) (w/m)^(1/2)    \

@@ -446,7 +446,7 @@ $<median-error>
   $
   Como queremos minimizar isso, com relação a $d$, vamos derivar:
   $
-    diff / (diff d) (EE[X^2] - 2 d mu + d^2) = -2mu + 2d
+    partial / (partial d) (EE[X^2] - 2 d mu + d^2) = -2mu + 2d
   $
   E isso é igual a $0$ quando $d = mu$
 ]

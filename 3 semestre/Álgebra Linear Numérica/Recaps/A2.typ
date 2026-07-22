@@ -161,7 +161,7 @@ Sabemos que, por conta de erros de aproximação, a matriz $A$ que temos no cód
     ```python
       print(np.linalg.norm(Q_1 - Q_2))
       print(np.linalg.norm(R_1 - R_2))
-    ```<matrices-differences>
+    ```<matrices-partialerences>
   ],
   block[
     #codly(
@@ -185,12 +185,12 @@ Perceba que é um erro muito grande, não é tão próximo de $0$ quanto eu gost
     #codly(
       header: [*CÓDIGO*],
       header-cell-args: (align: center),
-      offset-from: <matrices-differences>,
+      offset-from: <matrices-partialerences>,
       inset: 0.25em
     )
     ```python
       print(np.linalg.norm(A - Q_2 @ R_2))
-    ```<difference-A>
+    ```<partialerence-A>
   ],
   block[
     #codly(
@@ -473,7 +473,7 @@ Voltando ao algoritmo de *back substitution*, temos o seguinte teorema:
 
   - *$1 times 1$*: Nesse caso, $R$ é um único número escalar e, pelo *@back-substitution*, temos que:
     $
-      accent(x_(1), ~) = b_1 div.circle r_11
+      accent(x_(1), ~) = b_1 div.o r_11
     $
     E nós *já sabemos* que essa divisão é backward stable, mas vamos analisar melhor. Queremos manter $b$ fixo, então temos que expressar $accent(x_1, ~)$ como o $r_11$ original vezes uma leve perturbação. Expressamos então
     $
@@ -499,7 +499,7 @@ Voltando ao algoritmo de *back substitution*, temos o seguinte teorema:
 
   - *$2 times 2$*: Beleza, no caso $2 times 2$, o primeiro passo do algoritmo nós já vimos que é *backwards stable*, vamos para o segundo passo:
     $
-      accent(x_1, ~) = (b_1 minus.circle (accent(x_2, ~) times.circle r_12)) div.circle r_22
+      accent(x_1, ~) = (b_1 minus.o (accent(x_2, ~) times.o r_12)) div.o r_22
     $
     Ai meu Deus, fórmula grande do djabo :\(. Relaxa, vamo transformar em fórmulas normais com umas perturbações pra gente falar de matemática normal né
     $
@@ -538,7 +538,7 @@ Voltando ao algoritmo de *back substitution*, temos o seguinte teorema:
   - *A Indução*: Suponha que, no ($j-1$)-ésimo passo do algoritmo, eu sei que o $accent(x, ~)_(j-1)$ é gerado com um algoritmo backward stable. Nós já mostramos, pelos casos bases, que os primeiros dois passos são backward stable.
     Vamos relembrar o @back-substitution para $m$ colunas:
     $
-    accent(x, ~)_j = (b_j minus.circle sum^m_(k=j+1)x_k times.circle r_(j k)) div.circle r_(j j)
+    accent(x, ~)_j = (b_j minus.o sum^m_(k=j+1)x_k times.o r_(j k)) div.o r_(j j)
     $
     Usando o *Axioma Fundamental do Ponto Flutuante*:
     $
@@ -944,9 +944,9 @@ Meu amigo, esse erro é *TENEBROSO*, não chegou nem *PERTO* do resultado. Clara
 Suponha que nós temos um algoritmo *backward stable* para o problema de mínimos quadrados com uma matriz $A$ de posto-completo que retorna uma solução $accent(x, ~)$ satisfazendo $||(A+delta A)accent(x, ~) - b|| = min$ para algum $delta A$ com $||delta A||\/||A|| = O(epsilon_"machine")$. Pelo teorema da acurácia de algoritmos backward stable (Resumo 1) e o @conditioning-min-squared-problems temos:
 $
   (||accent(x,~) - x||)/(||x||) = O((kappa + (kappa^2tan(theta))/eta)epsilon_"machine")
-$<normal-equation-algorithm-x-difference>
+$<normal-equation-algorithm-x-partialerence>
 
-Suponha que $A$ é mal-condicionada. Dependendo dos valores dos híperparâmetros, podem acontecer duas situações diferentes. Se $tan(theta)$ for de ordem $1$, então o lado direito da equação @normal-equation-algorithm-x-difference troca e fica $O(kappa^2 epsilon_"machine")$. Porém, se $tan(theta)$ é próximo de 0, ou $eta$ é próximo de $kappa$, então então a equação muda para $O(kappa epsilon_"machine")$ (Usa um teorema mais la pra frente, mas é engraçado ver como tudo tá muito interconectado). Porém, a matriz $A^*A$ tem número de condicionamento $kappa(A)^2$, então o máximo que podemos esperar do problema é $O(kappa^2 epsilon_"machine")$
+Suponha que $A$ é mal-condicionada. Dependendo dos valores dos híperparâmetros, podem acontecer duas situações diferentes. Se $tan(theta)$ for de ordem $1$, então o lado direito da equação @normal-equation-algorithm-x-partialerence troca e fica $O(kappa^2 epsilon_"machine")$. Porém, se $tan(theta)$ é próximo de 0, ou $eta$ é próximo de $kappa$, então então a equação muda para $O(kappa epsilon_"machine")$ (Usa um teorema mais la pra frente, mas é engraçado ver como tudo tá muito interconectado). Porém, a matriz $A^*A$ tem número de condicionamento $kappa(A)^2$, então o máximo que podemos esperar do problema é $O(kappa^2 epsilon_"machine")$
 
 #theorem[
   A solução de um problema de mínimos quadrados com uma matriz $A$ de posto-completo utilizando de equações normais é *instável*. Porém a estabilidade pode ser alcançada ao restringir para uma classe de problemas onde $kappa(A)$ é pequeno ou $tan(theta)/eta$ é pequeno.
@@ -1465,7 +1465,7 @@ $
 $
 A gente pode fazer essas ideias mais quantitativas se tomarmos $r(x): RR^m -> RR$, então podemos tomar interesse no comportamento local de $r(x)$ quando $x$ está perto de um autovalor. A gente pode calcular as derivadas parciais para isso:
 $
-  (diff r(x))/(diff x_j) = (diff/(diff x_j)(x^T A x))/(x^T x)-((x^T A x)diff/(diff x_j)(x^T x))/(x^T x)^2\
+  (partial r(x))/(partial x_j) = (partial/(partial x_j)(x^T A x))/(x^T x)-((x^T A x)partial/(partial x_j)(x^T x))/(x^T x)^2\
   = (2(A x)_j)/(x^T x) - ((x^T A x)2 x_j)/(x^T x)^2 = 2/(x^T x)(A x - r(x)x)_j
 $
 Podemos então expressar o gradiente como:

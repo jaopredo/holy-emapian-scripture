@@ -1579,13 +1579,13 @@ O que isso significa? Significa que, sempre que arredondamos um número real par
 Precisamos fazer operações com números, certo? Mas temos o mesmo problema, os computadores precisam arredondar porque não conseguem entender todos os números em um intervalo, então como podemos tornar as operações o mais precisas possível? Construímos um computador baseado neste princípio (alguns computadores podem ter mais princípios em seu núcleo, então algumas operações podem ser ainda mais precisas, mas vamos focar apenas neste):
 
 #definition("Axioma Fundamental da Aritmética de Ponto Flutuante")[
-  Dado que $+$, $-$, $times$ e $div$ representam operações em $RR$, considere $plus.circle$, $minus.circle$, $times.circle$ e $div.circle$ sendo operações em $F$. Seja $ast.circle$ definir qualquer uma das operações anteriores em $F$, então definimos um computador que realiza a operação $x ast.circle y$ como
+  Dado que $+$, $-$, $times$ e $div$ representam operações em $RR$, considere $plus.o$, $minus.o$, $times.o$ e $div.o$ sendo operações em $F$. Seja $ast.o$ definir qualquer uma das operações anteriores em $F$, então definimos um computador que realiza a operação $x ast.o y$ como
   $
-    x ast.circle y = "fl"(x ast y) = (x ast y)
+    x ast.o y = "fl"(x ast y) = (x ast y)
   $
   Isso significa que construímos um computador tal que $forall x, y in F$, existe $epsilon$ com $|epsilon| <= epsilon_("machine")$ tal que
   $
-    x ast.circle y = (x ast y)(1 + epsilon)
+    x ast.o y = (x ast y)(1 + epsilon)
   $
 ]<fundamental_axiom_of_floating_point_arithmetic>
 
@@ -1659,11 +1659,11 @@ Existe outro tipo de *estabilidade*, muito poderoso:
 Isso significa que, se eu passar os dados para o algoritmo, posso encontrar uma perturbação muito pequena $accent(x, ~)$ tal que a solução do problema se eu passar essa perturbação é a *mesma* que se eu passar os dados originais para o algoritmo!
 
 #example[
-  Dado o dado $x in CC$, verifique se o algoritmo $x plus.circle x$ para calcular o problema de somar dois números iguais (solução é $2 x$) é estável retroativamente:
+  Dado o dado $x in CC$, verifique se o algoritmo $x plus.o x$ para calcular o problema de somar dois números iguais (solução é $2 x$) é estável retroativamente:
 
   Temos que
   $
-    f(x) = x + x e accent(f, ~)(x) = x plus.circle x
+    f(x) = x + x e accent(f, ~)(x) = x plus.o x
   $
   Isso significa
   $
@@ -1781,14 +1781,14 @@ Você pode ter notado que, quando estamos definindo coisas em estabilidade com n
 
 == Estabilidade da Aritmética de Ponto Flutuante
 #theorem[
-  As operações $plus.circle$, $minus.circle$, $times.circle$ e $div.circle$ são *estáveis retroativamente*
+  As operações $plus.o$, $minus.o$, $times.o$ e $div.o$ são *estáveis retroativamente*
 ]
 #proof[
-  Defina $ast.circle$ como qualquer uma das 4 operações mostradas antes. Dado um problema $f: X -> Y$ que está calculando $x_1 ast x_2$, o algoritmo $accent(f, ~)$ para resolver esse problema é $accent(f, ~)(x) = "fl"(x_1) ast.circle "fl"(x_2)$ onde $x = mat(x_1;x_2)$.
+  Defina $ast.o$ como qualquer uma das 4 operações mostradas antes. Dado um problema $f: X -> Y$ que está calculando $x_1 ast x_2$, o algoritmo $accent(f, ~)$ para resolver esse problema é $accent(f, ~)(x) = "fl"(x_1) ast.o "fl"(x_2)$ onde $x = mat(x_1;x_2)$.
 
   Temos que:
   $
-    accent(f, ~)(x) = "fl"(x_1) ast.circle "fl"(x_2)
+    accent(f, ~)(x) = "fl"(x_1) ast.o "fl"(x_2)
   $
   $
     = ("fl"(x_1) ast "fl"(x_2))(1 + epsilon_3)
@@ -1822,7 +1822,7 @@ Você pode ter notado que, quando estamos definindo coisas em estabilidade com n
     (x_1 epsilon_4 + x_2 epsilon_5)/(x_1 + x_2) = (x_1 O(epsilon_"machine") + x_2 O(epsilon_"machine"))/(x_1 + x_2) = ((x_1 + x_2)O(epsilon_"machine"))/(x_1 + x_2) = O(epsilon_"machine")
   $
 
-  Isso mostra que $plus.circle$, $minus.circle$, $times.circle$ e $div.circle$ são *estáveis retroativamente*
+  Isso mostra que $plus.o$, $minus.o$, $times.o$ e $div.o$ são *estáveis retroativamente*
 ]
 
 == Precisão de um Algoritmo Estável Retroativamente
