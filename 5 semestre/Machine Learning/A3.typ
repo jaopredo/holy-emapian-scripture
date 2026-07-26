@@ -666,6 +666,203 @@ Outro problema é que, dado um ponto (não-degenerado) no espaço dos parâmetro
 
 #pagebreak()
 
+== Introdução
+
+Autoencoders são modelos de aprendizado não supervisionado projetados para aprender representações compactas dos dados. Seu objetivo é comprimir uma entrada em uma representação de menor dimensão e, em seguida, reconstruir a entrada original a partir dessa representação.
+
+A arquitetura de um autoencoder é composta por duas partes principais:
+
+- *Encoder:* transforma a entrada original em uma representação latente, também chamada de *código* ou *embedding*.
+- *Decoder:* utiliza essa representação latente para reconstruir uma aproximação da entrada original.
+
+De forma simplificada, dado um dado de entrada (x), o encoder produz uma representação (z),
+
+$
+z = f(x),
+$
+
+e o decoder gera uma reconstrução ($hat(x)$),
+
+$
+ hat(x) = g(z).
+$
+
+Durante o treinamento, os parâmetros do modelo são ajustados para minimizar a diferença entre (x) e ($hat(x)$), fazendo com que a representação latente retenha as características mais relevantes dos dados.
+
+Ao aprender a reconstruir as entradas a partir de uma representação comprimida, os autoencoders podem descobrir estruturas e padrões presentes nos dados, sendo amplamente utilizados para redução de dimensionalidade, compressão, remoção de ruído, detecção de anomalias e aprendizado de representações.
+
+
+== Autoencoders Determinísticos
+Esses autoencoders são versões clássicas e mais simples. Eles consistem em uma rede neural que aprende a mapear entradas para saídas, passando por uma camada intermediária de menor dimensão. O objetivo é minimizar a diferença entre a entrada e a saída reconstruída, geralmente utilizando funções de perda como o erro quadrático médio (MSE).
+
+=== Autoencoders Profundos
+A principal ideia desse autoencoder é uma rede neural que recebe como input um vetor $x in RR^D$, passa ele por diversas camadas ocultas de menor dimensão e tenta, a partir de um novo vetor $z in RR^M$ ($M < D$) reconstruir o vetor original $x$. A função de perca utilizada nesses autoencoders é dada por:
+$
+  E(w) = 1/2 sum_(n=1)^N || x_n - y(x_n, w) ||^2
+$
+onde $y(x_n, w)$ é a saída da rede neural com pesos $w$ para a entrada $x_n$. A função de perda é minimizada utilizando o algoritmo de retropropagação (backpropagation) e métodos de otimização como o gradiente descendente.
+
+#figure(
+  image("images/deep-autoencoder.png"),
+  caption: [
+    Arquitetura de um autoencoder profundo. A entrada $x$ é comprimida em uma representação latente $z$ e, em seguida, reconstruída como $y(x, w)$.
+  ]
+)<deep-autoencoder>
+
+Como podemos ver na @deep-autoencoder, a arquitetura do autoencoder profundo pode ser interpretada como dois mapeamentos distintos $F_1$ e $F_2$, onde $F_1$ é o encoder que mapeia a entrada $x$ para a representação latente $z$, e $F_2$ é o decoder que mapeia a representação latente $z$ de volta para a reconstrução da entrada original $y(x, w)$. A função de perda é então minimizada ajustando os pesos da rede neural para melhorar a qualidade da reconstrução.
+
+=== Autoencoders Esparsos
+
+Uma forma tradicional de limitar a capacidade de um autoencoder consiste em utilizar uma representação latente de dimensão menor que a dimensão dos dados de entrada. Entretanto, essa não é a única maneira de impor uma representação compacta. Nos *autoencoders esparsos*, em vez de restringir o número de neurônios da camada latente, utiliza-se uma regularização que incentiva apenas uma pequena fração desses neurônios a permanecer ativa para cada exemplo.
+
+A ideia é permitir que a camada latente possua muitas unidades, mas forçar a maioria delas a assumir valores nulos ou próximos de zero. Dessa forma, cada amostra é representada por apenas alguns neurônios ativos, produzindo uma representação de baixa dimensionalidade efetiva.
+
+Uma forma simples de obter esse comportamento é adicionar uma penalização $L_1$ sobre as ativações da camada latente. A função de custo passa a ser dada por
+
+$
+E(w) = tilde(E)(w) + lambda sum_(m=1)^M abs(z_m),
+$
+
+onde $tilde(E)(w)$ representa o erro de reconstrução, $z_m$ corresponde à ativação do neurônio latente $m$, e $lambda$ controla a intensidade da regularização.
+
+Como a norma $L_1$ favorece soluções esparsas, o treinamento passa a buscar simultaneamente uma boa reconstrução dos dados e uma representação latente na qual poucos neurônios estejam ativos. Em consequência, o modelo é capaz de aprender características relevantes dos dados mesmo quando a camada latente possui um número elevado de unidades.
+
+=== Denoising Autoencoders
+Vimos que para o autoencoder aprender representações úteis, é necessário impor restrições à sua capacidade de reconstrução. Uma abordagem alternativa é treinar o autoencoder para reconstruir a entrada original a partir de uma versão corrompida dela. Essa técnica é conhecida como *denoising autoencoder*. Assim, intuitivamente, eu forço o meu autoencoder a aprender representações robustas dos dados, que capturam as características essenciais e ignoram o ruído.
+$
+  E(w) = 1/2 sum_(n=1)^N || x_n - y(tilde(x)_n, w) ||^2
+$
+
+Um método de impor ruído nas entradas é selecionar uma fração $tau in (0, 1)$ das amostras e colocar parte de suas entradas como $0$. Por exemplo, se $tau = 0.2$, então 20% das entradas de cada amostra selecionada serão corrompidas, ou seja, substituídas por zero. Outro método é adicionar ruído gaussiano às entradas, ou seja, para cada entrada $x_n$, adicionamos um ruído $epsilon$ proveniente de uma distribuição normal com média zero e desvio padrão $sigma$, resultando em uma entrada corrompida $tilde(x)_n = x_n + epsilon$.
+
+
+== Autoencoders Variacionais
+Agora chegamos na brincadeira de gente grande. Nós já vimos que, a função de verossimilhança de um modelo com variáveis latentes dada por:
+$
+  p(x|w) = integral p(x|z, w) p(z) dif z
+$
+onde $p(x|z,w)$ é definida por uma rede neural profunda, é intratável pois a integral em $z$ não tem forma fechada. Os autoencoders variacionais (VAEs) resolvem esse problema utilizando uma aproximação variacional para a posteriori $p(z|x,w)$, que é definida por outra rede neural profunda. A ideia é otimizar os parâmetros do modelo para maximizar a verossimilhança dos dados, enquanto simultaneamente aproximamos a posteriori das variáveis latentes. Existem 3 conceitos-chave dentro dos VAEs:
+
++ Utilizar o *ELBO* (Evidence Lower Bound) para aproximar a verossimilhança dos dados
++ *Inferência Amortizada* onde um segundo modelo, a *rede encoder*, é usada para aproximar a distribuição posteriori das variáveis latentes no passo *E* em vez de calcular para cada ponto
++ Fazer o treino da rede encoder tratável utilizando do *truque da reparametrização*
+
+Considere um modelo generativo com distribuição $p(x|z,w)$ governado pela saída de uma rede $g(w,z)$ (Por exemplo, $g(w,z)$ retorna a média de uma distribuição gaussiana). Considere também $p(z) ~ N(0, I)$ sobre $z in RR^M$
+
+Lembrando do documento da A1, vimos que:
+$
+  ln p(x|w) = cal(L)(w) + "KL"(q(z) || p(z|x,w))
+$
+onde $cal(L)(w)$ é o ELBO e $q(z)$ é a distribuição aproximada das variáveis latentes e $cal(L)(w)$ é dado por:
+$
+  cal(L)(w) = integral q(z) ln frac(p(x|z,w)p(z), q(z)) dif z
+$
+e $"KL"(p||q)$ é definido como:
+$
+  "KL"(p||q) = integral p(z) ln frac(p(z), q(z)) dif z
+$
+
+Pelo que tinhamos visto no primeiro documento, sabemos que $ln p(x|w) >= cal(L)$ (Por isso o nome EVIDENCE *LOWER BOUND*). Mesmo que $ln p(x|w)$ seja intratável, podemos aproximar ela utilizando de $cal(L)$ aproximado por *monte carlo*.
+
+Considere o conjunto de dados $x_1,...,x_N$. Temos então que
+$
+  ln p(D|w) = sum_(n=1)^N cal(L)_n + sum_(n=1)^N "KL"(q_n (z_n|x_n) || p(z_n|x_n,w))
+$<elbo-dataset-likelihood>
+
+onde
+$
+  cal(L)_n = integral q_n (z_n|x_n) ln {frac(p(x_n|z_n,w) dot p(z_n), q_n (z_n|x_n))} dif z_n
+$
+
+Perceba que agora, cada $x_n$ tem sua variável latente, o que indica que cada variável $z_n$ tem sua distribuição $q_n (z_n|x_n)$. Como a equação @elbo-dataset-likelihood é mantida independente da escolha de $q_n (z_n|x_n)$, podemos escolher $q_n (z_n|x_n)$ para cada ponto $x_n$ de forma à maximizar $cal(L)_n$ ou, equivalentemente, minimizar $"KL"(q_n (z_n|x_n) || p(z_n|x_n,w))$. EM GMMs, conseguimos achar $q_n (z_n|x_n)$ de forma exata ($q_n (z_n|x_n) = p(z_n|x_n,w)$)
+$
+  p(z_n|x_n,w) = frac(p(x_n|z_n,w)p(z_n), p(x_n|w))
+$
+
+o numerador é trivial de calcular, mas o denominador é intratável. Então precisamos de um método diferente para aproximar $q_n (z_n|x_n)$.
+
+=== Inferência Amortizada
+Nessa abordagem, nós treinamos *uma única* rede neural para aproximar todas as posterioris $p(z_n|x_n,w)$, chamada de *Encoder Network*. Essa abordagem se chama *inferência amortizada* que requer um encoder que gera uma única distribuição $q(z|x,phi)$ condicionada em $x$, onde $phi$ são os parâmetros da rede neural. Nessa abordagem, a função-objetivo (dada pelo ELBO) depende tanto de $phi$ quanto de $w$, assim ela faz a otimização conjunta dos parâmetros com abordagens baseadas em gradiente.
+
+#figure(
+  image("images/autoencoder.png", width: 80%),
+  caption: [
+    Arquitetura de um autoencoder variacional
+  ]
+)
+
+Um encoder variacional é então composto por duas redes, um *encoder* que mapeia do espaço dos dados para um espaço latente e um *decoder* que mapeia do espaço latente de volta para o espaço dos dados e ambas as redes são treinadas simultaneamente para maximizar o ELBO.
+
+Certo, mas agora temos que decidir ao menos qual espaço latente nós gostariamos de mapear nossos dados pra termos uma base, correto? Sim! Uma escolha muito comum de se usar para o encoder é uma Gaussiana $N(mu_j, sigma_j^2 I)$ onde $mu_j$ e $sigma_j$ são outputs de uma rede neural
+$
+  q(z|x,phi) = product_(j=1)^M N(z_j | mu_j (x,phi), sigma_j^2 (x,phi))
+$
+
+=== Truque da Reparametrização
+Infelizmente, temos que o lower bound ainda é intratável
+$
+  cal(L)_n (w, phi) = integral q(z_n|x_n,phi) ln {frac(p(x_n|z_n,w)p(z_n), q(z_n|x_n,phi))} dif z_n
+$
+porque envolve integrar sobre as variáveis latentes ${z}$ e ele depende de forma complexa dos parâmetros da rede neural. Porém, podemos decompor essa integral em duas partes:
+$
+  cal(L)_n (w, phi) = EE_(z_n ~ q) [ln p(x_n|z_n,w)] - "KL"(q(z_n|x_n,phi) || p(z_n))
+$<elbo-decomposition>
+
+Se nós escolhemos $q(z_n|x_n,phi)$ como uma Gaussiana, e $p(z_n)$ também, então a divergência KL entre elas tem uma forma fechada, que é dada por:
+$
+  "KL"(q(z_n|x_n,phi) || p(z_n)) = frac(1,2) sum_(j=1)^M {1 + ln sigma_j^2 (x_n,phi) - sigma_j^2 (x_n,phi) - mu_j^2 (x_n,phi)}
+$
+Já com relação à primeira parte, podemos tentar aproximar ela utilizando *monte carlo*
+$
+  EE_(z_n ~ q) [ln p(x_n|z_n,w)] = integral q(z_n|x_n,phi) ln p(x_n|z_n,w) dif z_n approx frac(1, L) sum_(l=1)^L ln p(x_n|z_n^((l)),w)
+$
+onde ${z_n^((l))}$ são amostras de $q(z_n|x_n,phi)$. Toda essa equação @elbo-decomposition é diferenciável com relação a $w$, no entanto, ela tem uma relação complexa em $phi$ para ser facilmente diferenciável.
+
+#figure(
+  image("images/autoencoder-structure-without-reparametrization.png"),
+  caption: [
+    Esquema de como o erro se espalha no autoencoder. O fato de $z$ depender de $phi$ de forma complexa impede que o gradiente seja propagado através do processo de amostragem.
+  ]
+)
+
+Para consertar isso, utilizamos do *truque da reparametrização*. Nessa abordagem, nós não vamos amostrar $z_n^((l))$ diretamente. Em vez disso, vamos amostrar $epsilon ~ N(0,1)$. Após amostrar $epsilon$, nós podemos reparametrizar $z_n^((l))$ como:
+$
+  z_(n j)^((l)) = mu(x_n,phi) + sigma(x_n,phi) dot epsilon_(n j)^((l))
+$
+pois sabemos que $z_n^((l)) ~ N(mu(x_n,phi), sigma^2(x_n,phi))$. Dessa forma, a amostragem de $z_n^((l))$ é feita de forma diferenciável com relação a $phi$, permitindo que o gradiente seja propagado através do processo de amostragem. Dessa forma, a função de erro do autoencoder variacional, depois de todas nossas premissas, é dada por:
+$
+  cal(L) = sum_n { frac(1, 2) sum_(j=1)^M {1 + ln sigma_(n j)^2 - sigma_(n j)^2- mu_(n j)^2} + frac(1, L) sum_(l=1)^L ln p(x_n|z_n^((l)), w) }
+$
+onde, para simplificar a notação, nós escrevemos $mu_(n j) = mu_j (x_n,phi)$ e $sigma_(n j) = sigma_j (x_n,phi)$ e $z_n^((l)) = mu(x_n,phi) + sigma(x_n,phi) dot epsilon^((l))$.
+
+#figure(
+  image("images/autoencoder-structure-with-reparametrization.png"),
+  caption: [
+    Esquema de como o erro se espalha no autoencoder após o truque da reparametrização. Como a amostragem não depende mais de $phi$, o gradiente pode ser propagado através do processo de amostragem.
+  ]
+)
+
+#figure(
+  pseudocode-list(
+    booktabs: true,
+    title: [
+      Treinamento do VAE
+    ]
+  )[
+    + *function* _train_VAE_($D$, $w$, $phi$) {
+      + *for* $x_n in D$ {
+        + $cal(L) <- 0$
+        + *for* $j in {1, 2, ..., M}$ {
+          + $epsilon_(n j) ~ N(0,1)$
+          + $z_(n j) <- mu_(n j) + sigma_(n j) dot epsilon_(n j)$
+          + $cal(L) <- cal(L) + 1/2 (1 + ln sigma_(n j)^2 - sigma_(n j)^2 - mu_(n j)^2)$
+        + }
+        + $cal(L) <- cal(L) + ln p(x_n|z_n, w)$
+        + $w <- w - eta * gradient_w cal(L)$
+        + $phi <- phi - eta * gradient_phi cal(L)$
+    + }
+  ]
+)
 
 #pagebreak()
 
