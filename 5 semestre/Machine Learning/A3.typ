@@ -200,6 +200,136 @@ $
   tilde(J) = sum_(n=1)^N sum_(k=1)^K r_(n k) cal(V)(x_n, mu_k)
 $
 
+
+#pagebreak()
+
+#align(center + horizon)[
+  = Principal Component Analysis
+]
+
+#pagebreak()
+
+== Introdução
+Nós que trabalhamos com análise de dados, muitas vezes nos deparamos com datasets assustadores, com muitas dimensões, o que acaba dificultando nossa capacidade de fazer análises e visualizações. Visando solucionar esse nosso problema, é que o PCA entra em cena. Ele é um método de redução de dimensionalidade que busca encontrar uma representação mais compacta dos dados, preservando ao máximo a variância dos dados originais. O PCA é amplamente utilizado em diversas áreas, como reconhecimento de padrões, compressão de imagens e análise exploratória de dados.
+
+== Definições
+O PCA pode ser interpretado como duas definições distintas que dão origem ao mesmo resultado
+
+- Projeção ortogonal dos dados em um espaço de menor dimensão (Subespaço Principal) de forma que a variância dos dados seja maximizada
+
+- Projeção Linear que minimiza o custo médio de projeção
+
+Antes de entrarmos em detalhes sobre essas definições, vamos colocar algumas definições úteis que, nós já sabemos, mas refrescar a nossa memória nunca é demais
+
+#definition("Projetar sobre um subespaço")[
+  Dado um ponto $x in RR^D$, sua projeção ortogonal no subespaço é o ponto $hat(x)$ nesse subespaço mais próximo de $x$. Como consequência, temos que
+  $
+    (x - hat(x))^T u = 0
+  $
+  onde é um vetor qualquer no subespaço
+]
+
+#theorem("Projeção ortogonal")[
+  Seja $X$ uma matriz $RR times RR$, a projeção do vetor $y$ no espaço coluna de $X$ é dada por:
+  $
+    hat(y) = X(X^T X)^(-1)X^T y
+  $
+  se $X$ é ortogonal, então
+  $
+    hat(y) = X X^T y
+  $
+]
+
+#theorem("Coeficientes de Base")[
+  Seja ${q_1,...,q_D}$ uma base ortogonal do $RR^D$ e $x in RR^D$ tal que
+  $
+    x = sum_(i=1)^D alpha_i q_i
+  $
+  então temos que
+  $
+    Q x = mat(alpha_1, ..., alpha_D)^T
+  $
+  onde $Q$ é a matriz cujas colunas são os vetores da base.
+]<base-coefficients>
+
+
+== Máxima Variância
+Seja $X in RR^(N times D)$ onde $x_i^T$ é a $i$-ésima linha de $X$, queremos projetar $X$ em um subespaço $RR^M$ com $M<D$ enquanto maximizamos a variância dos dados projetados.
+
+Supondo que $M=1$, pegamos $u_1 in RR^D$ tal que $u_1^T u_1 = 1$ então pegamos quanto de $u_1$ compõe o vetor $x_i$ com $u_1^T x_i$ (@base-coefficients). Vamos definir a média dos dados projetados como
+$
+  u_1^T overline(x) = frac(1, N) sum_(i=1)^N u_1^T x_i
+$
+
+e também definimos a variância deles como
+$
+  u_1^T S u_1 = frac(1, N) sum_(i=1)^N (u_1^T x_i - u_1^T overline(x))^2
+$
+
+e
+$
+  S = 1/N sum_(n=1)^N (x_n - overline(x))(x_n - overline(x))^T
+$
+
+Agora, queremos maximizar $u_1^T S u_1$ com respeito a $u_1$  com a restrição de $u_1^T u_1 = 1$. Antes de fazermos isso mesmo, a lógica desse processo é que queremos entender qual a direção do espaço que mais contribui com a variância dos dados, ou seja, qual a direção que mais "espalha" os dados. Para isso, vamos utilizar o método de multiplicadores de Lagrange para maximizar $u_1^T S u_1$ com a restrição de $u_1^T u_1 = 1$. Definimos a função lagrangiana como:
+$
+  cal(L)(u_1, lambda) = u_1^T S u_1 - lambda (u_1^T u_1 - 1)
+$
+
+Realizando as contas necessárias, chegamos que
+$
+  S u_1 = lambda u_1
+$
+
+Ou seja, a direção que mais contribui com a variância dos dados é o autovetor de $S$ correspondente ao maior autovalor. Esse autovetor é chamado de _primeira componente principal_. Sabendo disso, podemos utilizar de *indução forte* para mostrar que a segunda componente principal é o autovetor de $S$ correspondente ao segundo maior autovalor, e assim por diante. Dessa forma, as $M$ primeiras componentes principais são os $M$ autovetores de $S$ correspondentes aos $M$ maiores autovalores.
+
+== Minimzando o Erro de Projeção
+Pegamos um set ${u_1, u_2, ..., u_D}$ de vetores otornomais em $RR^D$. Pelo @base-coefficients, sabemos que
+$
+  x_n = sum_(i=1)^D (x_n^T u_i) u_i
+$
+
+Porém, queremos aproximar $x_n$ usando um conjunto de só $M<D$ variáveis. Escrevemos então:
+$
+  hat(x)_n = sum_(i=1)^M underbrace(z_(n i), "Depende de" x_n) u_i + sum_(i=M+1)^D underbrace(b_i, "Constante em" x_n) u_i
+$
+
+E queremos então minimizar
+$
+  J = 1/N sum_(n=1)^N || x_n - hat(x)_n ||^2
+$
+
+Derivando essa função de custo com relação a $z_(n i)$ e $b_i$ e igualando a zero e usando das condições de ortogonalidade, chegamos que
+$
+  z_(n i) = x_n^T u_i
+$
+$
+  b_i = overline(x)^T u_i
+$
+
+substituindo, obtemos então:
+$
+  x_n - hat(x)_n = sum_(i=M+1)^D {(x_n^T - overline(x)^T)u_i} u_i
+$
+
+com isso, conseguimos achar uma fórmula para $J$
+$
+  J = 1/N sum_(n=1)^N sum_(i=M+1)^D {(x_n^T - overline(x)^T)u_i}^2 = sum_(i=M+1)^D u_i^T S u_i
+$
+
+Agora, só nos falta otimizar $J$ com relação à $u_i$ e aplicar a otimização com as condições de ortogonalidade. Vamos primeiro considerar o caso $M=1$, temos que a função de lagrange é dada por
+$
+  cal(L)(u_1, lambda) = sum_(i=2)^D u_i^T S u_i - sum_(i=2)^D lambda_i (u_i^T u_i - 1)
+$
+
+derivando essa função e aplicando as regras de otimização restrita, chegamos que
+$
+  S u_i = lambda_i u_i
+$
+
+Novamente, chegamos na conclusão de que os autovetores de $S$ são as direções que minimizam o erro de projeção. E, novamente, podemos utilizar de indução forte para mostrar que os autovetores correspondentes aos maiores autovalores são as direções que minimizam o erro de projeção.
+
+
 #pagebreak()
 
 #align(center + horizon)[
