@@ -228,6 +228,20 @@ Antes de irmos de fato para as arquiteturas, temos que definir um conceito usado
 )
 
 
+== Blocos Residuais
+Normalmente, redes neurais são straight-to-the-point, nós temos a entrada $x$ e a partir disso a rede modela uma função complexa $F$ tal que
+$
+  y = F(x)
+$
+
+no entanto, pode existir casos em que $y$ é MUITO parecido com $x$ com leves ajustes, e isso, surpreendentemente, pode dificultar muito o aprendizado da rede. Para consertar isso, os chamados *blocos residuais* foram introduzidos, de forma que a rede não aprende a relação direta entre $x$ e $y$, mas sim a *diferença* entre eles (o quão diferente $y$ é de $x$), ou seja, a rede aprende uma função $F$ tal que
+$
+  y = F(x) + x
+$
+
+O principal motivo dessa abordagem é o *gradiente no backpropagation*. Em redes comuns de deep-learning, o gradiente pode se tornar muito pequeno (ou até mesmo zero) à medida que é propagado para trás, dificultando o aprendizado. Com os blocos residuais, o gradiente pode fluir diretamente através da conexão de atalho, permitindo que a rede aprenda mais facilmente.
+
+
 == Arquiteturas
 === SegNet
 A SegNet é uma arquitetura de rede neural convolucional projetada para segmentação semântica. Ela segue a arquitetura padrão que já demonstramos utilizando do método de max unpooling para realizar upscaling
@@ -241,9 +255,21 @@ A SegNet é uma arquitetura de rede neural convolucional projetada para segmenta
 Já na U-Net, a arquitetura é um pouco diferente, ela utiliza *skip connections* para conectar as camadas de downsampling com as camadas de upsampling, permitindo que a rede utilize informações de diferentes níveis de abstração para melhorar a segmentação.
 
 #figure(
-  image("images/unet.png", width: 100%),
+  image("images/unet.png", width: 80%),
   caption: "Arquitetura da U-Net"
 )
 
 Nas camadas de upsampling, a U-Net utiliza *transpose convolution* para aumentar a dimensionalidade das features unida com um *aumento* nos canais das features. Após o transpose convolution, a U-Net concatena as features da camada correspondente de downsampling, permitindo que a rede utilize informações de diferentes níveis de abstração para melhorar a segmentação, como se ela falasse: "depois de reconstruir a imagem, eu obtive o seguinte mapa de feature, mas lá atrás antes de eu ter feito o downsampling, eu tinha obtido o seguinte mapa de feature, então vou juntar os dois para melhorar a segmentação" (por exemplo, se eu tenho uma imagem 32x32 na escala de cinza, com apenas um canal de cor, na hora do último upsampling, a camada logo após a transpose convolution terá 2 canais "de cor", que seria o mapa obtido pela rede anteriormente e o mapa obtido na camada de upsampling).
 
+=== ResUNet
+Na ResUNet, a arquitetura é uma combinação da U-Net com blocos residuais, permitindo que a rede aprenda a diferença entre as features de downsampling e upsampling, melhorando ainda mais a segmentação.
+
+#figure(
+  image("images/resunet-architecture.png", width: 50%),
+  caption: "Arquitetura da ResUNet"
+)
+
+#figure(
+  image("images/resunet.png", width: 74%),
+  caption: "(a) Bloco padrão da UNet. (b) Bloco residual da ResUNet"
+),
