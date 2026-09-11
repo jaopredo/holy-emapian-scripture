@@ -695,7 +695,7 @@ Até o momento, falamos das operações em matrizes bidimensionais ($2$ valores)
 
 No entanto, essa feature map que formamos, é capaz de detectar apenas um certo padrão de formatos. Por exemplo, ela só pode detectar olhos, mas não pode detectar narizes. Para resolver esse problema, podemos utilizar múltiplos filtros, cada um capaz de detectar um padrão diferente. Dessa forma, dado uma imagem de tamanho $H times W times C$, o filtro agora terá tamanho $M times M times C times C_"OUT"$ onde $C_"OUT"$ é a quantidade de feature maps resultantes. Cada feature map possui seu próprio bias, dessa forma, o número total de parâmetros do modelo será $C_"OUT" (M^2 C + 1)$.
 
-== Pooling
+=== Pooling
 Nós vimos anteriormente como obter equivariância à translação, porém, em certas aplicações, queremos que a mesma imagem, mesmo que transladada, seja classificada da mesma forma. Para isso, podemos utilizar uma operação chamada *pooling*, que é uma operação de downsampling que reduz a dimensionalidade da feature map, mantendo as informações mais importantes. Existem diferentes tipos de pooling, como *max pooling*, *average pooling* e *global pooling*.
 
 #figure(
